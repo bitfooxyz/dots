@@ -1,0 +1,22 @@
+[project]
+name = "dots"
+version = "0.1.0"
+description = "Dotfiles Configuration and Dependency Management"
+authors = [
+    { name = "Daniel von Eßen", email = "daniel@bitfoo.xyz" }
+]
+dependencies = [
+    "ansible>=9.6.0",
+    "ansible-lint>=24.5.0",
+    "ansible-creator>=24.5.0",
+    "ansible-dev-environment>=24.4.3",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[tool.rye]
+managed = true
+virtual = true
+dev-dependencies = []
+[tool.rye.scripts]
+  changelog="git-cliff -o CHANGELOG.md"
