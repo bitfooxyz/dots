@@ -1,3 +1,4 @@
 logs/
 # https://github.com/ansible/vscode-ansible/issues/900
 .vscode/settings.json
+.*venv
