@@ -1,0 +1,4 @@
+---
+- name: Import xdg_dirs role
+  ansible.builtin.import_role:
+    name: bitfoo.home.xdg_dirs
