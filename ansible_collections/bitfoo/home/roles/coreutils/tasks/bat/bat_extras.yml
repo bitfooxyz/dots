@@ -1,0 +1,86 @@
+# code: language=ansible
+- name: BAT | Install dependency packages on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_bat_extras_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+
+- name: BAT | Install dependency packages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_bat_extras_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: BAT-EXTRAS | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/eth-p/bat-extras/releases/latest
+  register: bat_extras_latest_release_json
+  check_mode: false
+
+- name: BAT-EXTRAS | Get current installed version
+  ansible.builtin.command:
+    cmd: batman --version
+  register: bat_extras_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: BAT-EXTRAS | Register latest and current release version
+  ansible.builtin.set_fact:
+    bat_extras_latest_version: "{{ bat_extras_latest_release_json.json.tag_name.split('v')[1] }}"
+    bat_extras_current_version: "{{ bat_extras_current_version_cmd.stdout_lines[0] | default('') | split(' ') | last | default(' ') }}"
+
+- name: BAT-EXTRAS | Latest release version
+  ansible.builtin.debug:
+    var: bat_extras_latest_version
+
+- name: BAT-EXTRAS | Current installed version
+  ansible.builtin.debug:
+    var: bat_extras_current_version
+
+- name: BAT-EXTRAS | Install or Upgrade bat
+  when: bat_extras_current_version != bat_extras_latest_version
+  block:
+    - name: BAT-EXTRAS | Create tmp directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: bat_extras_
+      register: bat_extras_tmp_dir
+      check_mode: false
+
+    - name: BAT-EXTRAS | Set release full name
+      ansible.builtin.set_fact:
+        bat_extras_full_release_name: "bat-extras-{{ bat_extras_latest_version }}"
+
+    - name: BAT-EXTRAS | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/eth-p/bat-extras/releases/download/v{{ bat_extras_latest_version }}/{{ bat_extras_full_release_name }}.zip"
+        dest: "{{ bat_extras_tmp_dir.path }}"
+        mode: "0660"
+      register: bat_extras_downloaded_release
+
+    - name: BAT-EXTRAS | Extract downloaded release archive
+      ansible.builtin.unarchive:
+        src: "{{ bat_extras_downloaded_release.dest }}"
+        dest: "{{ bat_extras_tmp_dir.path }}"
+        mode: "0640"
+      register: bat_extras_unarchived_release
+
+    - name: BAT-EXTRAS | Copy binary to ~/.local/bin
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ xdg_dirs_local_bin }}/"
+        mode: "0550"
+      loop: "{{ query('fileglob', bat_extras_unarchived_release.dest + '/bin/*') }}"
+
+    - name: BAT-EXTRAS | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ xdg_dirs_local_share_man }}/"
+        mode: "0440"
+      loop: "{{ query('fileglob', bat_extras_unarchived_release.dest + '/man/*') }}"
+  # always:
+  #   - name: BAT | Ensure tmp directory is absent
+  #     ansible.builtin.file:
+  #       dest: "{{ bat_extras_tmp_dir.path }}"
+  #       state: absent

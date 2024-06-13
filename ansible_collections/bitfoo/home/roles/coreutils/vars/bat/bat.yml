@@ -1,0 +1,19 @@
+coreutils_bat_linux_dep_packages:
+  - tar
+
+coreutils_bat_macos_dep_packages:
+  - gnu-tar
+
+coreutils_bat_packages:
+  - less
+
+coreutils_bat_extras_packages:
+  - man-db
+  - unzip
+
+coreutils_bat_os_arch:
+  Darwin:
+    arm64: x86_64-apple-darwin
+  Linux:
+    x86_64: x86_64-unknown-linux-gnu
+    aarch64: aarch64-unknown-linux-gnu

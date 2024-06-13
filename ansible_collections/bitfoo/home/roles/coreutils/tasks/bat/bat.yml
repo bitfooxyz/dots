@@ -1,0 +1,86 @@
+- name: BAT | Install dependency packages on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_bat_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+
+- name: BAT | Install dependency packages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_bat_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: BAT | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/sharkdp/bat/releases/latest
+  register: bat_latest_release_json
+  check_mode: false
+
+- name: BAT | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/bat --version"
+  register: bat_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: BAT | Register latest release version
+  ansible.builtin.set_fact:
+    bat_latest_version: "{{ bat_latest_release_json.json.tag_name.split('v')[1] }}"
+    bat_current_version: "{{ bat_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: BAT | Latest release version
+  ansible.builtin.debug:
+    var: bat_latest_version
+
+- name: BAT | Current installed version
+  ansible.builtin.debug:
+    var: bat_current_version
+
+- name: BAT | Install or Upgrade bat
+  when: bat_current_version != bat_latest_version
+  block:
+    - name: BAT | Create tmp directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: bat_
+      register: bat_tmp_dir
+      check_mode: false
+
+    - name: BAT | Set release full name
+      ansible.builtin.set_fact:
+        bat_full_release_name: "bat-v{{ bat_latest_version }}-{{ coreutils_bat_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: BAT | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/sharkdp/bat/releases/download/v{{ bat_latest_version }}/{{ bat_full_release_name }}.tar.gz"
+        dest: "{{ bat_tmp_dir.path }}"
+        mode: "0660"
+      register: bat_downloaded_release
+
+    - name: BAT | Extract downloaded release archive
+      ansible.builtin.unarchive:
+        src: "{{ bat_downloaded_release.dest }}"
+        dest: "{{ bat_tmp_dir.path }}"
+        mode: "0640"
+      register: bat_unarchived_release
+
+    - name: BAT | Copy binary to ~/.local/bin
+      ansible.builtin.copy:
+        src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/bat"
+        dest: "{{ xdg_dirs_local_bin }}/bat"
+        mode: "0550"
+
+    - name: BAT | Copy shell autocomplete files
+      ansible.builtin.copy:
+        src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/autocomplete/bat.{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_bat.{{ item }}"
+        mode: "0440"
+      loop:
+        - bash
+        - zsh
+  always:
+    - name: BAT | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ bat_tmp_dir.path }}"
+        state: absent

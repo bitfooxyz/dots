@@ -1,0 +1,33 @@
+# BAT tasks and vars
+- name: BAT | Include bat vars
+  ansible.builtin.include_vars:
+    file: bat/bat.yml
+  tags:
+    - bat
+    - bat_extras
+
+- name: BAT | Install tasks dependencies on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_bat_linux_dep_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: BAT | Install tasks dependencies on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_bat_macos_dep_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Darwin"
+
+- name: BAT | Import bat task
+  ansible.builtin.import_tasks:
+    file: bat/bat.yml
+  tags:
+    - bat
+
+- name: BAT-EXTRAS | Import bat-extras tasks
+  ansible.builtin.import_tasks:
+    file: bat/bat_extras.yml
+  tags:
+    - bat_extras

@@ -1,0 +1,8 @@
+# BAT tasks and vars
+- name: COREUTILS | Import bat tasks
+  ansible.builtin.import_tasks:
+    file: bat/main.yml
+  when: coreutils_enable_bat
+  tags:
+    - bat
+    - bat_extras
