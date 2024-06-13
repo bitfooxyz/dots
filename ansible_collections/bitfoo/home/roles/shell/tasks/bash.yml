@@ -1,0 +1,27 @@
+- name: BASH | Install bash on on Linux
+  ansible.builtin.package:
+    name: "{{ shell_bash_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: BASH | Install bash on on MacOS
+  community.general.homebrew:
+    name: "{{ shell_bash_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: BASH | Create configuration directories in $XDG_CONFIG_HOME
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0550"
+  loop:
+    - bash
+    - bash/completions
+
+- name: BASH | Copy bashrc to ~/.bashrc
+  ansible.builtin.copy:
+    src: "bash/bashrc"
+    dest: "{{ ansible_user_dir }}/.bashrc"
+    mode: "0440"

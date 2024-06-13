@@ -1,0 +1,25 @@
+- name: SHELL | Install packages on Linux
+  ansible.builtin.package:
+    name: "{{ shell_linux_packages }}"
+    state: present
+  become: true
+
+- name: SHELL | Copy shell profile to ~/.profile
+  ansible.builtin.copy:
+    src: profile
+    dest: "{{ ansible_user_dir }}/.profile"
+    mode: "0440"
+
+- name: SHELL | Include bash tasks
+  ansible.builtin.include_tasks:
+    file: bash.yml
+
+- name: SHELL | Include zsh tasks
+  ansible.builtin.include_tasks:
+    file: zsh.yml
+
+- name: SHELL | Ensure zsh is default shell
+  ansible.builtin.user:
+    name: "{{ ansible_user_id }}"
+    shell: /bin/zsh
+  become: true

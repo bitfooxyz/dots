@@ -7,3 +7,9 @@
         name: bitfoo.home.xdg_dirs
       tags:
         - always
+
+    - name: SHELL | Import role
+      ansible.builtin.include_role:
+        name: bitfoo.home.shell
+      tags:
+        - shell

@@ -1,0 +1,47 @@
+---
+- name: ZSH | Install zsh on Linux
+  ansible.builtin.package:
+    name: "{{ shell_zsh_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: ZSH | Install zsh on MacOS
+  community.general.homebrew:
+    name: "{{ shell_zsh_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: ZSH | Create configuration directories in $XDG_CONFIG_HOME
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0550"
+  loop:
+    - zsh
+    - zsh/completions
+    - zsh/plugins
+
+- name: ZSH | Copy zshenv to ~/.zshenv
+  ansible.builtin.copy:
+    src: zsh/zshenv
+    dest: "{{ ansible_user_dir }}/.zshenv"
+    mode: "0440"
+
+- name: ZSH | Copy zshrc to ~/.config/zsh/.zshrc
+  ansible.builtin.copy:
+    src: "zsh/zshrc"
+    dest: "{{ xdg_dirs_config }}/zsh/.zshrc"
+    mode: "0440"
+
+- name: ZSH | Copy configuration to $XDG_CONFIG_HOME/zsh
+  ansible.builtin.copy:
+    src: "zsh/{{ item }}"
+    dest: "{{ xdg_dirs_config }}/zsh/{{ item }}"
+    mode: "0440"
+  loop:
+    - aliases.zsh
+    - bindings.zsh
+    - exports.zsh
+    - options.zsh
+    - plugins.zsh
