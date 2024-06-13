@@ -1,25 +1,46 @@
 - name: SHELL | Install packages on Linux
   ansible.builtin.package:
-    name: "{{ shell_linux_packages }}"
+    name: "{{ shell_packages + shell_linux_packages }}"
     state: present
   become: true
+  when: ansible_system == "Linux"
+  tags:
+    - always
+
+- name: SHELL | Install packages on MacOS
+  ansible.builtin.package:
+    name: "{{ shell_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Darwin"
+  tags:
+    - always
 
 - name: SHELL | Copy shell profile to ~/.profile
   ansible.builtin.copy:
     src: profile
     dest: "{{ ansible_user_dir }}/.profile"
     mode: "0440"
+  tags:
+    - bash
+    - zsh
 
 - name: SHELL | Include bash tasks
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: bash.yml
+  tags:
+    - bash
 
 - name: SHELL | Include zsh tasks
-  ansible.builtin.include_tasks:
+  ansible.builtin.import_tasks:
     file: zsh.yml
+  tags:
+    - zsh
 
 - name: SHELL | Ensure zsh is default shell
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     shell: /bin/zsh
   become: true
+  tags:
+    - zsh
