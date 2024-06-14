@@ -1,0 +1,28 @@
+[core]
+    autocrlf = "input"
+    pager = "batdiff"
+
+[credential "https://git-codecommit.eu-central-1.amazonaws.com"]
+    helper = "!aws codecommit credential-helper $@"
+    useHttpPath = "true"
+
+[filter "lfs"]
+    clean = "git-lfs clean -- %f"
+    process = "git-lfs filter-process"
+    required = true
+    smudge = "git-lfs smudge -- %f"
+
+[help]
+    autoCorrect = 10
+
+[init]
+    defaultBranch = "main"
+
+[user]
+    email = "{{ coreutils_git_user_mail }}"
+    name = "{{ coreutils_git_user_name }}"
+
+{% for item in coreutils_git_include_if %}
+[includeIf "gitdir:{{ item.path }}"]
+    path = "{{ xdg_dirs_config }}/git/includes/{{ item.path | hash('sha1') }}.inc"
+{% endfor %}

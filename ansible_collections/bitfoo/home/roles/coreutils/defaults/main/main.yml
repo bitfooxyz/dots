@@ -1,0 +1,5 @@
+# Enable bat tasks
+coreutils_enable_bat: true
+
+# Enable git tasks
+coreutils_enable_git: true

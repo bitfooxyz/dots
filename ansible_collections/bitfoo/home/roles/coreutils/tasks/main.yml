@@ -1,3 +1,11 @@
+# GIT tasks and vars
+- name: COREUTILS | Import git tasks
+  ansible.builtin.import_tasks:
+    file: git/main.yml
+  when: coreutils_enable_git
+  tags:
+    - git
+
 # BAT tasks and vars
 - name: COREUTILS | Import bat tasks
   ansible.builtin.import_tasks:

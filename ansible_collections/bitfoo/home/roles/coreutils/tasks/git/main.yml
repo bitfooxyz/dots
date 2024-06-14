@@ -1,0 +1,42 @@
+- name: GIT | Import preflight checks
+  ansible.builtin.import_tasks:
+    file: git/preflight.yml
+
+- name: GIT | Install git on Linux
+  ansible.builtin.package:
+    name:
+      - git
+      - git-lfs
+    state: present
+  when: ansible_system == "Linux"
+  become: true
+
+- name: GIT | Install git on MacOS
+  community.general.homebrew:
+    name:
+      - git
+      - git-lfs
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: GIT | Create xdg configuration directories
+  ansible.builtin.file:
+    name: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0550"
+  loop:
+    - git
+    - git/includes
+
+- name: GIT | Create git configuration
+  ansible.builtin.template:
+    src: git/config.j2
+    dest: "{{ xdg_dirs_config }}/git/config"
+    mode: "0440"
+
+- name: GIT | Create git includes
+  ansible.builtin.template:
+    src: git/includes.j2
+    dest: "{{ xdg_dirs_config }}/git/includes/{{ item.path | hash('sha1') }}.inc"
+    mode: "0440"
+  loop: "{{ coreutils_git_include_if }}"
