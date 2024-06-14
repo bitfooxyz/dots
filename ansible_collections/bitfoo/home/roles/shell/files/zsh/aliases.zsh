@@ -18,7 +18,7 @@ alias t="tail -f"
 alias df="df -h"
 
 # Reload zshrc
-alias zre="source $XDG_CONFIG_HOME/.zshrc"
+alias zre="source $XDG_CONFIG_HOME/zsh/.zshrc"
 
 if command -v netstat &> /dev/null; then
     alias ports="netstat -tlpen"
