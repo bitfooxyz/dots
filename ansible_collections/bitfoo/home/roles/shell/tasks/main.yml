@@ -37,6 +37,13 @@
   tags:
     - zsh
 
+- name: SHELL | Import zsh plugins tasks
+  ansible.builtin.import_tasks:
+    file: zsh_plugins.yml
+  tags:
+    - zsh
+    - zsh_plugins
+
 - name: SHELL | Ensure zsh is default shell
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"

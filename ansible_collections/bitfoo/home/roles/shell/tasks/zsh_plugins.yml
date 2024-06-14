@@ -1,0 +1,45 @@
+- name: ZSH-PLUGINS | Clone zsh user plugins
+  ansible.builtin.git:
+    repo: https://github.com/zsh-users/{{ item }}.git
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/{{ item }}"
+    version: master
+    depth: 1
+  loop:
+    - zsh-completions
+    - zsh-autosuggestions
+    - zsh-syntax-highlighting
+    - zsh-history-substring-search
+
+- name: ZSH-PLUGINS | Create sudo plugin directory
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/sudo"
+    state: directory
+    mode: "0550"
+
+- name: ZSH-PLUGINS | Get zsh sudo plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/sudo/sudo.plugin.zsh"
+    mode: "0440"
+
+- name: ZSH-PLUGINS | Create powerlevel10k plugin directories
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/{{ item }}"
+    state: directory
+    mode: "0550"
+  loop:
+    - powerlevel10k
+    - powerlevel10k-config
+
+- name: ZSH-PLUGINS | Clone powerlevel10k plugin
+  ansible.builtin.git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/powerlevel10k"
+    version: master
+    depth: 1
+
+- name: ZSH-PLUGINS | Copy powerlevel10k-config
+  ansible.builtin.copy:
+    src: zsh/p10k.zsh
+    dest: "{{ xdg_dirs_config }}/zsh/plugins/powerlevel10k-config/p10k.zsh"
+    mode: "0440"

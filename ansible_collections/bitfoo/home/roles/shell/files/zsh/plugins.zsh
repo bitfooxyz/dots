@@ -41,15 +41,9 @@ fi
 if [[ -f "$HOME/.config/zsh/plugins/sudo/sudo.plugin.zsh" ]]; then
   source "$HOME/.config/zsh/plugins/sudo/sudo.plugin.zsh"
 fi
-if [[ -f "$HOME/.config/zsh/plugins/powerlevel10k/share/zsh-powerlevel10k/powerlevel10k.zsh-theme" ]]; then
-  source "$HOME/.config/zsh/plugins/powerlevel10k/share/zsh-powerlevel10k/powerlevel10k.zsh-theme"
+if [[ -f "$HOME/.config/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+  source "$HOME/.config/zsh/plugins/powerlevel10k/powerlevel10k.zsh-theme"
 fi
 if [[ -f "$HOME/.config/zsh/plugins/powerlevel10k-config/p10k.zsh" ]]; then
   source "$HOME/.config/zsh/plugins/powerlevel10k-config/p10k.zsh"
-fi
-
-if [[ -d $XDG_CONFIG_HOME/zsh/plugins ]]; then
-    for file in $(find $XDG_CONFIG_HOME/zsh/plugins -type f \( -iname "*.zsh" -or -iname "*.sh" \)); do
-        source $XDG_CONFIG_HOME/zsh/plugins/$file
-    done
 fi
