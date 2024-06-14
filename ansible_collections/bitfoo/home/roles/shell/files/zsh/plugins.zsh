@@ -47,3 +47,7 @@ fi
 if [[ -f "$HOME/.config/zsh/plugins/powerlevel10k-config/p10k.zsh" ]]; then
   source "$HOME/.config/zsh/plugins/powerlevel10k-config/p10k.zsh"
 fi
+
+if [ -f $HOME/.rye/env ]; then
+  source "$HOME/.rye/env"
+fi

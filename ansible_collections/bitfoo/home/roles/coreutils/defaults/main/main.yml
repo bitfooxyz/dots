@@ -1,5 +1,8 @@
+# Enable git tasks
+coreutils_enable_git: true
+
 # Enable bat tasks
 coreutils_enable_bat: true
 
-# Enable git tasks
-coreutils_enable_git: true
+# Enable rye tasks
+coreutils_enable_rye: true

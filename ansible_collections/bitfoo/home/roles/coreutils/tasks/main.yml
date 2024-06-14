@@ -14,3 +14,10 @@
   tags:
     - bat
     - bat_extras
+
+- name: COREUTILS | Import rye tasks
+  ansible.builtin.import_tasks:
+    file: rye/main.yml
+  when: coreutils_enable_rye
+  tags:
+    - rye

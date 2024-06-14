@@ -1,0 +1,87 @@
+- name: RYE | Include vars files
+  ansible.builtin.include_vars:
+    file: rye/rye.yml
+
+- name: RYE | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/astral-sh/rye/releases/latest
+  register: rye_latest_release_json
+  check_mode: false
+
+- name: RYE | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ ansible_user_dir }}/.rye/shims/rye --version"
+  register: rye_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: RYE | Register latest release version
+  ansible.builtin.set_fact:
+    rye_latest_version: "{{ rye_latest_release_json.json.tag_name }}"
+    rye_current_version: "{{ rye_current_version_cmd.stdout_lines[0] | default('') | split(' ') | last | default('') }}"
+
+- name: RYE | Latest release version
+  ansible.builtin.debug:
+    var: rye_latest_version
+
+- name: RYE | Current installed version
+  ansible.builtin.debug:
+    var: rye_current_version
+
+- name: RYE | Install
+  when:
+    - rye_current_version == ""
+  block:
+    - name: RYE | Create tmp directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: rye_
+      register: rye_tmp_dir
+      check_mode: false
+
+    - name: RYE | Set release full name
+      ansible.builtin.set_fact:
+        rye_full_release_name: "rye-{{ coreutils_rye_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: RYE | Get checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/astral-sh/rye/releases/download/{{ rye_latest_version }}/{{ rye_full_release_name }}.gz.sha256"
+        return_content: true
+      register: rye_release_checksum
+
+    - name: RYE | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/astral-sh/rye/releases/download/{{ rye_latest_version }}/{{ rye_full_release_name }}.gz"
+        dest: "{{ rye_tmp_dir.path }}"
+        mode: "0660"
+        checksum: "sha256:{{ rye_release_checksum.content }}"
+      register: rye_downloaded_release
+
+    - name: RYE | Extract downloaded release archive
+      ansible.builtin.command:
+        cmd: "gunzip {{ rye_downloaded_release.dest }}"
+        creates: "{{ rye_tmp_dir.path }}/{{ rye_full_release_name }}"
+
+    - name: RYE | Make binary executable
+      ansible.builtin.file:
+        path: "{{ rye_tmp_dir.path }}/{{ rye_full_release_name }}"
+        state: file
+        mode: "0550"
+
+    - name: RYE | Install rye
+      ansible.builtin.command:
+        cmd: "{{ rye_tmp_dir.path + '/' + rye_full_release_name }} self install --yes"
+        creates: "{{ ansible_user_dir }}/.rye/shims/rye"
+  always:
+    - name: RYE | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ rye_tmp_dir.path }}"
+        state: absent
+
+- name: RYE | Upgrade
+  ansible.builtin.command:
+    cmd: "{{ ansible_user_dir }}/.rye/shims/rye self update"
+  register: result
+  changed_when: "'Updated!' in result.stdout"
+  when: rye_current_version != rye_latest_version

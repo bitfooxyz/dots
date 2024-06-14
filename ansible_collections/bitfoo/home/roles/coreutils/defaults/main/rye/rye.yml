@@ -1,0 +1,7 @@
+# Extra sources configuration
+# See: https://rye.astral.sh/guide/sources/#ssltls-verification
+coreutils_rye_config_sources: []
+  # - name: "pypi"
+  #   url: "https://some.custom-url.com/foo/bar"
+  #   username: "foo"
+  #   password: "supersecure"
