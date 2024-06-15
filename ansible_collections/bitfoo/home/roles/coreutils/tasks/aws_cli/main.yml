@@ -1,0 +1,107 @@
+- name: AWS-CLI | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/aws/aws-cli/tags
+  register: aws_cli_latest_release_json
+  check_mode: false
+
+- name: AWS-CLI | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -o pipefail && {{ ansible_user_dir }}/.local/bin/aws --version | cut -d ' ' -f 1 | cut -d '/' -f 2"
+  register: aws_cli_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: AWS-CLI | Register latest release version
+  ansible.builtin.set_fact:
+    aws_cli_latest_version: "{{ aws_cli_latest_release_json.json[0].name }}"
+    aws_cli_current_version: "{{ aws_cli_current_version_cmd.stdout }}"
+
+- name: AWS-CLI | Latest release version
+  ansible.builtin.debug:
+    var: aws_cli_latest_version
+
+- name: AWS-CLI | Current installed version
+  ansible.builtin.debug:
+    var: aws_cli_current_version
+
+- name: AWS-CLI | Install
+  when:
+    - aws_cli_current_version == ""
+  block:
+    - name: AWS-CLI | Create tmp directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: aws_cli_
+      register: aws_cli_tmp_dir
+      check_mode: false
+
+    - name: AWS-CLI | Set release full name
+      ansible.builtin.set_fact:
+        aws_cli_full_release_name:
+          Linux: "awscli-exe-{{ ansible_system | lower }}-{{ ansible_architecture }}-{{ aws_cli_latest_version }}.zip"
+          Darwin: "AWSCLIV2-{{ aws_cli_latest_version }}.pkg"
+
+    - name: AWS-CLI | Download aws-cli
+      ansible.builtin.get_url:
+        url: "https://awscli.amazonaws.com/{{ aws_cli_full_release_name[ansible_system] }}"
+        dest: "{{ aws_cli_tmp_dir.path }}"
+        mode: "0660"
+      register: aws_cli_downloaded_release
+
+    - name: DEBUG
+      ansible.builtin.debug:
+        var: aws_cli_downloaded_release
+
+    - name: AWS-CLI | Linux specific tasks
+      when:
+        - not ansible_check_mode
+        - ansible_system == "Linux"
+      block:
+        - name: AWS-CLI | Extract downloaded release archive
+          ansible.builtin.unarchive:
+            src: "{{ aws_cli_downloaded_release.dest }}"
+            dest: "{{ aws_cli_tmp_dir.path }}/"
+            mode: "0660"
+
+        - name: AWS-CLI | Install or update aws-cli
+          ansible.builtin.command:
+            cmd: "{{ aws_cli_tmp_dir.path }}/aws/install --bin-dir {{ xdg_dirs_local_bin }} \
+                  --install-dir {{ xdg_dirs_local_share }}/aws-cli --update"
+            creates: "{{ xdg_dirs_local_bin }}/aws"
+          register: aws_cli_install_cmd
+          changed_when: '"You can now run" in aws_cli_install_cmd.stdout'
+
+    - name: AWS-CLI | MacOS specific tasks
+      when:
+        - not ansible_check_mode
+        - ansible_system == "Darwin"
+      block:
+        - name: AWS-CLI | Create choises.xml file
+          ansible.builtin.template:
+            src: aws_cli/choices.xml.j2
+            dest: "{{ aws_cli_tmp_dir.path }}/choices.xml"
+            mode: "0440"
+
+        - name: AWS-CLI | Install or update aws-cli
+          ansible.builtin.command:
+            cmd: "installer -pkg {{ aws_cli_tmp_dir.path }}/\
+                {{ aws_cli_full_release_name[ansible_system] }} \
+                -target CurrentUserHomeDirectory \
+                -applyChoiceChangesXML {{ aws_cli_tmp_dir.path }}/choices.xml"
+          register: aws_cli_install_cmd
+          changed_when: '"The install was successful" in aws_cli_install_cmd.stdout'
+
+        - name: Link tools to ~/.local/bin/
+          ansible.builtin.file:
+            src: "{{ xdg_dirs_local_share }}/aws-cli/{{ item }}"
+            dest: "{{ xdg_dirs_local_bin }}/{{ item }}"
+            state: link
+          loop:
+            - aws
+            - aws_completer
+  always:
+    - name: AWS-CLI | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ aws_cli_tmp_dir.path }}"
+        state: absent

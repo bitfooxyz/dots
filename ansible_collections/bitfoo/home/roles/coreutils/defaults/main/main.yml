@@ -6,3 +6,6 @@ coreutils_enable_bat: true
 
 # Enable rye tasks
 coreutils_enable_rye: true
+
+# Enable aws_cli tasks
+coreutils_enable_aws_cli: true
