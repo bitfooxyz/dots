@@ -49,6 +49,7 @@
         url: "https://github.com/astral-sh/rye/releases/download/{{ rye_latest_version }}/{{ rye_full_release_name }}.gz.sha256"
         return_content: true
       register: rye_release_checksum
+      check_mode: false
 
     - name: RYE | Download latest release
       ansible.builtin.get_url:
@@ -68,11 +69,13 @@
         path: "{{ rye_tmp_dir.path }}/{{ rye_full_release_name }}"
         state: file
         mode: "0550"
+      when: not ansible_check_mode
 
     - name: RYE | Install rye
       ansible.builtin.command:
         cmd: "{{ rye_tmp_dir.path + '/' + rye_full_release_name }} self install --yes"
         creates: "{{ ansible_user_dir }}/.rye/shims/rye"
+      register: rye_install_cmd
   always:
     - name: RYE | Ensure tmp directory is absent
       ansible.builtin.file:
@@ -82,18 +85,40 @@
 - name: RYE | Upgrade
   ansible.builtin.command:
     cmd: "{{ ansible_user_dir }}/.rye/shims/rye self update"
-  register: result
-  changed_when: "'Updated!' in result.stdout"
+  register: rye_update_cmd
+  changed_when: "'Updated!' in rye_update_cmd.stdout"
   when: rye_current_version != rye_latest_version
+
+- name: RYE | Get shell completion
+  ansible.builtin.command:
+    cmd: "{{ ansible_user_dir }}/.rye/shims/rye self completion --shell {{ item }}"
+  register: rye_completion_cmd
+  changed_when: false
+  loop:
+    - zsh
+    - bash
+  when:
+    - rye_install_cmd.changed or rye_update_cmd.changed | bool
+
+- name: RYE | Copy completion
+  ansible.builtin.copy:
+    content: "{{ item.stdout }}"
+    dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_rye.{{ item.item }}"
+    mode: "0440"
+  when:
+    - rye_install_cmd.changed or rye_update_cmd.changed | bool
+  loop: "{{ rye_completion_cmd.results }}"
 
 - name: RYE | Create config.toml
   ansible.builtin.template:
     src: rye/config.toml.j2
     dest: "{{ ansible_user_dir }}/.rye/config.toml"
     mode: "0400"
+  no_log: true
 
 - name: EYE | Create credentials file to store publish tokens
   ansible.builtin.template:
     src: rye/credentials.j2
     dest: "{{ ansible_user_dir }}/.rye/credentials"
     mode: "0400"
+  no_log: true
