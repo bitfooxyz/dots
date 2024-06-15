@@ -5,3 +5,11 @@ coreutils_rye_config_sources: []
   #   url: "https://some.custom-url.com/foo/bar"
   #   username: "foo"
   #   password: "supersecure"
+
+# Credentials file for publish command
+# See: https://rye.astral.sh/guide/publish/#publish
+coreutils_rye_publish_credentials: []
+  # - repository: "test-repository"
+  #   repository-url: "https://some.custom-url.com/foo/bar"
+  #   username: "foo"
+  #   token: "supersecrettoken"

@@ -85,3 +85,15 @@
   register: result
   changed_when: "'Updated!' in result.stdout"
   when: rye_current_version != rye_latest_version
+
+- name: RYE | Create config.toml
+  ansible.builtin.template:
+    src: rye/config.toml.j2
+    dest: "{{ ansible_user_dir }}/.rye/config.toml"
+    mode: "0400"
+
+- name: EYE | Create credentials file to store publish tokens
+  ansible.builtin.template:
+    src: rye/credentials.j2
+    dest: "{{ ansible_user_dir }}/.rye/credentials"
+    mode: "0400"
