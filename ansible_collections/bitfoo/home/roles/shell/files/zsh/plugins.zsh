@@ -51,3 +51,8 @@ fi
 if [ -f $HOME/.rye/env ]; then
   source "$HOME/.rye/env"
 fi
+
+if command -v aws_completer &> /dev/null; then
+  autoload bashcompinit && bashcompinit
+  complete -C 'aws_completer' aws
+fi

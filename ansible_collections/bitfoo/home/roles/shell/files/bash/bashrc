@@ -40,6 +40,11 @@ if [[ -d $XDG_CONFIG_HOME/bash/completions ]]; then
   done
 fi
 
+# Enable aws cli completions
+if command -v aws_completer &> /dev/null; then
+  complete -C aws_completer aws
+fi
+
 # TODO
 #if command -v fzf &> /dev/null; then
 #  if [[ :$SHELLOPTS: =~ :(vi|emacs): ]]; then
