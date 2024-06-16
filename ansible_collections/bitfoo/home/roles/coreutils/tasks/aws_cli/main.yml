@@ -49,10 +49,6 @@
         mode: "0660"
       register: aws_cli_downloaded_release
 
-    - name: DEBUG
-      ansible.builtin.debug:
-        var: aws_cli_downloaded_release
-
     - name: AWS-CLI | Linux specific tasks
       when:
         - not ansible_check_mode
@@ -63,6 +59,13 @@
             src: "{{ aws_cli_downloaded_release.dest }}"
             dest: "{{ aws_cli_tmp_dir.path }}/"
             mode: "0660"
+          no_log: true
+
+        - name: AWS-CLI | Make install script executable
+          ansible.builtin.file:
+            path: "{{ aws_cli_tmp_dir.path }}/aws/install"
+            state: file
+            mode: "0550"
 
         - name: AWS-CLI | Install or update aws-cli
           ansible.builtin.command:
@@ -71,6 +74,15 @@
             creates: "{{ xdg_dirs_local_bin }}/aws"
           register: aws_cli_install_cmd
           changed_when: '"You can now run" in aws_cli_install_cmd.stdout'
+
+        - name: AWS-CLI | Ensure aws and aws_completer scripts are executable
+          ansible.builtin.file:
+            path: "{{ xdg_dirs_local_bin }}/{{ item }}"
+            state: link
+            mode: "0550"
+          loop:
+            - aws
+            - aws_completer
 
     - name: AWS-CLI | MacOS specific tasks
       when:
@@ -96,6 +108,7 @@
           ansible.builtin.file:
             src: "{{ xdg_dirs_local_share }}/aws-cli/{{ item }}"
             dest: "{{ xdg_dirs_local_bin }}/{{ item }}"
+            mode: "0550"
             state: link
           loop:
             - aws
@@ -105,3 +118,4 @@
       ansible.builtin.file:
         dest: "{{ aws_cli_tmp_dir.path }}"
         state: absent
+      no_log: true
