@@ -1,0 +1,76 @@
+- name: TEALDEER  | Include tealdeer vars
+  ansible.builtin.include_vars:
+    file: tealdeer/main.yml
+  tags:
+    - always
+
+- name: TEALDEER | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/dbrgn/tealdeer/releases/latest
+  register: tealdeer_latest_release_json
+  check_mode: false
+
+- name: TEALDEER | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/tealdeer --version"
+  register: tealdeer_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: TEALDEER | Register latest release version
+  ansible.builtin.set_fact:
+    tealdeer_latest_version: "{{ tealdeer_latest_release_json.json.tag_name.split('v')[1] }}"
+    tealdeer_current_version: "{{ tealdeer_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: TEALDEER | Latest release version
+  ansible.builtin.debug:
+    var: tealdeer_latest_version
+
+- name: TEALDEER | Current installed version
+  ansible.builtin.debug:
+    var: tealdeer_current_version
+
+- name: TEALDEER | Install or Upgrade tealdeer
+  when:
+    - tealdeer_current_version != tealdeer_latest_version or coreutils_force_tealdeer
+  block:
+    - name: TEALDEER | Set release full name
+      ansible.builtin.set_fact:
+        tealdeer_full_release_name: "tealdeer-{{ coreutils_tealdeer_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: TEALDEER | Get checksum
+      ansible.builtin.uri:
+        url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/{{ tealdeer_full_release_name }}.sha256"
+        return_content: true
+      register: tealdeer_checksum
+      check_mode: false
+
+    - name: TEALDEER | Get latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/{{ tealdeer_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/tldr"
+        mode: "0550"
+        checksum: "sha256:{{ tealdeer_checksum.content.split(' ')[0] }}"
+      register: tealdeer_downloaded_release
+
+    - name: TEALDEER | Get shell completion
+      ansible.builtin.get_url:
+        url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/completions_{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_tldr.{{ item }}"
+        mode: "0440"
+      loop:
+        - bash
+        - zsh
+
+- name: TEALDEER | Create config directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/tealdeer"
+    state: directory
+    mode: "0550"
+
+- name: TEALDEER | Copy configuration file
+  ansible.builtin.copy:
+    src: tealdeer/config.toml
+    dest: "{{ xdg_dirs_config }}/tealdeer/config.toml"
+    mode: "0440"

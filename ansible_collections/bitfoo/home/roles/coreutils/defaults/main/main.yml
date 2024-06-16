@@ -9,3 +9,7 @@ coreutils_enable_rye: true
 
 # Enable aws_cli tasks
 coreutils_enable_aws_cli: true
+
+# Enable tealdeer tasks
+coreutils_enable_tealdeer: true
+coreutils_force_tealdeer: false

@@ -1,0 +1,6 @@
+coreutils_tealdeer_os_arch:
+  Darwin:
+    arm64: macos-x86_64
+  Linux:
+    x86_64: linux-x86_64-musl
+    aarch64: linux-x86_64-musl

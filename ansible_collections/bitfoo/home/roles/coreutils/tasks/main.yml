@@ -1,3 +1,13 @@
+#- name: COREUTILS | Include os independent variables
+#  ansible.builtin.include_vars: main.yml
+#  tags:
+#    - always
+#
+#- name: COREUTILS | Import coreutils tasks
+#  ansible.builtin.import_tasks: coreutils.yml
+#  tags:
+#    - coreutils
+
 # GIT tasks and vars
 - name: COREUTILS | Import git tasks
   ansible.builtin.import_tasks:
@@ -28,3 +38,10 @@
   when: coreutils_enable_aws_cli
   tags:
     - aws_cli
+
+- name: COREUTILS | Import tealdeer tasks
+  ansible.builtin.import_tasks:
+    file: tealdeer/main.yml
+  when: coreutils_enable_tealdeer
+  tags:
+    - tealdeer
