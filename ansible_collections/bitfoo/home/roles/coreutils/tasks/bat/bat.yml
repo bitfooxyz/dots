@@ -38,7 +38,7 @@
     var: bat_current_version
 
 - name: BAT | Install or Upgrade bat
-  when: bat_current_version != bat_latest_version
+  when: bat_current_version != bat_latest_version or coreutils_force_bat
   block:
     - name: BAT | Create tmp directory
       ansible.builtin.tempfile:

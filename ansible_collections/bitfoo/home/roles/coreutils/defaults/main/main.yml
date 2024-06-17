@@ -3,6 +3,7 @@ coreutils_enable_git: true
 
 # Enable bat tasks
 coreutils_enable_bat: true
+coreutils_force_bat: true
 
 # Enable rye tasks
 coreutils_enable_rye: true

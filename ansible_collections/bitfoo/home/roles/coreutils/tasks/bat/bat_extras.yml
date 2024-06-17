@@ -39,7 +39,7 @@
     var: bat_extras_current_version
 
 - name: BAT-EXTRAS | Install or Upgrade bat
-  when: bat_extras_current_version != bat_extras_latest_version
+  when: bat_extras_current_version != bat_extras_latest_version or coreutils_force_bat
   block:
     - name: BAT-EXTRAS | Create tmp directory
       ansible.builtin.tempfile:
