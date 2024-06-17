@@ -79,6 +79,12 @@
       loop:
         - bash
         - zsh
+
+    - name: BAT | Copy manpage
+      ansible.builtin.copy:
+        src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/bat.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/bat.1"
+        mode: "0440"
   always:
     - name: BAT | Ensure tmp directory is absent
       ansible.builtin.file:
