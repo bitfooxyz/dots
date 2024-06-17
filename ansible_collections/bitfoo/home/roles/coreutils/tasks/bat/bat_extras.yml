@@ -83,3 +83,4 @@
       ansible.builtin.file:
         dest: "{{ bat_extras_tmp_dir.path }}"
         state: absent
+      no_log: true
