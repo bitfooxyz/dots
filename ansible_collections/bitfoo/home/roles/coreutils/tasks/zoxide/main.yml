@@ -1,0 +1,88 @@
+- name: ZOXIDE | Include zoxide vars
+  ansible.builtin.include_vars:
+    file: zoxide/main.yml
+  tags:
+    - always
+
+- name: ZOXIDE | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest
+  register: zoxide_latest_release_json
+  check_mode: false
+
+- name: ZOXIDE | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/zoxide --version"
+  register: zoxide_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: ZOXIDE | Register latest release version
+  ansible.builtin.set_fact:
+    zoxide_latest_version: "{{ zoxide_latest_release_json.json.tag_name.split('v')[1] }}"
+    zoxide_current_version: "{{ zoxide_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: ZOXIDE | Latest release version
+  ansible.builtin.debug:
+    var: zoxide_latest_version
+
+- name: ZOXIDE | Current installed version
+  ansible.builtin.debug:
+    var: zoxide_current_version
+
+- name: ZOXIDE | Install or Upgrade zoxide
+  when:
+    - zoxide_current_version != zoxide_latest_version or coreutils_force_zoxide
+  block:
+    - name: ZOXIDE | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: zoxide_
+        state: directory
+      register: zoxide_tmp_dir
+      check_mode: false
+
+    - name: ZOXIDE | Set release full name
+      ansible.builtin.set_fact:
+        zoxide_full_release_name: "zoxide-{{ zoxide_latest_version }}-{{ coreutils_zoxide_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: ZOXIDE | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/ajeetdsouza/zoxide/releases/download/v{{ zoxide_latest_version }}/{{ zoxide_full_release_name }}.tar.gz"
+        dest: "{{ zoxide_tmp_dir.path }}"
+        mode: "0640"
+      register: zoxide_downloaded_release
+
+    - name: ZOXIDE | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ zoxide_downloaded_release.dest }}"
+        dest: "{{ zoxide_tmp_dir.path }}"
+      register: zoxide_unarchived_release
+      when: not ansible_check_mode
+
+    - name: ZOXIDE | Copy zoxide binary
+      ansible.builtin.copy:
+        src: "{{ zoxide_tmp_dir.path }}/zoxide"
+        dest: "{{ xdg_dirs_local_bin }}/zoxide"
+        mode: "0550"
+
+    - name: ZOXIDE | Copy shell completion
+      ansible.builtin.copy:
+        src: "{{ zoxide_tmp_dir.path }}/completions/{{ item.file }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_zoxide.{{ item.shell }}"
+        mode: "0440"
+      loop:
+        - {shell: bash, file: zoxide.bash}
+        - {shell: zsh, file: _zoxide}
+
+    - name: ZOXIDE | Copy man pages
+      ansible.builtin.copy:
+        src: "{{ zoxide_tmp_dir.path }}/man/man1"
+        dest: "{{ xdg_dirs_local_share_man }}"
+        mode: "0550"
+
+- name: ZOXIDE | Create config directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/zoxide"
+    state: directory
+    mode: "0550"

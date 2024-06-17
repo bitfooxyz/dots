@@ -1,13 +1,3 @@
-#- name: COREUTILS | Include os independent variables
-#  ansible.builtin.include_vars: main.yml
-#  tags:
-#    - always
-#
-#- name: COREUTILS | Import coreutils tasks
-#  ansible.builtin.import_tasks: coreutils.yml
-#  tags:
-#    - coreutils
-
 # GIT tasks and vars
 - name: COREUTILS | Import git tasks
   ansible.builtin.import_tasks:
@@ -45,3 +35,10 @@
   when: coreutils_enable_tealdeer
   tags:
     - tealdeer
+
+- name: COREUTILS | Import zoxide tasks
+  ansible.builtin.import_tasks:
+    file: zoxide/main.yml
+  when: coreutils_enable_tealdeer
+  tags:
+    - zoxide

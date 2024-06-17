@@ -13,3 +13,8 @@ coreutils_enable_aws_cli: true
 # Enable tealdeer tasks
 coreutils_enable_tealdeer: true
 coreutils_force_tealdeer: false
+
+# Enable zoxide tasks
+coreutils_enable_zoxide: true
+# Force installation regardles of it is already installed
+coreutils_force_zoxide: false
