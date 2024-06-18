@@ -10,6 +10,7 @@ coreutils_bat_packages:
 coreutils_bat_extras_packages:
   - man-db
   - unzip
+  - diffutils
 
 coreutils_bat_os_arch:
   Darwin:
