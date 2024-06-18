@@ -1,6 +1,6 @@
 - name: RYE | Include vars files
   ansible.builtin.include_vars:
-    file: rye/rye.yml
+    file: rye/main.yml
 
 - name: RYE | Get latest version
   ansible.builtin.uri:
