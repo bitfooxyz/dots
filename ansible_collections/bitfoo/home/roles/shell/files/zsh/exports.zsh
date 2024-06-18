@@ -59,8 +59,12 @@ fi
 
 # Set exports if fzf is installed
 if command -v fzf &> /dev/null; then
-    export FZF_DEFAULT_COMMAND="fd --type f"
-    export FZF_DEFAULT_OPTS="--preview '$HOME/.config/lf/preview.sh {}' --cycle --border=bold"
+    if command -v fd &> /dev/null; then
+        export FZF_DEFAULT_COMMAND="fd --type f"
+    fi
+    if [[ -r "$XDG_CONFIG_HOME/.config/lf/preview.sh" ]]; then
+        export FZF_DEFAULT_OPTS="--preview '$HOME/.config/lf/preview.sh {}' --cycle --border=bold"
+    fi
 fi
 
 # Set colors for jq output
