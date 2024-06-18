@@ -1,0 +1,100 @@
+- name: FZF | Include fzf vars
+  ansible.builtin.include_vars:
+    file: fzf/main.yml
+
+- name: FZF | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/junegunn/fzf/releases/latest
+  register: fzf_latest_release_json
+  check_mode: false
+
+- name: FZF | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/fzf --version"
+  register: fzf_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: FZF | Register latest release version
+  ansible.builtin.set_fact:
+    fzf_latest_version: "{{ fzf_latest_release_json.json.tag_name }}"
+    fzf_current_version: "{{ fzf_current_version_cmd.stdout.split(' ')[0] | default('') }}"
+
+- name: FZF | Latest release version
+  ansible.builtin.debug:
+    var: fzf_latest_version
+
+- name: FZF | Current installed version
+  ansible.builtin.debug:
+    var: fzf_current_version
+
+- name: FZF | Install or Upgrade fzf
+  when:
+    - fzf_current_version != fzf_latest_version or coreutils_force_fzf
+  block:
+    - name: FZF | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: fzf_
+        state: directory
+      register: fzf_tmp_dir
+      check_mode: false
+
+    - name: FZF | Set release full name
+      ansible.builtin.set_fact:
+        fzf_full_release_name: "fzf-{{ fzf_latest_version }}-{{ coreutils_fzf_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: FZF | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/junegunn/fzf/releases/download/{{ fzf_latest_version }}/fzf_{{ fzf_latest_version }}_checksums.txt"
+        return_content: true
+      register: fzf_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: FZF | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        fzf_file_checksum: "{{ fzf_checksums.content | regex_findall('.*' + fzf_full_release_name + '.*') | first | split(' ') | first }}"
+
+    - name: FZF | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/junegunn/fzf/releases/download/{{ fzf_latest_version }}/{{ fzf_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
+        dest: "{{ fzf_tmp_dir.path }}"
+        mode: "0640"
+        checksum: "sha256:{{ fzf_file_checksum }}"
+      register: fzf_downloaded_release
+
+    - name: FZF | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ fzf_downloaded_release.dest }}"
+        dest: "{{ fzf_tmp_dir.path }}"
+      register: fzf_unarchived_release
+      when: not ansible_check_mode
+
+    - name: FZF | Copy fzf binary
+      ansible.builtin.copy:
+        src: "{{ fzf_tmp_dir.path }}/fzf"
+        dest: "{{ xdg_dirs_local_bin }}/fzf"
+        mode: "0550"
+
+    - name: FZF | Download manpages
+      ansible.builtin.uri:
+        url: "https://raw.githubusercontent.com/junegunn/fzf/{{ fzf_latest_version }}/man/man1/{{ item }}"
+        return_content: true
+      register: fzf_manpages
+      loop:
+        - fzf.1
+        - fzf-tmux.1
+
+    - name: FZF | Copy manpages
+      ansible.builtin.copy:
+        content: "{{ item.content }}"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/{{ item.item }}"
+        mode: "0550"
+      loop: "{{ fzf_manpages.results }}"
+  always:
+    - name: FZF | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ fzf_tmp_dir.path }}"
+        state: absent
+      no_log: true

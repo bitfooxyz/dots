@@ -42,3 +42,10 @@
   when: coreutils_enable_tealdeer
   tags:
     - zoxide
+
+- name: COREUTILS | Import fzf tasks
+  ansible.builtin.import_tasks:
+    file: fzf/main.yml
+  when: coreutils_enable_tealdeer
+  tags:
+    - fzf
