@@ -1,7 +1,7 @@
 # BAT tasks and vars
 - name: BAT | Include bat vars
   ansible.builtin.include_vars:
-    file: bat/bat.yml
+    file: bat/main.yml
   tags:
     - bat
     - bat_extras
