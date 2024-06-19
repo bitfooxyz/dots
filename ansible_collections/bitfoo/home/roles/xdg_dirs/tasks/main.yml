@@ -30,4 +30,5 @@
     - "{{ xdg_dirs_local_bin }}"
     - "{{ xdg_dirs_local_share }}"
     - "{{ xdg_dirs_local_share_man }}"
+    - "{{ xdg_dirs_local_share_man }}/man1"
     - "{{ xdg_dirs_local_state }}"
