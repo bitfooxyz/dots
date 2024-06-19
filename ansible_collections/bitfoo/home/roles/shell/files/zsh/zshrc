@@ -10,10 +10,6 @@ zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f
 # Load colors into shell for colored-man-pages.plugin.zsh
 autoload -U colors && colors
 
-#source /nix/store/gd1i75n204liyhj9a9zmz6pxwy833frn-awscli2-2.15.34/share/zsh/site-functions/_aws
-#source "/nix/store/2aqrcwm0z7bwrzgm9gpdj847vslxpaga-wezterm-20240203-110809-5046fc22/etc/profile.d/wezterm.sh"
-#source /nix/store/ln7l614j50wjg8pddmzggrpk40iw1hlp-nix-index-0.1.7/etc/profile.d/command-not-found.sh
-
 [ -f $XDG_CONFIG_HOME/zsh/exports.zsh ] && source $XDG_CONFIG_HOME/zsh/exports.zsh
 [ -f $XDG_CONFIG_HOME/zsh/options.zsh ] && source $XDG_CONFIG_HOME/zsh/options.zsh
 [ -f $XDG_CONFIG_HOME/zsh/bindings.zsh ] && source $XDG_CONFIG_HOME/zsh/bindings.zsh
