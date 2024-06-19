@@ -58,7 +58,9 @@
 
     - name: FZF | Download latest release
       ansible.builtin.get_url:
-        url: "https://github.com/junegunn/fzf/releases/download/{{ fzf_latest_version }}/{{ fzf_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
+        url: "https://github.com/junegunn/fzf/releases/download/\
+              {{ fzf_latest_version }}/{{ fzf_full_release_name }}.\
+              {{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ fzf_tmp_dir.path }}"
         mode: "0640"
         checksum: "sha256:{{ fzf_file_checksum }}"
@@ -98,3 +100,35 @@
         dest: "{{ fzf_tmp_dir.path }}"
         state: absent
       no_log: true
+
+- name: FZF | Install preview.sh Linux dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_fzf_packages + coreutils_fzf_linux_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: FZF | Install preview.sh Fedora dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_fzf_fedora_packages }}"
+    state: present
+  become: true
+  when: ansible_distribution == "Fedora"
+
+- name: FZF | Install preview.sh Fedora dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_fzf_packages + coreutils_fzf_macos_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: FZF | Create config directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/fzf"
+    state: directory
+    mode: "0550"
+
+- name: FZF | Ensure preview.sh exists
+  ansible.builtin.copy:
+    src: lf/preview.sh
+    dest: "{{ xdg_dirs_config }}/fzf/preview.sh"
+    mode: "0550"

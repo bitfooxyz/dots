@@ -4,3 +4,35 @@ coreutils_fzf_os_arch:
   Linux:
     x86_64: linux_amd64
     aarch64: linux_arm64
+
+coreutils_fzf_packages:
+  - gzip
+  - xz
+  - unzip
+  - binutils # nm
+  - libcdio # iso-info
+  - odt2txt
+
+coreutils_fzf_linux_packages:
+  - tar
+  - p7zip-plugins # 7zip
+  - p7zip # 7zip
+  - transmission-common # transmission-show
+  - catdoc # convert doc files
+  - w3m # show html files
+  - perl-Image-ExifTool # exiftool
+  - poppler-utils
+  - ImageMagick
+
+coreutils_fzf_fedora_packages:
+  - unrar
+  - gnumeric # ssconvert
+  - chafa # ImageToText converter
+  - mcomix3-thumbnailer
+
+coureutils_fzf_macos_packages:
+  - gnu-tar
+  - 7-zip
+  - transmission-cli
+  - exiftool
+  - imagemagick
