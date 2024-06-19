@@ -1,0 +1,89 @@
+- name: FD | Include fd vars
+  ansible.builtin.include_vars:
+    file: fd/main.yml
+
+- name: FD | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/sharkdp/fd/releases/latest
+  register: fd_latest_release_json
+  check_mode: false
+
+- name: FD | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/fd --version"
+  register: fd_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: FD | Register latest release version
+  ansible.builtin.set_fact:
+    fd_latest_version: "{{ fd_latest_release_json.json.tag_name.split('v')[1] }}"
+    fd_current_version: "{{ fd_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: FD | Latest release version
+  ansible.builtin.debug:
+    var: fd_latest_version
+
+- name: FD | Current installed version
+  ansible.builtin.debug:
+    var: fd_current_version
+
+- name: FD | Install or Upgrade fd
+  when:
+    - fd_current_version != fd_latest_version or coreutils_force_fd
+  block:
+    - name: FD | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: fd_
+        state: directory
+      register: fd_tmp_dir
+      check_mode: false
+
+    - name: FD | Set release full name
+      ansible.builtin.set_fact:
+        fd_full_release_name: "fd-v{{ fd_latest_version }}-{{ coreutils_fd_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: FD | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/sharkdp/fd/releases/download/v{{ fd_latest_version }}/{{ fd_full_release_name }}.tar.gz"
+        dest: "{{ fd_tmp_dir.path }}"
+        mode: "0640"
+      register: fd_downloaded_release
+
+    - name: FD | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ fd_downloaded_release.dest }}"
+        dest: "{{ fd_tmp_dir.path }}"
+      register: fd_unarchived_release
+      when: not ansible_check_mode
+
+    - name: FD | Copy fd binary
+      ansible.builtin.copy:
+        src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd"
+        dest: "{{ xdg_dirs_local_bin }}/fd"
+        mode: "0550"
+      when: not ansible_check_mode
+
+    - name: FD | Copy autocompletion files
+      ansible.builtin.copy:
+        src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/autocomplete/{{ item.file }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_fd.{{ item.shell }}"
+        mode: "0440"
+      loop:
+        - {shell: zsh, file: _fd}
+        - {shell: bash, file: fd.bash}
+      when: not ansible_check_mode
+
+    - name: FD | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/fd.1"
+        mode: "0440"
+      when: not ansible_check_mode
+  always:
+    - name: FD | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ fd_tmp_dir.path }}"
+        state: absent
+      no_log: true

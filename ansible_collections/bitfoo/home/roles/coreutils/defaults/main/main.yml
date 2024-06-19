@@ -24,3 +24,8 @@ coreutils_force_zoxide: false
 coreutils_enable_fzf: true
 # Force installation regardles of it is already installed
 coreutils_force_fzf: false
+
+# Enable fd tasks
+coreutils_enable_fd: true
+# Force installation regardles of it is already installed
+coreutils_force_fd: false

@@ -49,3 +49,10 @@
   when: coreutils_enable_tealdeer
   tags:
     - fzf
+
+- name: COREUTILS | Import fd tasks
+  ansible.builtin.import_tasks:
+    file: fd/main.yml
+  when: coreutils_enable_tealdeer
+  tags:
+    - fd
