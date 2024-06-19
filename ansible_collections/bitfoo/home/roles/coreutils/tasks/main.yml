@@ -39,21 +39,21 @@
 - name: COREUTILS | Import zoxide tasks
   ansible.builtin.import_tasks:
     file: zoxide/main.yml
-  when: coreutils_enable_tealdeer
+  when: coreutils_enable_zoxide
   tags:
     - zoxide
 
 - name: COREUTILS | Import fzf tasks
   ansible.builtin.import_tasks:
     file: fzf/main.yml
-  when: coreutils_enable_tealdeer
+  when: coreutils_enable_fzf
   tags:
     - fzf
 
 - name: COREUTILS | Import fd tasks
   ansible.builtin.import_tasks:
     file: fd/main.yml
-  when: coreutils_enable_tealdeer
+  when: coreutils_enable_fd
   tags:
     - fd
 
