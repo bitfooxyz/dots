@@ -58,7 +58,7 @@ if command -v aws_completer &> /dev/null; then
 fi
 
 if command -v zoxide &> /dev/null; then
-  eval $(zoxide init zsh --cmd cd)
+  eval "$(zoxide init zsh --cmd cd)"
 fi
 
 if command -v fzf &> /dev/null; then
