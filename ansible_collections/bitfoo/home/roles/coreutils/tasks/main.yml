@@ -56,3 +56,10 @@
   when: coreutils_enable_tealdeer
   tags:
     - fd
+
+- name: COREUTILS | Import ripgrep tasks
+  ansible.builtin.import_tasks:
+    file: ripgrep/main.yml
+  when: coreutils_enable_ripgrep
+  tags:
+    - ripgrep

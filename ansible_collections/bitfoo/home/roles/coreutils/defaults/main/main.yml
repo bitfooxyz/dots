@@ -29,3 +29,8 @@ coreutils_force_fzf: false
 coreutils_enable_fd: true
 # Force installation regardles of it is already installed
 coreutils_force_fd: false
+
+# Enable ripgrep tasks
+coreutils_enable_ripgrep: true
+# Force installation regardles of it is already installed
+coreutils_force_ripgrep: false

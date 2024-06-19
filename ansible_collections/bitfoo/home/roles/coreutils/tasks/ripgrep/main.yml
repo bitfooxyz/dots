@@ -1,0 +1,98 @@
+- name: RIPGREP | Include ripgrep vars
+  ansible.builtin.include_vars:
+    file: ripgrep/main.yml
+
+- name: RIPGREP | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/burntsushi/ripgrep/releases/latest
+  register: ripgrep_latest_release_json
+  check_mode: false
+
+- name: RIPGREP | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/ripgrep -V"
+  register: ripgrep_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: RIPGREP | Register latest release version
+  ansible.builtin.set_fact:
+    ripgrep_latest_version: "{{ ripgrep_latest_release_json.json.tag_name }}"
+    ripgrep_current_version: "{{ ripgrep_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: RIPGREP | Latest release version
+  ansible.builtin.debug:
+    var: ripgrep_latest_version
+
+- name: RIPGREP | Current installed version
+  ansible.builtin.debug:
+    var: ripgrep_current_version
+
+- name: RIPGREP | Install or Upgrade ripgrep
+  when:
+    - ripgrep_current_version != ripgrep_latest_version or coreutils_force_ripgrep
+  block:
+    - name: RIPGREP | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: ripgrep_
+        state: directory
+      register: ripgrep_tmp_dir
+      check_mode: false
+
+    - name: RIPGREP | Set release full name
+      ansible.builtin.set_fact:
+        ripgrep_full_release_name: "ripgrep-{{ ripgrep_latest_version }}-{{ coreutils_ripgrep_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: RIPGREP | Get checksum
+      ansible.builtin.uri:
+        url: "https://github.com/burntsushi/ripgrep/releases/download/{{ ripgrep_latest_version }}/{{ ripgrep_full_release_name }}.tar.gz.sha256"
+        return_content: true
+      register: ripgrep_checksum
+      check_mode: false
+
+    - name: RIPGREP | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/burntsushi/ripgrep/releases/download/{{ ripgrep_latest_version }}/{{ ripgrep_full_release_name }}.tar.gz"
+        dest: "{{ ripgrep_tmp_dir.path }}"
+        mode: "0640"
+        checksum: "sha256:{{ ripgrep_checksum.content.split(' ')[0] }}"
+      register: ripgrep_downloaded_release
+
+    - name: RIPGREP | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ ripgrep_downloaded_release.dest }}"
+        dest: "{{ ripgrep_tmp_dir.path }}"
+      register: ripgrep_unarchived_release
+      when: not ansible_check_mode
+
+    - name: RIPGREP | Copy ripgrep binary
+      ansible.builtin.copy:
+        src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/rg"
+        dest: "{{ xdg_dirs_local_bin }}/rg"
+        mode: "0550"
+      when: not ansible_check_mode
+      no_log: true
+
+    - name: RIPGREP | Copy autocompletion files
+      ansible.builtin.copy:
+        src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/complete/{{ item.file }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_ripgrep.{{ item.shell }}"
+        mode: "0440"
+      loop:
+        - {shell: zsh, file: _rg}
+        - {shell: bash, file: rg.bash}
+      when: not ansible_check_mode
+
+    - name: RIPGREP | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/doc/rg.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/rg.1"
+        mode: "0440"
+      when: not ansible_check_mode
+  always:
+    - name: RIPGREP | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ ripgrep_tmp_dir.path }}"
+        state: absent
+      no_log: true
