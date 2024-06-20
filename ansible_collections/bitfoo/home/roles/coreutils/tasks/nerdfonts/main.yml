@@ -1,0 +1,124 @@
+- name: NERDFONTS | Include variables
+  ansible.builtin.include_vars:
+    file: "nerdfonts/main.yml"
+
+- name: NERDFONTS | Include os variables
+  ansible.builtin.include_vars:
+    file: "nerdfonts/{{ ansible_system | lower }}.yml"
+
+- name: NERDFONTS | Install packages on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_nerdfonts_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: NERDFONTS | Install pacakages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_nerdfonts_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: NERDFONTS | Create nerdfonts fonts directory
+  ansible.builtin.file:
+    path: "{{ coreutils_nerdfonts_fonts_directory }}"
+    state: directory
+    mode: "0500"
+
+- name: NERDFONTS | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest
+  register: nerdfonts_latest_release_json
+  check_mode: false
+
+- name: NERDFONTS | Register latest and current installed release version
+  ansible.builtin.set_fact:
+    nerdfonts_latest_version: "{{ nerdfonts_latest_release_json.json.tag_name }}"
+    nerdfonts_current_version: "{{ lookup('ansible.builtin.file', \
+                                coreutils_nerdfonts_fonts_directory + \
+                                '/nerdfonts_version.txt', errors='ignore') | \
+                                default('') }}"
+
+- name: NERDFONTS | Latest release version
+  ansible.builtin.debug:
+    var: nerdfonts_latest_version
+
+- name: NERDFONTS | Current installed version
+  ansible.builtin.debug:
+    var: nerdfonts_current_version
+
+- name: NERDFONTS | Get list of installed fonts
+  ansible.builtin.find:
+    paths: ["{{ coreutils_nerdfonts_fonts_directory }}"]
+    file_type: directory
+    depth: 1
+  register: nerdfonts_found_fonts
+
+- name: FOO
+  ansible.builtin.set_fact:
+    nerdfonts_to_get_installed_fonts: "{{ coreutils_nerdfonts_fonts | \
+                                difference(nerdfonts_found_fonts.files | \
+                                map(attribute='path') | map('basename')) }}"
+
+- name: DEBUG
+  ansible.builtin.debug:
+    var: nerdfonts_to_get_installed_fonts
+
+- name: NERDFONTS | Install or Upgrade nerdfonts
+  when:
+    - nerdfonts_current_version != nerdfonts_latest_version or
+      coreutils_force_nerdfonts or
+      nerdfonts_to_get_installed_fonts | length > 0
+  block:
+    - name: NERDFONTS | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: nerdfonts_
+        state: directory
+      register: nerdfonts_tmp_dir
+      check_mode: false
+
+    - name: NERDFONTS | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_latest_version }}/SHA-256.txt"
+        return_content: true
+      register: nerdfonts_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: NERDFONTS | Download latest fonts
+      ansible.builtin.get_url:
+        url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_latest_version }}/{{ item }}.tar.xz"
+        dest: "{{ nerdfonts_tmp_dir.path }}"
+        mode: "0600"
+        checksum: "sha256:{{ nerdfonts_checksums.content | regex_findall('.*' + item + '.tar.xz$', multiline=True) | first | split(' ') | first }}"
+      loop: "{{ nerdfonts_to_get_installed_fonts }}"
+      register: nerdfonts_downloaded_release
+
+    - name: NERDFONTS | Create font subdirectories
+      ansible.builtin.file:
+        path: "{{ coreutils_nerdfonts_fonts_directory }}/{{ item }}"
+        state: directory
+        mode: "0500"
+      loop: "{{ nerdfonts_to_get_installed_fonts }}"
+
+    - name: NERDFONTS | Unarchive downloaded fonts
+      ansible.builtin.unarchive:
+        src: "{{ nerdfonts_tmp_dir.path }}/{{ item }}.tar.xz"
+        dest: "{{ coreutils_nerdfonts_fonts_directory }}/{{ item }}/"
+      register: nerdfonts_unarchived_release
+      loop: "{{ nerdfonts_to_get_installed_fonts }}"
+      when: not ansible_check_mode
+      notify:
+        - NERDFONTS | Reload fonts cache
+
+    - name: NERDFONTS | Create release version file
+      ansible.builtin.copy:
+        content: "{{ nerdfonts_latest_version }}"
+        dest: "{{ coreutils_nerdfonts_fonts_directory }}/nerdfonts_version.txt"
+        mode: "0400"
+  always:
+    - name: NERDFONTS | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ nerdfonts_tmp_dir.path }}"
+        state: absent
+      no_log: true

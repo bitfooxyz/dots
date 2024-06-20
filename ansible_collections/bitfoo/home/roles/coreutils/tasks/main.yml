@@ -6,6 +6,13 @@
   tags:
     - git
 
+- name: COREUTILS | Import nerdfonts tasks
+  ansible.builtin.import_tasks:
+    file: nerdfonts/main.yml
+  when: coreutils_enable_nerdfonts
+  tags:
+    - nerdfonts
+
 # BAT tasks and vars
 - name: COREUTILS | Import bat tasks
   ansible.builtin.import_tasks:

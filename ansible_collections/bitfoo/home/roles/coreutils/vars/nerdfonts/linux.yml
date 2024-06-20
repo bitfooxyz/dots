@@ -1,0 +1,2 @@
+
+coreutils_nerdfonts_fonts_directory: "{{ xdg_dirs_local_share }}/fonts/nerdfonts"
