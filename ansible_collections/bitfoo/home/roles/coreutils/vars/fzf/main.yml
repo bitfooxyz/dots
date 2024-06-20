@@ -30,7 +30,7 @@ coreutils_fzf_fedora_packages:
   - chafa # ImageToText converter
   - mcomix3-thumbnailer
 
-coureutils_fzf_macos_packages:
+coreutils_fzf_macos_packages:
   - gnu-tar
   - 7-zip
   - transmission-cli
