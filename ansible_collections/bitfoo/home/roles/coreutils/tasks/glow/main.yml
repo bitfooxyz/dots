@@ -1,0 +1,106 @@
+- name: GLOW | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/charmbracelet/glow/releases/latest
+  register: glow_latest_release_json
+  check_mode: false
+
+- name: GLOW | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/glow --version"
+  register: glow_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: GLOW | Register latest release version
+  ansible.builtin.set_fact:
+    glow_latest_version: "{{ glow_latest_release_json.json.tag_name.split('v')[1] }}"
+    glow_current_version: "{{ glow_current_version_cmd.stdout.split(' ')[2] | default('') }}"
+
+- name: GLOW | Latest release version
+  ansible.builtin.debug:
+    var: glow_latest_version
+
+- name: GLOW | Current installed version
+  ansible.builtin.debug:
+    var: glow_current_version
+
+- name: GLOW | Install or Upgrade glow
+  when:
+    - glow_current_version != glow_latest_version or coreutils_force_glow
+  block:
+    - name: GLOW | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: glow_
+        state: directory
+      register: glow_tmp_dir
+      check_mode: false
+
+    - name: GLOW | Set release full name
+      ansible.builtin.set_fact:
+        glow_full_release_name: "glow_{{ ansible_system }}_{{ ansible_architecture }}"
+
+    - name: GLOW | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/charmbracelet/glow/releases/download/v{{ glow_latest_version }}/checksums.txt"
+        return_content: true
+      register: glow_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: GLOW | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        glow_file_checksum: "{{ glow_checksums.content | regex_findall('.*' + glow_full_release_name + '.tar.gz$', multiline=True) | first | split(' ') | first }}"
+
+    - name: GLOW | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/charmbracelet/glow/releases/download/v{{ glow_latest_version }}/{{ glow_full_release_name }}.tar.gz"
+        dest: "{{ glow_tmp_dir.path }}"
+        mode: "0640"
+        checksum: "sha256:{{ glow_file_checksum }}"
+      register: glow_downloaded_release
+
+    - name: GLOW | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ glow_downloaded_release.dest }}"
+        dest: "{{ glow_tmp_dir.path }}"
+      register: glow_unarchived_release
+      when: not ansible_check_mode
+
+    - name: GLOW | Copy glow binary
+      ansible.builtin.copy:
+        src: "{{ glow_tmp_dir.path }}/glow"
+        dest: "{{ xdg_dirs_local_bin }}/glow"
+        mode: "0550"
+      when: not ansible_check_mode
+
+    # Commented cause the autocompletion is useless an prevents
+    # file completion in shell
+    # - name: GLOW | Copy autocompletion files
+    #   ansible.builtin.copy:
+    #     src: "{{ glow_tmp_dir.path }}/completions/glow.{{ item }}"
+    #     dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_glow.{{ item }}"
+    #     mode: "0440"
+    #   loop:
+    #     - zsh
+    #     - bash
+    #   when: not ansible_check_mode
+
+    - name: GLOW | Gunzip manpage
+      ansible.builtin.command:
+        cmd: "gunzip {{ glow_tmp_dir.path }}/manpages/glow.1.gz"
+      changed_when: false
+      when: not ansible_check_mode
+
+    - name: GLOW | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ glow_tmp_dir.path }}/manpages/glow.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/glow.1"
+        mode: "0440"
+      when: not ansible_check_mode
+  always:
+    - name: GLOW | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ glow_tmp_dir.path }}"
+        state: absent
+      no_log: true

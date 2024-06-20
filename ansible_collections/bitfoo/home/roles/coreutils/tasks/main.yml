@@ -63,3 +63,10 @@
   when: coreutils_enable_ripgrep
   tags:
     - ripgrep
+
+- name: COREUTILS | Import glow tasks
+  ansible.builtin.import_tasks:
+    file: glow/main.yml
+  when: coreutils_enable_glow
+  tags:
+    - glow
