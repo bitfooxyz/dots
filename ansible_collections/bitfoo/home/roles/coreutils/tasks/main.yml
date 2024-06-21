@@ -77,3 +77,10 @@
   when: coreutils_enable_glow
   tags:
     - glow
+
+- name: COREUTILS | Import lf tasks
+  ansible.builtin.import_tasks:
+    file: lf/main.yml
+  when: coreutils_enable_lf
+  tags:
+    - lf

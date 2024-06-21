@@ -1,0 +1,126 @@
+- name: LF | Include lf vars
+  ansible.builtin.include_vars:
+    file: lf/main.yml
+
+- name: LF | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/gokcehan/lf/releases/latest
+  register: lf_latest_release_json
+  check_mode: false
+
+- name: LF | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/lf --version"
+  register: lf_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: LF | Register latest release version
+  ansible.builtin.set_fact:
+    lf_latest_version: "{{ lf_latest_release_json.json.tag_name }}"
+    lf_current_version: "{{ lf_current_version_cmd.stdout | default('') }}"
+
+- name: LF | Latest release version
+  ansible.builtin.debug:
+    var: lf_latest_version
+
+- name: LF | Current installed version
+  ansible.builtin.debug:
+    var: lf_current_version
+
+- name: LF | Install or Upgrade lf
+  when:
+    - lf_current_version != lf_latest_version or coreutils_force_lf
+  block:
+    - name: LF | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: lf_
+        state: directory
+      register: lf_tmp_dir
+      check_mode: false
+
+    - name: LF | Set release full name
+      ansible.builtin.set_fact:
+        lf_full_release_name: "lf-{{ coreutils_lf_os_arch\
+                              [ansible_system]\
+                              [ansible_architecture] }}"
+
+    - name: LF | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/gokcehan/lf/releases/download/\
+              {{ lf_latest_version }}/{{ lf_full_release_name }}.tar.gz"
+        dest: "{{ lf_tmp_dir.path }}"
+        mode: "0640"
+      register: lf_downloaded_release
+
+    - name: LF | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ lf_downloaded_release.dest }}"
+        dest: "{{ xdg_dirs_local_bin }}"
+        mode: "0500"
+      register: lf_unarchived_release
+      when: not ansible_check_mode
+
+    - name: LF | Get manpages
+      ansible.builtin.command:
+        cmd: "{{ xdg_dirs_local_bin }}/lf -doc"
+      register: lf_doc_cmd
+      check_mode: false
+      changed_when: false
+      when: not ansible_check_mode
+
+    - name: LF | Create manpage
+      ansible.builtin.copy:
+        content: "{{ lf_doc_cmd.stdout }}"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/lf.1"
+        mode: "0400"
+      when: not ansible_check_mode
+
+  always:
+    - name: LF | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ lf_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: LF | Install preview.sh Linux dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_lf_packages + coreutils_lf_linux_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: LF | Install preview.sh Fedora dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_lf_fedora_packages }}"
+    state: present
+  become: true
+  when: ansible_distribution == "Fedora"
+
+- name: LF | Install preview.sh MacOS dependencies
+  ansible.builtin.package:
+    name: "{{ coreutils_lf_packages + coreutils_lf_macos_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: LF | Create config directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/lf"
+    state: directory
+    mode: "0550"
+
+- name: LF | Copy configuration files
+  ansible.builtin.copy:
+    src: "lf/{{ item }}"
+    dest: "{{ xdg_dirs_config }}/lf/{{ item }}"
+    mode: "0400"
+  loop:
+    - lfrc
+    - icons
+
+- name: LF | Ensure preview.sh exists
+  ansible.builtin.copy:
+    src: lf/preview.sh
+    dest: "{{ xdg_dirs_config }}/lf/preview.sh"
+    mode: "0500"

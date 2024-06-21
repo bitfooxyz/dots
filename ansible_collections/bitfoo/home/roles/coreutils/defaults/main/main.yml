@@ -44,3 +44,8 @@ coreutils_force_ripgrep: false
 coreutils_enable_glow: true
 # Force installation regardles of it is already installed
 coreutils_force_glow: false
+
+# Enable lf tasks
+coreutils_enable_lf: true
+# Force installation regardles of it is already installed
+coreutils_force_lf: false
