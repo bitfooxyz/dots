@@ -116,7 +116,7 @@
     mode: "0400"
   no_log: true
 
-- name: EYE | Create credentials file to store publish tokens
+- name: RYE | Create credentials file to store publish tokens
   ansible.builtin.template:
     src: rye/credentials.j2
     dest: "{{ ansible_user_dir }}/.rye/credentials"
