@@ -1,0 +1,29 @@
+---
+- name: XDG_DIRS | Ensure ~/.config exists
+  ansible.builtin.file:
+    name: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ xdg_dirs_config }}"
+
+- name: XDG_DIRS | Ensure ~/.cache exists
+  ansible.builtin.file:
+    name: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ xdg_dirs_cache }}"
+
+- name: XDG_DIRS | Ensure .local/{bin,share,share/man,state} exists
+  ansible.builtin.file:
+    name: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ xdg_dirs_local }}"
+    - "{{ xdg_dirs_local_bin }}"
+    - "{{ xdg_dirs_local_share }}"
+    - "{{ xdg_dirs_local_share_man }}"
+    - "{{ xdg_dirs_local_share_man }}/man1"
+    - "{{ xdg_dirs_local_state }}"
