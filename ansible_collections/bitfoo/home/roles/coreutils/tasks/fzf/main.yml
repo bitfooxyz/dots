@@ -115,7 +115,7 @@
   become: true
   when: ansible_distribution == "Fedora"
 
-- name: FZF | Install preview.sh Fedora dependencies
+- name: FZF | Install preview.sh MacOS dependencies
   ansible.builtin.package:
     name: "{{ coreutils_fzf_packages + coreutils_fzf_macos_packages }}"
     state: present
