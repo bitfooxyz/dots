@@ -1,6 +1,3 @@
-coreutils_nerdfonts_packages:
-  - fontconfig
-
 coreutils_nerdfonts_fonts:
   - Meslo
   - FiraCode
