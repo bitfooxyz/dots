@@ -1,3 +1,5 @@
+# shellcheck disable=all
+
 set noanchorfind
 set cursorpreviewfmt "033[7m"
 set drawbox
@@ -11,36 +13,53 @@ set scrolloff 10
 set shell "zsh"
 set sixel
 
+# Using mmv to bulkrename files or
+# create folders if neccessary
+# https://github.com/itchyny/mmv
 cmd bulkrename ${{
-  IFS=$(printf "\n\t")
-  vimv $(printf $fx | tr "\n" " ")
+  test -z "$EDITOR" && EDITOR=vi
+  mmv $(printf $fx | tr "\n" " ")
 
   lf -remote "send $id load"
   lf -remote "send $id unselect"
 }}
 
+# chmod file
 cmd chmod ${{
   printf "Mode Bits: "
-  read ans
+  read mode
 
   for file in "$fx"
   do
-    chmod "$ans" "$file"
+    chmod "$mode" "$file"
   done
 
-  lf -remote 'send $id reload'
+  lf -remote "send $id reload"
 }}
 
-cmd createArchive %{{
-  IFS=$(printf "\n\t")
-  arc archive "$1" "$fx"
-}}
+cmd tar ${{
+  # Prompt for compression tool
+  printf "Enter compression method and options (gzip, bzip2, zstd(default)): "
+  read compression_method
 
-cmd extractArchive %{{
-  IFS=$(printf "\n\t")
-  for file in $fx; do
-    arc unarchive "$file"
-  done
+  if [ -z "$compression_method" ]; then
+    printf "\nNo compression method provided using default (zstd)"
+    compression_method="zstd -T0"
+  fi
+
+  # Prompt for the archive name
+  printf "\nEnter archive name: "
+  read archive_name
+
+  if [ -z "$archive_name" ]; then
+    printf "\nArchive name is required."
+    exit 1
+  fi
+
+  # Create the tar.gz archive with the provided name
+  tar --use-compress-program="$compression_method" -cf "$archive_name" $fx
+
+  lf -remote "send $id load"
 }}
 
 cmd fzfJump ${{
@@ -67,6 +86,8 @@ cmd fzfSearch ${{
   [ -n "$res" ] && lf -remote "send $id select \"$res\""
 }}
 
+# Change a link to a file with
+# same content as the origin file
 cmd linkToFile ${{
   IFS=$(printf "\n\t")
   for file in "$fx"; do
@@ -74,16 +95,22 @@ cmd linkToFile ${{
   done
 }}
 
+# Create a new directory
 cmd mkdir ${{
   printf "Directory Name: "
   read ans
   mkdir "$ans"
 }}
 
+# Create a new file with default editor
 cmd mkfile ${{
   printf "File Name: "
   read ans
-  $EDITOR "$ans"
+  if [ -n "$EDITOR" ]; then
+    $EDITOR "$ans"
+  else
+    touch "$ans"
+  fi
 }}
 
 cmd on-cd &{{
@@ -105,6 +132,7 @@ cmd on-select &{{
   lf -remote "send $id set statfmt \"$(eza -ld --color=always "$f")\""
 }}
 
+# Open text file always with $EDITOR
 cmd open ${{
   case $(file --mime-type "$f" -bL) in
   text/*|application/json) $EDITOR "$f";;
