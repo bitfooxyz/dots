@@ -10,7 +10,7 @@
 
 - name: RIPGREP | Get current installed version
   ansible.builtin.command:
-    cmd: "{{ xdg_dirs_local_bin }}/ripgrep -V"
+    cmd: "{{ xdg_dirs_local_bin }}/rg -V"
   register: ripgrep_current_version_cmd
   changed_when: false
   failed_when: false
