@@ -49,3 +49,8 @@ coreutils_force_glow: false
 coreutils_enable_lf: true
 # Force installation regardles of it is already installed
 coreutils_force_lf: false
+
+# Enable eza tasks
+coreutils_enable_eza: true
+# Force installation regardles of it is already installed
+coreutils_force_eza: false

@@ -84,3 +84,10 @@
   when: coreutils_enable_lf
   tags:
     - lf
+
+- name: COREUTILS | Import eza tasks
+  ansible.builtin.import_tasks:
+    file: eza/main.yml
+  when: coreutils_enable_eza
+  tags:
+    - eza

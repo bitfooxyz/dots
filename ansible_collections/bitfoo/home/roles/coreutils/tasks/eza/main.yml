@@ -1,0 +1,156 @@
+- name: EZA | Include vars
+  ansible.builtin.include_vars:
+    file: "eza/main.yml"
+
+- name: EZA | Include os vars
+  ansible.builtin.include_vars:
+    file: "eza/{{ ansible_distribution | lower }}.yml"
+
+- name: EZA | Install packages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_eza_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: EZA | Install eza on Linux
+  when: ansible_system == "Linux"
+  block:
+    - name: EZA | Install packages on Linux
+      ansible.builtin.package:
+        name: "{{ coreutils_eza_packages }}"
+        state: present
+      become: true
+
+    - name: EZA | Get latest version
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/eza-community/eza/releases/latest
+      register: eza_latest_release_json
+      check_mode: false
+
+    - name: EZA | Get current installed version
+      ansible.builtin.shell:
+        cmd: "{{ xdg_dirs_local_bin }}/eza --version | head -n2 | \
+              tail -n 1 | cut -f 1 -d ' ' | cut -f 2 -d 'v'"
+      register: eza_current_version_cmd
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: EZA | Register latest release version
+      ansible.builtin.set_fact:
+        eza_latest_version: "{{ eza_latest_release_json.json.tag_name.split('v')[1] }}"
+        eza_current_version: "{{ eza_current_version_cmd.stdout | default('') }}"
+
+    - name: EZA | Latest release version
+      ansible.builtin.debug:
+        var: eza_latest_version
+
+    - name: EZA | Current installed version
+      ansible.builtin.debug:
+        var: eza_current_version
+
+    - name: EZA | Install or Upgrade eza
+      when:
+        - eza_current_version != eza_latest_version or coreutils_force_eza
+      block:
+        - name: EZA | Create tmp directory
+          ansible.builtin.tempfile:
+            prefix: eza_
+            state: directory
+          register: eza_tmp_dir
+          check_mode: false
+
+        - name: EZA | Set release full name
+          ansible.builtin.set_fact:
+            eza_full_release_name: "eza_{{ coreutils_eza_os_arch\
+                                  [ansible_system]\
+                                  [ansible_architecture] }}"
+
+        - name: EZA | Download latest release
+          ansible.builtin.get_url:
+            url: "https://github.com/eza-community/eza/releases/download/\
+                  v{{ eza_latest_version }}/{{ eza_full_release_name }}.tar.gz"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0640"
+          register: eza_downloaded_release
+
+        - name: EZA | Unarchive downloaded archive
+          ansible.builtin.unarchive:
+            src: "{{ eza_downloaded_release.dest }}"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0500"
+          register: eza_unarchived_release
+          when: not ansible_check_mode
+
+        - name: EZA | Copy binary
+          ansible.builtin.copy:
+            src: "{{ eza_tmp_dir.path }}/eza"
+            dest: "{{ xdg_dirs_local_bin }}/eza"
+            mode: "0550"
+          when: not ansible_check_mode
+
+        - name: EZA | Download completions
+          ansible.builtin.get_url:
+            url: "https://github.com/eza-community/eza/releases/download/\
+                  v{{ eza_latest_version }}/completions-{{ eza_latest_version }}.tar.gz"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0640"
+          register: eza_downloaded_release
+
+        - name: EZA | Unarchive downloaded archive
+          ansible.builtin.unarchive:
+            src: "{{ eza_downloaded_release.dest }}"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0500"
+          register: eza_unarchived_release
+          when: not ansible_check_mode
+
+        - name: EZA | Copy completions
+          ansible.builtin.copy:
+            src: "{{ eza_tmp_dir.path }}/target/completions-{{ eza_latest_version }}/{{ item.file }}"
+            dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_eza.{{ item.shell }}"
+            mode: "0440"
+          when: not ansible_check_mode
+          loop:
+            - {shell: bash, file: eza}
+            - {shell: zsh, file: _eza}
+
+        - name: EZA | Download manpages
+          ansible.builtin.get_url:
+            url: "https://github.com/eza-community/eza/releases/download/\
+                  v{{ eza_latest_version }}/man-{{ eza_latest_version }}.tar.gz"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0640"
+          register: eza_downloaded_release
+
+        - name: EZA | Unarchive downloaded archive
+          ansible.builtin.unarchive:
+            src: "{{ eza_downloaded_release.dest }}"
+            dest: "{{ eza_tmp_dir.path }}"
+            mode: "0500"
+          register: eza_unarchived_release
+          when: not ansible_check_mode
+
+        - name: EZA | Copy manpages section 1
+          ansible.builtin.copy:
+            src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/eza.1"
+            dest: "{{ xdg_dirs_local_share_man }}/man1/eza.1"
+            mode: "0440"
+          when: not ansible_check_mode
+
+        - name: EZA | Copy manpages section 5
+          ansible.builtin.copy:
+            src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/{{ item }}"
+            dest: "{{ xdg_dirs_local_share_man }}/man5/{{ item }}"
+            mode: "0440"
+          when: not ansible_check_mode
+          loop:
+            - eza_colors.5
+            - eza_colors-explanation.5
+
+      # always:
+      #   - name: EZA | Ensure tmp directory is absent
+      #     ansible.builtin.file:
+      #       dest: "{{ eza_tmp_dir.path }}"
+      #       state: absent
+      #     no_log: true
