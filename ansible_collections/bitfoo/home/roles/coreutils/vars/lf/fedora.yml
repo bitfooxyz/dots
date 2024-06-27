@@ -1,0 +1,22 @@
+coreutils_lf_packages:
+  - ImageMagick
+  - binutils # nm
+  - catdoc # convert doc files
+  - chafa # ImageToText converter
+  - gnumeric # ssconvert
+  - gzip
+  - libcdio # iso-info
+  - mcomix3-thumbnailer
+  - odt2txt
+  - p7zip # 7zip
+  - p7zip-plugins # 7zip
+  - perl-Image-ExifTool # exiftool
+  - poppler-utils
+  - renameutils
+  - tar
+  - transmission-common # transmission-show
+  - unrar
+  - unzip
+  - w3m # show html files
+  - xz
+  - zstd

@@ -1,6 +1,23 @@
-- name: LF | Include lf vars
+- name: LF | Include vars
   ansible.builtin.include_vars:
     file: lf/main.yml
+
+- name: LF | Include os vars
+  ansible.builtin.include_vars:
+    file: "lf/{{ ansible_distribution | lower }}.yml"
+
+- name: LF | Install packages on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_lf_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: LF | Install packages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_lf_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
 
 - name: LF | Get latest version
   ansible.builtin.uri:
@@ -83,26 +100,6 @@
         dest: "{{ lf_tmp_dir.path }}"
         state: absent
       no_log: true
-
-- name: LF | Install preview.sh Linux dependencies
-  ansible.builtin.package:
-    name: "{{ coreutils_lf_packages + coreutils_lf_linux_packages }}"
-    state: present
-  become: true
-  when: ansible_system == "Linux"
-
-- name: LF | Install preview.sh Fedora dependencies
-  ansible.builtin.package:
-    name: "{{ coreutils_lf_fedora_packages }}"
-    state: present
-  become: true
-  when: ansible_distribution == "Fedora"
-
-- name: LF | Install preview.sh MacOS dependencies
-  ansible.builtin.package:
-    name: "{{ coreutils_lf_packages + coreutils_lf_macos_packages }}"
-    state: present
-  when: ansible_system == "Darwin"
 
 - name: LF | Create config directory
   ansible.builtin.file:

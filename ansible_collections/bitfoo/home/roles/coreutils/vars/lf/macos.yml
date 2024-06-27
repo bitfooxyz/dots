@@ -1,0 +1,20 @@
+coreutils_lf_packages:
+  - 7-zip
+  - binutils # nm
+  - chafa # ImageToText converter
+  - exiftool
+  - exiftool
+  - gnu-tar
+  - gnumeric # ssconvert
+  - gzip
+  - imagemagick
+  - libcdio # iso-info
+  - odt2txt
+  - poppler
+  - renameutils
+  - transmission-cli
+  - unar
+  - unzip
+  - w3m # show html files
+  - xz
+  - zstd

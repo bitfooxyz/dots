@@ -1,0 +1,19 @@
+
+coreutils_lf_packages:
+  - ImageMagick
+  - binutils # nm
+  - catdoc # convert doc files
+  - gzip
+  - libcdio # iso-info
+  - odt2txt
+  - p7zip # 7zip
+  - p7zip-plugins # 7zip
+  - perl-Image-ExifTool # exiftool
+  - poppler-utils
+  - renameutils
+  - tar
+  - transmission-common # transmission-show
+  - unzip
+  - w3m # show html files
+  - xz
+  - zstd
