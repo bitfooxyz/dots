@@ -8,7 +8,7 @@ coreutils_force_nerdfonts: false
 
 # Enable bat tasks
 coreutils_enable_bat: true
-coreutils_force_bat: true
+coreutils_force_bat: false
 
 # Enable rye tasks
 coreutils_enable_rye: true
