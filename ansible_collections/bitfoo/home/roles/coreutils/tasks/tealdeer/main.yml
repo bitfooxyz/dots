@@ -12,7 +12,7 @@
 
 - name: TEALDEER | Get current installed version
   ansible.builtin.command:
-    cmd: "{{ xdg_dirs_local_bin }}/tealdeer --version"
+    cmd: "{{ xdg_dirs_local_bin }}/tldr --version"
   register: tealdeer_current_version_cmd
   changed_when: false
   failed_when: false
