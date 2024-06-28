@@ -26,8 +26,7 @@
     var: aws_cli_current_version
 
 - name: AWS-CLI | Install
-  when:
-    - aws_cli_current_version == ""
+  when: aws_cli_current_version != aws_cli_latest_version or coreutils_force_aws_cli
   block:
     - name: AWS-CLI | Create tmp directory
       ansible.builtin.tempfile:
@@ -58,22 +57,16 @@
           ansible.builtin.unarchive:
             src: "{{ aws_cli_downloaded_release.dest }}"
             dest: "{{ aws_cli_tmp_dir.path }}/"
-            mode: "0660"
-          no_log: true
-
-        - name: AWS-CLI | Make install script executable
-          ansible.builtin.file:
-            path: "{{ aws_cli_tmp_dir.path }}/aws/install"
-            state: file
             mode: "0550"
+          no_log: true
 
         - name: AWS-CLI | Install or update aws-cli
           ansible.builtin.command:
-            cmd: "{{ aws_cli_tmp_dir.path }}/aws/install --bin-dir {{ xdg_dirs_local_bin }} \
-                  --install-dir {{ xdg_dirs_local_share }}/aws-cli --update"
-            creates: "{{ xdg_dirs_local_bin }}/aws"
+            cmd: "{{ aws_cli_tmp_dir.path }}/aws/install --update --bin-dir {{ xdg_dirs_local_bin }} \
+                  --install-dir {{ xdg_dirs_local_share }}/aws-cli"
           register: aws_cli_install_cmd
           changed_when: '"You can now run" in aws_cli_install_cmd.stdout'
+          failed_when: aws_cli_install_cmd.rc != 0
 
         - name: AWS-CLI | Ensure aws and aws_completer scripts are executable
           ansible.builtin.file:
