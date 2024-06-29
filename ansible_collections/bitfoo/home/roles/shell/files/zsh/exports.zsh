@@ -53,7 +53,6 @@ if command -v mcfly &> /dev/null; then
     export MCFLY_PROMPT="❯"
     export MCFLY_RESULTS=50
     export MCFLY_FUZZY="2"
-    export MCFLY_INTERFACE_VIEW="TOP"
     export MCFLY_KEY_SCHEME="vim"
 fi
 
