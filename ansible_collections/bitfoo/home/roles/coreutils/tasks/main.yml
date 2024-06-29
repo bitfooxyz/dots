@@ -91,3 +91,10 @@
   when: coreutils_enable_eza
   tags:
     - eza
+
+- name: COREUTILS | Import mmv tasks
+  ansible.builtin.import_tasks:
+    file: mmv/main.yml
+  when: coreutils_enable_mmv
+  tags:
+    - mmv

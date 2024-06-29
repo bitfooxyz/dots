@@ -8,6 +8,7 @@ coreutils_force_nerdfonts: false
 
 # Enable bat tasks
 coreutils_enable_bat: true
+# Force installation regardles of it is already installed
 coreutils_force_bat: false
 
 # Enable rye tasks
@@ -20,6 +21,7 @@ coreutils_force_aws_cli: false
 
 # Enable tealdeer tasks
 coreutils_enable_tealdeer: true
+# Force installation regardles of it is already installed
 coreutils_force_tealdeer: false
 
 # Enable zoxide tasks
@@ -56,3 +58,8 @@ coreutils_force_lf: false
 coreutils_enable_eza: true
 # Force installation regardles of it is already installed
 coreutils_force_eza: false
+
+# Enable mmv tasks
+coreutils_enable_mmv: true
+# Force installation regardles of it is already installed
+coreutils_force_mmv: false

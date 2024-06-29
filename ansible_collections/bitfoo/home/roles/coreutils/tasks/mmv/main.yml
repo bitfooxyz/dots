@@ -1,0 +1,69 @@
+- name: MMV | Include mmv vars
+  ansible.builtin.include_vars:
+    file: mmv/main.yml
+  tags:
+    - always
+
+- name: MMV | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/itchyny/mmv/releases/latest
+  register: mmv_latest_release_json
+  check_mode: false
+
+- name: MMV | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/mmv -version"
+  register: mmv_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: MMV | Register latest release version
+  ansible.builtin.set_fact:
+    mmv_latest_version: "{{ mmv_latest_release_json.json.tag_name.split('v')[1] }}"
+    mmv_current_version: "{{ mmv_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: MMV | Latest release version
+  ansible.builtin.debug:
+    var: mmv_latest_version
+
+- name: MMV | Current installed version
+  ansible.builtin.debug:
+    var: mmv_current_version
+
+- name: MMV | Install or Upgrade mmv
+  when:
+    - mmv_current_version != mmv_latest_version or coreutils_force_mmv
+  block:
+    - name: MMV | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: mmv_
+        state: directory
+      register: mmv_tmp_dir
+      check_mode: false
+
+    - name: MMV | Set release full name
+      ansible.builtin.set_fact:
+        mmv_full_release_name: "mmv_v{{ mmv_latest_version }}_{{ coreutils_mmv_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: MMV | Get latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}/{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
+        dest: "{{ mmv_tmp_dir.path }}"
+        mode: "0440"
+      register: mmv_downloaded_release
+
+    - name: MMV | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ mmv_downloaded_release.dest }}"
+        dest: "{{ mmv_tmp_dir.path }}"
+      register: mmv_unarchived_release
+      when: not ansible_check_mode
+
+    - name: MMV | Copy mmv binary
+      ansible.builtin.copy:
+        src: "{{ mmv_tmp_dir.path }}/{{ mmv_full_release_name }}/mmv"
+        dest: "{{ xdg_dirs_local_bin }}/mmv"
+        mode: "0550"
+      when: not ansible_check_mode
+      diff: false
