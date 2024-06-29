@@ -12,7 +12,6 @@ coreutils_lf_packages:
   - p7zip-plugins # 7zip
   - perl-Image-ExifTool # exiftool
   - poppler-utils
-  - renameutils
   - tar
   - transmission-common # transmission-show
   - unrar
