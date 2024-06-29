@@ -98,3 +98,10 @@
   when: coreutils_enable_mmv
   tags:
     - mmv
+
+- name: COREUTILS | Import mcfly tasks
+  ansible.builtin.import_tasks:
+    file: mcfly/main.yml
+  when: coreutils_enable_mcfly
+  tags:
+    - mcfly

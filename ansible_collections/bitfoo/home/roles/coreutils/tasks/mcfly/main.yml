@@ -1,0 +1,73 @@
+- name: MCFLY | Include mcfly vars
+  ansible.builtin.include_vars:
+    file: mcfly/main.yml
+
+- name: MCFLY | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/cantino/mcfly/releases/latest
+  register: mcfly_latest_release_json
+  check_mode: false
+
+- name: MCFLY | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/mcfly -V"
+  register: mcfly_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: MCFLY | Register latest release version
+  ansible.builtin.set_fact:
+    mcfly_latest_version: "{{ mcfly_latest_release_json.json.tag_name.split('v')[1] }}"
+    mcfly_current_version: "{{ mcfly_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: MCFLY | Latest release version
+  ansible.builtin.debug:
+    var: mcfly_latest_version
+
+- name: MCFLY | Current installed version
+  ansible.builtin.debug:
+    var: mcfly_current_version
+
+- name: MCFLY | Install or Upgrade mcfly
+  when:
+    - mcfly_current_version != mcfly_latest_version or coreutils_force_mcfly
+  block:
+    - name: MCFLY | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: mcfly_
+        state: directory
+      register: mcfly_tmp_dir
+      check_mode: false
+
+    - name: MCFLY | Set release full name
+      ansible.builtin.set_fact:
+        mcfly_full_release_name: "mcfly-v{{ mcfly_latest_version }}-{{ coreutils_mcfly_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: MCFLY | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/cantino/mcfly/releases/download/\
+              v{{ mcfly_latest_version }}/{{ mcfly_full_release_name }}.tar.gz"
+        dest: "{{ mcfly_tmp_dir.path }}"
+        mode: "0640"
+      register: mcfly_downloaded_release
+
+    - name: MCFLY | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ mcfly_downloaded_release.dest }}"
+        dest: "{{ mcfly_tmp_dir.path }}"
+      register: mcfly_unarchived_release
+      when: not ansible_check_mode
+
+    - name: MCFLY | Copy mcfly binary
+      ansible.builtin.copy:
+        src: "{{ mcfly_tmp_dir.path }}/mcfly"
+        dest: "{{ xdg_dirs_local_bin }}/mcfly"
+        mode: "0550"
+
+  always:
+    - name: MCFLY | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ mcfly_tmp_dir.path }}"
+        state: absent
+      no_log: true

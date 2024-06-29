@@ -63,3 +63,8 @@ coreutils_force_eza: false
 coreutils_enable_mmv: true
 # Force installation regardles of it is already installed
 coreutils_force_mmv: false
+
+# Enable mcfly tasks
+coreutils_enable_mcfly: true
+# Force installation regardles of it is already installed
+coreutils_force_mcfly: false
