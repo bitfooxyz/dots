@@ -80,6 +80,12 @@
         src: "{{ zoxide_tmp_dir.path }}/man/man1"
         dest: "{{ xdg_dirs_local_share_man }}"
         mode: "0550"
+  always:
+    - name: ZOXIDE | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ zoxide_tmp_dir.path }}"
+        state: absent
+      no_log: true
 
 - name: ZOXIDE | Create config directory
   ansible.builtin.file:
