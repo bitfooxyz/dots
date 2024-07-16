@@ -4,7 +4,7 @@
 
 - name: NERDFONTS | Include os variables
   ansible.builtin.include_vars:
-    file: "nerdfonts/{{ ansible_system | lower }}.yml"
+    file: "nerdfonts/{{ ansible_distribution | lower }}.yml"
 
 - name: NERDFONTS | Install packages on Linux
   ansible.builtin.package:

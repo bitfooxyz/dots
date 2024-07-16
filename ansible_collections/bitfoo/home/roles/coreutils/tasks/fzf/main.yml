@@ -2,6 +2,10 @@
   ansible.builtin.include_vars:
     file: fzf/main.yml
 
+- name: FZF | Include os dependent vars
+  ansible.builtin.include_vars:
+    file: "fzf/{{ ansible_distribution | lower }}.yml"
+
 - name: FZF | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/junegunn/fzf/releases/latest
@@ -103,21 +107,14 @@
 
 - name: FZF | Install preview.sh Linux dependencies
   ansible.builtin.package:
-    name: "{{ coreutils_fzf_packages + coreutils_fzf_linux_packages }}"
+    name: "{{ coreutils_fzf_packages }}"
     state: present
   become: true
   when: ansible_system == "Linux"
 
-- name: FZF | Install preview.sh Fedora dependencies
-  ansible.builtin.package:
-    name: "{{ coreutils_fzf_fedora_packages }}"
-    state: present
-  become: true
-  when: ansible_distribution == "Fedora"
-
 - name: FZF | Install preview.sh MacOS dependencies
   ansible.builtin.package:
-    name: "{{ coreutils_fzf_packages + coreutils_fzf_macos_packages }}"
+    name: "{{ coreutils_fzf_packages }}"
     state: present
   when: ansible_system == "Darwin"
 

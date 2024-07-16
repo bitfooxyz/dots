@@ -1,0 +1,10 @@
+---
+shell_packages:
+  - git
+
+shell_bash_packages:
+  - bash
+  - bash-completion
+
+shell_zsh_packages:
+  - zsh

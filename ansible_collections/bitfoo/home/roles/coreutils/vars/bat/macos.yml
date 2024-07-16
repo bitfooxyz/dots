@@ -1,0 +1,6 @@
+coreutils_bat_packages:
+  - gnu-tar
+  - less
+  - man-db
+  - unzip
+  - diffutils

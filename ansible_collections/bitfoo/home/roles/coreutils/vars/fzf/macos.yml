@@ -1,0 +1,12 @@
+coreutils_fzf_packages:
+  - gzip
+  - xz
+  - unzip
+  - binutils # nm
+  - libcdio # iso-info
+  - odt2txt
+  - gnu-tar
+  - 7-zip
+  - transmission-cli
+  - exiftool
+  - imagemagick

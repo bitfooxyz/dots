@@ -1,6 +1,8 @@
 ---
 shell_packages:
   - git
+  - glibc-langpack-en
+  - glibc-langpack-de
 
 shell_bash_packages:
   - bash
@@ -8,7 +10,3 @@ shell_bash_packages:
 
 shell_zsh_packages:
   - zsh
-
-shell_linux_packages:
-  - glibc-langpack-en
-  - glibc-langpack-de
