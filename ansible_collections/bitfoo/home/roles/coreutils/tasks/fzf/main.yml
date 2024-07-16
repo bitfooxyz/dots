@@ -22,7 +22,7 @@
 
 - name: FZF | Register latest release version
   ansible.builtin.set_fact:
-    fzf_latest_version: "{{ fzf_latest_release_json.json.tag_name }}"
+    fzf_latest_version: "{{ fzf_latest_release_json.json.tag_name.split('v')[1] }}"
     fzf_current_version: "{{ fzf_current_version_cmd.stdout.split(' ')[0] | default('') }}"
 
 - name: FZF | Latest release version
@@ -50,7 +50,7 @@
 
     - name: FZF | Download checksum file
       ansible.builtin.uri:
-        url: "https://github.com/junegunn/fzf/releases/download/{{ fzf_latest_version }}/fzf_{{ fzf_latest_version }}_checksums.txt"
+        url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_latest_version }}/fzf_{{ fzf_latest_version }}_checksums.txt"
         return_content: true
       register: fzf_checksums
       changed_when: false
@@ -63,7 +63,7 @@
     - name: FZF | Download latest release
       ansible.builtin.get_url:
         url: "https://github.com/junegunn/fzf/releases/download/\
-              {{ fzf_latest_version }}/{{ fzf_full_release_name }}.\
+              v{{ fzf_latest_version }}/{{ fzf_full_release_name }}.\
               {{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ fzf_tmp_dir.path }}"
         mode: "0640"
@@ -85,7 +85,7 @@
 
     - name: FZF | Download manpages
       ansible.builtin.uri:
-        url: "https://raw.githubusercontent.com/junegunn/fzf/{{ fzf_latest_version }}/man/man1/{{ item }}"
+        url: "https://raw.githubusercontent.com/junegunn/fzf/v{{ fzf_latest_version }}/man/man1/{{ item }}"
         return_content: true
       register: fzf_manpages
       loop:
