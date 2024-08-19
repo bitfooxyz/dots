@@ -1,0 +1,3 @@
+---
+coreutils_wezterm_packages:
+  - org.wezfurlong.wezterm

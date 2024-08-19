@@ -1,0 +1,80 @@
+- name: WEZTERM | Import xdg_dirs role
+  ansible.builtin.import_role:
+    name: bitfoo.home.xdg_dirs
+
+- name: WEZTERM | Import flatpak role
+  ansible.builtin.import_role:
+    name: bitfoo.home.flatpak
+  when: ansible_system == "Linux"
+
+- name: WEZTERM | Include geerlingguy.mac role
+  ansible.builtin.include_role:
+    name: geerlingguy.mac.homebrew
+  when: ansible_system == "Darwin"
+
+- name: WEZTERM | Include os vars
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution }}.yml"
+
+- name: WEZTERM | Install packages on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_wezterm_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: WEZTERM | Install flathub package on Linux
+  community.general.flatpak:
+    name: "{{ coreutils_wezterm_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+
+- name: WEZTERM | Create wezterm config folder
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - wezterm
+    - wezterm/colors
+
+- name: WEZTERM | Link configuration files
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/{{ item }}"
+    dest: "{{ xdg_dirs_config }}/wezterm/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - wezterm.lua
+    - keys.lua
+    - tabbar.lua
+
+- name: WEZTERM | Create extra configuration
+  ansible.builtin.template:
+    src: extra.lua.j2
+    dest: "{{ xdg_dirs_config }}/wezterm/extra.lua"
+    mode: "0400"
+
+- name: WEZTERM | Setup tokyonight colorscheme
+  block:
+    - name: WEZTERM | Get current version of tokyonight
+      ansible.builtin.uri:
+        url: https://api.github.com/repos/folke/tokyonight.nvim/releases/latest
+      register: wezterm_colors_latest_release_json
+      check_mode: false
+
+    - name: WEZTERM | Register latest release version
+      ansible.builtin.set_fact:
+        wezterm_colors_latest_version: "{{ wezterm_colors_latest_release_json.json.tag_name }}"
+
+    - name: WEZTERM | Create colorscheme directories
+      ansible.builtin.file:
+        dest: "{{ xdg_dirs_config }}/wezterm/colors/tokyonight.nvim"
+        state: directory
+        mode: "0700"
+
+    - name: WEZTERM | Clone folke/tokyonight colorscheme
+      ansible.builtin.git:
+        repo: https://github.com/folke/tokyonight.nvim
+        dest: "{{ xdg_dirs_config }}/wezterm/colors/tokyonight.nvim"
+        version: "{{ wezterm_colors_latest_version }}"
+        depth: 1
