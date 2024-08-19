@@ -1,0 +1,16 @@
+---
+- name: FLATPAK | Include os vars
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution }}.yml"
+
+- name: FLATPAK | Install flatpak packages
+  ansible.builtin.package:
+    name: "{{ flatpak_packages }}"
+    state: present
+  become: true
+
+- name: FLATPAK | Add flathub repository
+  ansible.builtin.flatpak_remote:
+    name: flathub
+    flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
+    state: present
