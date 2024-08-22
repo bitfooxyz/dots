@@ -2,12 +2,6 @@
 - name: Configure dots on localhost
   hosts: macdb
   tasks:
-    - name: XDG_DIRS | Import role
-      ansible.builtin.include_role:
-        name: bitfoo.home.xdg_dirs
-      tags:
-        - always
-
     - name: SHELL | Import role
       ansible.builtin.include_role:
         name: bitfoo.home.shell
@@ -19,3 +13,9 @@
         name: bitfoo.home.coreutils
       tags:
         - always
+
+    - name: WEZTERM | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.wezterm
+      tags:
+        - wezterm
