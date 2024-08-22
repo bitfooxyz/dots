@@ -1,0 +1,6 @@
+collections:
+  - src: git+https://github.com/geerlingguy/ansible-collection-mac.git
+    name: geerlingguy.mac
+roles:
+  - src: git+https://github.com/elliotweiser/ansible-osx-command-line-tools.git
+    name: elliotweiser.osx-command-line-tools
