@@ -1,3 +1,7 @@
+- name: SHELL | Import xdg_dirs role
+  ansible.builtin.import_role:
+    name: xdg_dirs
+
 - name: SHELL | Include os dependent vars
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution | lower }}.yml"
