@@ -1,3 +1,13 @@
+---
+- name: COREUTILS | Import xdg_dirs role
+  ansible.builtin.import_role:
+    name: xdg_dirs
+
+- name: COREUTILS | Import geerlingguy.homebrew rol
+  ansible.builtin.import_role:
+    name: geerlingguy.mac.homebrew
+  when: ansible_system == "Darwin"
+
 # GIT tasks and vars
 - name: COREUTILS | Import git tasks
   ansible.builtin.import_tasks:
