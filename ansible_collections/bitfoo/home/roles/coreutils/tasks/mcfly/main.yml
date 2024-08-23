@@ -64,7 +64,7 @@
       ansible.builtin.copy:
         src: "{{ mcfly_tmp_dir.path }}/mcfly"
         dest: "{{ xdg_dirs_local_bin }}/mcfly"
-        mode: "0550"
+        mode: "0750"
 
   always:
     - name: MCFLY | Ensure tmp directory is absent
