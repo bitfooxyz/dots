@@ -63,13 +63,13 @@
       ansible.builtin.copy:
         src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd"
         dest: "{{ xdg_dirs_local_bin }}/fd"
-        mode: "0550"
+        mode: "0750"
 
     - name: FD | Copy autocompletion files
       ansible.builtin.copy:
         src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/autocomplete/{{ item.file }}"
         dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_fd.{{ item.shell }}"
-        mode: "0440"
+        mode: "0640"
       loop:
         - {shell: zsh, file: _fd}
         - {shell: bash, file: fd.bash}
@@ -78,7 +78,7 @@
       ansible.builtin.copy:
         src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/fd.1"
-        mode: "0440"
+        mode: "0640"
   always:
     - name: FD | Ensure tmp directory is absent
       ansible.builtin.file:
