@@ -147,10 +147,9 @@
           loop:
             - eza_colors.5
             - eza_colors-explanation.5
-
-      # always:
-      #   - name: EZA | Ensure tmp directory is absent
-      #     ansible.builtin.file:
-      #       dest: "{{ eza_tmp_dir.path }}"
-      #       state: absent
-      #     no_log: true
+      always:
+        - name: EZA | Ensure tmp directory is absent
+          ansible.builtin.file:
+            dest: "{{ eza_tmp_dir.path }}"
+            state: absent
+          no_log: true
