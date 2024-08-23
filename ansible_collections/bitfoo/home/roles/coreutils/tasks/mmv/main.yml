@@ -46,7 +46,8 @@
 
     - name: MMV | Get latest release
       ansible.builtin.get_url:
-        url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}/{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
+        url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}\
+              /{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ mmv_tmp_dir.path }}"
         mode: "0640"
       check_mode: false
