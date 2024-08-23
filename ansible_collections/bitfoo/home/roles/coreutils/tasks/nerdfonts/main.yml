@@ -13,7 +13,7 @@
   become: true
   when: ansible_system == "Linux"
 
-- name: NERDFONTS | Install pacakages on MacOS
+- name: NERDFONTS | Install packages on MacOS
   community.general.homebrew:
     name: "{{ coreutils_nerdfonts_packages }}"
     state: present
