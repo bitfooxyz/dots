@@ -71,13 +71,13 @@
       ansible.builtin.copy:
         src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/bat"
         dest: "{{ xdg_dirs_local_bin }}/bat"
-        mode: "0550"
+        mode: "0750"
 
     - name: BAT | Copy shell autocomplete files
       ansible.builtin.copy:
         src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/autocomplete/bat.{{ item }}"
         dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_bat.{{ item }}"
-        mode: "0440"
+        mode: "0640"
       loop:
         - bash
         - zsh
@@ -86,7 +86,7 @@
       ansible.builtin.copy:
         src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/bat.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/bat.1"
-        mode: "0440"
+        mode: "0640"
   always:
     - name: BAT | Ensure tmp directory is absent
       ansible.builtin.file:

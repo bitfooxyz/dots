@@ -59,14 +59,14 @@
       ansible.builtin.copy:
         src: "{{ item }}"
         dest: "{{ xdg_dirs_local_bin }}/"
-        mode: "0550"
+        mode: "0750"
       loop: "{{ query('fileglob', bat_extras_unarchived_release.dest + '/bin/*') }}"
 
     - name: BAT-EXTRAS | Copy manpages
       ansible.builtin.copy:
         src: "{{ bat_extras_unarchived_release.dest }}/man/"
         dest: "{{ xdg_dirs_local_share_man }}/man1/"
-        mode: "0440"
+        mode: "0640"
   always:
     - name: BAT | Ensure tmp directory is absent
       ansible.builtin.file:
