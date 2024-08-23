@@ -71,7 +71,7 @@
       ansible.builtin.copy:
         src: "{{ glow_tmp_dir.path }}/glow"
         dest: "{{ xdg_dirs_local_bin }}/glow"
-        mode: "0550"
+        mode: "0750"
       when: not ansible_check_mode
 
     # Commented cause the autocompletion is useless an prevents
@@ -96,7 +96,7 @@
       ansible.builtin.copy:
         src: "{{ glow_tmp_dir.path }}/manpages/glow.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/glow.1"
-        mode: "0440"
+        mode: "0640"
       when: not ansible_check_mode
   always:
     - name: GLOW | Ensure tmp directory is absent
