@@ -47,6 +47,7 @@
     - name: FZF | Set release full name
       ansible.builtin.set_fact:
         fzf_full_release_name: "fzf-{{ fzf_latest_version }}-{{ coreutils_fzf_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
 
     - name: FZF | Download checksum file
       ansible.builtin.uri:
@@ -59,6 +60,7 @@
     - name: FZF | Set checksum for system and architecture archive
       ansible.builtin.set_fact:
         fzf_file_checksum: "{{ fzf_checksums.content | regex_findall('.*' + fzf_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
 
     - name: FZF | Download latest release
       ansible.builtin.get_url:
@@ -69,13 +71,14 @@
         mode: "0640"
         checksum: "sha256:{{ fzf_file_checksum }}"
       register: fzf_downloaded_release
+      check_mode: false
 
     - name: FZF | Unarchive downloaded archive
       ansible.builtin.unarchive:
         src: "{{ fzf_downloaded_release.dest }}"
         dest: "{{ fzf_tmp_dir.path }}"
       register: fzf_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: FZF | Copy fzf binary
       ansible.builtin.copy:
@@ -88,6 +91,7 @@
         url: "https://raw.githubusercontent.com/junegunn/fzf/v{{ fzf_latest_version }}/man/man1/{{ item }}"
         return_content: true
       register: fzf_manpages
+      check_mode: false
       loop:
         - fzf.1
         - fzf-tmux.1
