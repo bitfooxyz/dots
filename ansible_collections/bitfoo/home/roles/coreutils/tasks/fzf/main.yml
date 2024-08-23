@@ -65,8 +65,7 @@
     - name: FZF | Download latest release
       ansible.builtin.get_url:
         url: "https://github.com/junegunn/fzf/releases/download/\
-              v{{ fzf_latest_version }}/{{ fzf_full_release_name }}.\
-              {{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
+              v{{ fzf_latest_version }}/{{ fzf_full_release_name }}.tar.gz"
         dest: "{{ fzf_tmp_dir.path }}"
         mode: "0640"
         checksum: "sha256:{{ fzf_file_checksum }}"
