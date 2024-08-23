@@ -1,8 +1,6 @@
 - name: TEALDEER  | Include tealdeer vars
   ansible.builtin.include_vars:
     file: tealdeer/main.yml
-  tags:
-    - always
 
 - name: TEALDEER | Get latest version
   ansible.builtin.uri:
