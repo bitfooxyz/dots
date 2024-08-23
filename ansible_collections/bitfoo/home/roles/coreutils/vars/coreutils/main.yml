@@ -1,0 +1,17 @@
+coreutils_packages:
+  - btop # Process monitor
+  - coreutils # GNU coreutils
+  - findutils # GNU findutils
+  - htop # Commandline system monitor
+  - iperf3 # Network performance tool
+  - jq # JSON Query cli
+  - less # Linux pager
+  - man-db # Installs the man command and some helper utlilities
+  - mtools # MS DOS tools
+  - nmap # Install nmap on macos also ncat/netcat
+  - pigz # Parallel gzip
+  - rsync # Sync utility more powerfull than cp
+  - smartmontools # S.M.A.R.T utility
+  - trash-cli # CLI to use the OS trash directories
+  - wget # Utility to download files from http/ftp
+  - yt-dlp # youtoube downloader

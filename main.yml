@@ -9,7 +9,7 @@
         - shell
 
     - name: COREUTILS | Import role
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: bitfoo.home.coreutils
       tags:
         - coreutils

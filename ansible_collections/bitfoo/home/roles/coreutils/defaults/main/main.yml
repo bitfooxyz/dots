@@ -1,4 +1,7 @@
 # Enable git tasks
+coreutils_enable_coreutils: true
+
+# Enable git tasks
 coreutils_enable_git: true
 
 # Enable nerdfonts tasks

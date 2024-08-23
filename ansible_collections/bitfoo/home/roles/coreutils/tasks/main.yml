@@ -8,6 +8,13 @@
     name: geerlingguy.mac.homebrew
   when: ansible_system == "Darwin"
 
+- name: COREUTILS | Import coreutils tasks
+  ansible.builtin.import_tasks:
+    file: coreutils/main.yml
+  when: coreutils_enable_coreutils
+  tags:
+    - coreutils
+
 # GIT tasks and vars
 - name: COREUTILS | Import git tasks
   ansible.builtin.import_tasks:

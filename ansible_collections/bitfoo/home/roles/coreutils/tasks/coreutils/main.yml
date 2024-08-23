@@ -1,0 +1,20 @@
+- name: Include coreutils variables
+  ansible.builtin.include_vars:
+    file: coreutils/main.yml
+
+- name: Include os dependent variables
+  ansible.builtin.include_vars:
+    file: "coreutils/{{ ansible_distribution | lower }}.yml"
+
+- name: Install coreutils on Linux
+  ansible.builtin.package:
+    name: "{{ coreutils_packages + coreutils_os_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+  become: true
+
+- name: Install coreutils on MacOS
+  community.general.homebrew:
+    name: "{{ coreutils_packages + coreutils_os_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
