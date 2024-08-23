@@ -10,8 +10,6 @@
 - name: SHELL | Include os dependent vars
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution | lower }}.yml"
-  tags:
-    - always
 
 - name: SHELL | Install packages on Linux
   ansible.builtin.package:
@@ -19,16 +17,12 @@
     state: present
   become: true
   when: ansible_system == "Linux"
-  tags:
-    - always
 
 - name: SHELL | Install packages on MacOS
   ansible.builtin.homebrew:
     name: "{{ shell_packages }}"
     state: present
   when: ansible_system == "Darwin"
-  tags:
-    - always
 
 - name: SHELL | Copy shell profile to ~/.profile
   ansible.builtin.file:
