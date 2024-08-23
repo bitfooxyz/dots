@@ -65,6 +65,7 @@
             eza_full_release_name: "eza_{{ coreutils_eza_os_arch\
                                   [ansible_system]\
                                   [ansible_architecture] }}"
+          check_mode: false
 
         - name: EZA | Download latest release
           ansible.builtin.get_url:
@@ -72,6 +73,7 @@
                   v{{ eza_latest_version }}/{{ eza_full_release_name }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0640"
+          check_mode: false
           register: eza_downloaded_release
 
         - name: EZA | Unarchive downloaded archive
@@ -80,13 +82,12 @@
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0750"
           register: eza_unarchived_release
-          when: not ansible_check_mode
+          check_mode: false
 
         - name: EZA | Copy binary
           ansible.builtin.copy:
             src: "{{ eza_tmp_dir.path }}/eza"
             dest: "{{ xdg_dirs_local_bin }}/eza"
-          when: not ansible_check_mode
             mode: "0750"
 
         - name: EZA | Download completions
@@ -95,6 +96,7 @@
                   v{{ eza_latest_version }}/completions-{{ eza_latest_version }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0640"
+          check_mode: false
           register: eza_downloaded_release
 
         - name: EZA | Unarchive downloaded archive
@@ -103,13 +105,12 @@
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0750"
           register: eza_unarchived_release
-          when: not ansible_check_mode
+          check_mode: false
 
         - name: EZA | Copy completions
           ansible.builtin.copy:
             src: "{{ eza_tmp_dir.path }}/target/completions-{{ eza_latest_version }}/{{ item.file }}"
             dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_eza.{{ item.shell }}"
-          when: not ansible_check_mode
             mode: "0640"
           loop:
             - {shell: bash, file: eza}
@@ -121,6 +122,7 @@
                   v{{ eza_latest_version }}/man-{{ eza_latest_version }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0640"
+          check_mode: false
           register: eza_downloaded_release
 
         - name: EZA | Unarchive downloaded archive
@@ -129,20 +131,18 @@
             dest: "{{ eza_tmp_dir.path }}"
             mode: "0750"
           register: eza_unarchived_release
-          when: not ansible_check_mode
+          check_mode: false
 
         - name: EZA | Copy manpages section 1
           ansible.builtin.copy:
             src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/eza.1"
             dest: "{{ xdg_dirs_local_share_man }}/man1/eza.1"
-          when: not ansible_check_mode
             mode: "0640"
 
         - name: EZA | Copy manpages section 5
           ansible.builtin.copy:
             src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/{{ item }}"
             dest: "{{ xdg_dirs_local_share_man }}/man5/{{ item }}"
-          when: not ansible_check_mode
             mode: "0640"
           loop:
             - eza_colors.5
