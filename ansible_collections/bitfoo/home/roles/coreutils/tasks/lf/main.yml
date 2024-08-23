@@ -62,6 +62,7 @@
         lf_full_release_name: "lf-{{ coreutils_lf_os_arch\
                               [ansible_system]\
                               [ansible_architecture] }}"
+      check_mode: false
 
     - name: LF | Download latest release
       ansible.builtin.get_url:
@@ -69,6 +70,7 @@
               {{ lf_latest_version }}/{{ lf_full_release_name }}.tar.gz"
         dest: "{{ lf_tmp_dir.path }}"
         mode: "0640"
+      check_mode: false
       register: lf_downloaded_release
 
     - name: LF | Unarchive downloaded archive
@@ -77,7 +79,7 @@
         dest: "{{ xdg_dirs_local_bin }}"
         mode: "0500"
       register: lf_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: LF | Get manpages
       ansible.builtin.command:
@@ -85,14 +87,12 @@
       register: lf_doc_cmd
       check_mode: false
       changed_when: false
-      when: not ansible_check_mode
 
     - name: LF | Create manpage
       ansible.builtin.copy:
         content: "{{ lf_doc_cmd.stdout }}"
         dest: "{{ xdg_dirs_local_share_man }}/man1/lf.1"
         mode: "0400"
-      when: not ansible_check_mode
 
   always:
     - name: LF | Ensure tmp directory is absent
