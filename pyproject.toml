@@ -20,3 +20,5 @@ virtual = true
 dev-dependencies = []
 [tool.rye.scripts]
   changelog="git-cliff -o CHANGELOG.md"
+  run-play="ansible-playbook --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file main.yml"
+  check-play="ansible-playbook --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file --check --diff main.yml"
