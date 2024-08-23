@@ -16,7 +16,7 @@
   ansible.builtin.file:
     dest: "{{ xdg_dirs_config }}/{{ item }}"
     state: directory
-    mode: "0550"
+    mode: "0750"
   loop:
     - zsh
     - zsh/completions
@@ -28,7 +28,7 @@
     dest: "{{ ansible_user_dir }}/.zshenv"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"
 
 - name: ZSH | Link zshrc to ~/.config/zsh/.zshrc
   ansible.builtin.file:
@@ -36,7 +36,7 @@
     dest: "{{ xdg_dirs_config }}/zsh/.zshrc"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"
 
 - name: ZSH | Link configuration to $XDG_CONFIG_HOME/zsh
   ansible.builtin.file:
@@ -44,7 +44,7 @@
     dest: "{{ xdg_dirs_config }}/zsh/{{ item }}"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"
   loop:
     - aliases.zsh
     - bindings.zsh

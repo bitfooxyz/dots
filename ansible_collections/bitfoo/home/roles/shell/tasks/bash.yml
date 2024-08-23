@@ -15,7 +15,7 @@
   ansible.builtin.file:
     dest: "{{ xdg_dirs_config }}/{{ item }}"
     state: directory
-    mode: "0550"
+    mode: "0750"
   loop:
     - bash
     - bash/completions
@@ -26,4 +26,4 @@
     dest: "{{ ansible_user_dir }}/.bashrc"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"

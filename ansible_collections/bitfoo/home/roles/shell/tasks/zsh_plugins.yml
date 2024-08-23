@@ -14,20 +14,20 @@
   ansible.builtin.file:
     dest: "{{ xdg_dirs_config }}/zsh/plugins/sudo"
     state: directory
-    mode: "0550"
+    mode: "0750"
 
 - name: ZSH-PLUGINS | Get zsh sudo plugin
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
     dest: "{{ xdg_dirs_config }}/zsh/plugins/sudo/sudo.plugin.zsh"
-    mode: "0440"
+    mode: "0640"
   when: not ansible_check_mode
 
 - name: ZSH-PLUGINS | Create powerlevel10k plugin directories
   ansible.builtin.file:
     dest: "{{ xdg_dirs_config }}/zsh/plugins/{{ item }}"
     state: directory
-    mode: "0550"
+    mode: "0750"
   loop:
     - powerlevel10k
     - powerlevel10k-config
@@ -45,4 +45,4 @@
     dest: "{{ xdg_dirs_config }}/zsh/plugins/powerlevel10k-config/p10k.zsh"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"
