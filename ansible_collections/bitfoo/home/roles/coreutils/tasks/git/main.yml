@@ -23,7 +23,7 @@
   ansible.builtin.file:
     name: "{{ xdg_dirs_config }}/{{ item }}"
     state: directory
-    mode: "0550"
+    mode: "0750"
   loop:
     - git
     - git/includes
@@ -32,11 +32,11 @@
   ansible.builtin.template:
     src: git/config.j2
     dest: "{{ xdg_dirs_config }}/git/config"
-    mode: "0440"
+    mode: "0640"
 
 - name: GIT | Create git includes
   ansible.builtin.template:
     src: git/includes.j2
     dest: "{{ xdg_dirs_config }}/git/includes/{{ item.path | hash('sha1') }}.inc"
-    mode: "0440"
+    mode: "0640"
   loop: "{{ coreutils_git_include_if }}"
