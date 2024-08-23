@@ -12,7 +12,7 @@
       ansible.builtin.include_role:
         name: bitfoo.home.coreutils
       tags:
-        - always
+        - coreutils
 
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
