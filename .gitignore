@@ -2,3 +2,8 @@ logs/
 # https://github.com/ansible/vscode-ansible/issues/900
 .vscode/settings.json
 .*venv
+secrets/*
+ansible_collections/*
+!ansible_collections/bitfoo
+!ansible_collections/bitfoo/**
+galaxy_roles/*
