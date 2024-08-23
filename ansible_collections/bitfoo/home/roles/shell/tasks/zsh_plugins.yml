@@ -21,6 +21,7 @@
     url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/plugins/sudo/sudo.plugin.zsh
     dest: "{{ xdg_dirs_config }}/zsh/plugins/sudo/sudo.plugin.zsh"
     mode: "0440"
+  when: not ansible_check_mode
 
 - name: ZSH-PLUGINS | Create powerlevel10k plugin directories
   ansible.builtin.file:
