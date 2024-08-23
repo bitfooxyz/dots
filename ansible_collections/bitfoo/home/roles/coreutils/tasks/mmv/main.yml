@@ -66,3 +66,9 @@
         mode: "0750"
       when: not ansible_check_mode
       diff: false
+  always:
+    - name: Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ mmv_tmp_dir.path }}"
+        state: absent
+      no_log: true
