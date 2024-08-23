@@ -84,7 +84,7 @@
       ansible.builtin.copy:
         src: "{{ fzf_tmp_dir.path }}/fzf"
         dest: "{{ xdg_dirs_local_bin }}/fzf"
-        mode: "0550"
+        mode: "0750"
 
     - name: FZF | Download manpages
       ansible.builtin.uri:
@@ -100,7 +100,7 @@
       ansible.builtin.copy:
         content: "{{ item.content }}"
         dest: "{{ xdg_dirs_local_share_man }}/man1/{{ item.item }}"
-        mode: "0550"
+        mode: "0750"
       loop: "{{ fzf_manpages.results }}"
   always:
     - name: FZF | Ensure tmp directory is absent
@@ -126,10 +126,10 @@
   ansible.builtin.file:
     path: "{{ xdg_dirs_config }}/fzf"
     state: directory
-    mode: "0550"
+    mode: "0750"
 
 - name: FZF | Ensure preview.sh exists
   ansible.builtin.copy:
     src: lf/preview.sh
     dest: "{{ xdg_dirs_config }}/fzf/preview.sh"
-    mode: "0550"
+    mode: "0750"
