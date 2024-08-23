@@ -3,7 +3,7 @@
   hosts: macdb
   tasks:
     - name: SHELL | Import role
-      ansible.builtin.include_role:
+      ansible.builtin.import_role:
         name: bitfoo.home.shell
       tags:
         - shell
