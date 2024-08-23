@@ -49,6 +49,7 @@
         url: "https://github.com/sharkdp/fd/releases/download/v{{ fd_latest_version }}/{{ fd_full_release_name }}.tar.gz"
         dest: "{{ fd_tmp_dir.path }}"
         mode: "0640"
+      check_mode: false
       register: fd_downloaded_release
 
     - name: FD | Unarchive downloaded archive
@@ -56,14 +57,13 @@
         src: "{{ fd_downloaded_release.dest }}"
         dest: "{{ fd_tmp_dir.path }}"
       register: fd_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: FD | Copy fd binary
       ansible.builtin.copy:
         src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd"
         dest: "{{ xdg_dirs_local_bin }}/fd"
         mode: "0550"
-      when: not ansible_check_mode
 
     - name: FD | Copy autocompletion files
       ansible.builtin.copy:
@@ -73,14 +73,12 @@
       loop:
         - {shell: zsh, file: _fd}
         - {shell: bash, file: fd.bash}
-      when: not ansible_check_mode
 
     - name: FD | Copy manpages
       ansible.builtin.copy:
         src: "{{ fd_tmp_dir.path }}/{{ fd_full_release_name }}/fd.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/fd.1"
         mode: "0440"
-      when: not ansible_check_mode
   always:
     - name: FD | Ensure tmp directory is absent
       ansible.builtin.file:
