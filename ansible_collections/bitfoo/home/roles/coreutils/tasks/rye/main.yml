@@ -57,12 +57,14 @@
         dest: "{{ rye_tmp_dir.path }}"
         mode: "0660"
         checksum: "sha256:{{ rye_release_checksum.content }}"
+      check_mode: false
       register: rye_downloaded_release
 
     - name: RYE | Extract downloaded release archive
       ansible.builtin.command:
         cmd: "gunzip {{ rye_downloaded_release.dest }}"
         creates: "{{ rye_tmp_dir.path }}/{{ rye_full_release_name }}"
+      check_mode: false
 
     - name: RYE | Make binary executable
       ansible.builtin.file:
