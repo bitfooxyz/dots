@@ -23,10 +23,9 @@
     - always
 
 - name: SHELL | Install packages on MacOS
-  ansible.builtin.package:
+  ansible.builtin.homebrew:
     name: "{{ shell_packages }}"
     state: present
-  become: true
   when: ansible_system == "Darwin"
   tags:
     - always
