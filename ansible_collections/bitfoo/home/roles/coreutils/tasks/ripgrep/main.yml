@@ -71,14 +71,14 @@
       ansible.builtin.copy:
         src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/rg"
         dest: "{{ xdg_dirs_local_bin }}/rg"
-        mode: "0550"
+        mode: "0750"
       no_log: true
 
     - name: RIPGREP | Copy autocompletion files
       ansible.builtin.copy:
         src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/complete/{{ item.file }}"
         dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_ripgrep.{{ item.shell }}"
-        mode: "0440"
+        mode: "0640"
       loop:
         - {shell: zsh, file: _rg}
         - {shell: bash, file: rg.bash}
@@ -87,7 +87,7 @@
       ansible.builtin.copy:
         src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/doc/rg.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/rg.1"
-        mode: "0440"
+        mode: "0640"
   always:
     - name: RIPGREP | Ensure tmp directory is absent
       ansible.builtin.file:
