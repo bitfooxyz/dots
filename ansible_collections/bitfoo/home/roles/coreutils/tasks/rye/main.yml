@@ -70,7 +70,7 @@
       ansible.builtin.file:
         path: "{{ rye_tmp_dir.path }}/{{ rye_full_release_name }}"
         state: file
-        mode: "0550"
+        mode: "0750"
       when: not ansible_check_mode
 
     - name: RYE | Install rye
@@ -107,7 +107,7 @@
   ansible.builtin.copy:
     content: "{{ item.stdout }}"
     dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_rye.{{ item.item }}"
-    mode: "0440"
+    mode: "0640"
   when:
     - rye_install_cmd.changed or rye_update_cmd.changed | bool
   loop: "{{ rye_completion_cmd.results }}"
@@ -117,12 +117,12 @@
   ansible.builtin.template:
     src: rye/config.toml.j2
     dest: "{{ ansible_user_dir }}/.rye/config.toml"
-    mode: "0400"
+    mode: "0640"
   no_log: true
 
 - name: RYE | Create credentials file to store publish tokens
   ansible.builtin.template:
     src: rye/credentials.j2
     dest: "{{ ansible_user_dir }}/.rye/credentials"
-    mode: "0400"
+    mode: "0640"
   no_log: true
