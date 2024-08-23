@@ -89,7 +89,9 @@
     cmd: "{{ ansible_user_dir }}/.rye/shims/rye self update"
   register: rye_update_cmd
   changed_when: "'Updated!' in rye_update_cmd.stdout"
-  when: rye_current_version != rye_latest_version
+  when:
+    - rye_current_version != ""
+    - rye_current_version != rye_latest_version
 
 - name: RYE | Get shell completion
   ansible.builtin.command:
