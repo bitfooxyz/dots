@@ -54,15 +54,11 @@
     depth: 1
   register: nerdfonts_found_fonts
 
-- name: FOO
+- name: NERDFONTS | Get to installed fonts
   ansible.builtin.set_fact:
     nerdfonts_to_get_installed_fonts: "{{ coreutils_nerdfonts_fonts | \
                                 difference(nerdfonts_found_fonts.files | \
                                 map(attribute='path') | map('basename')) }}"
-
-- name: DEBUG
-  ansible.builtin.debug:
-    var: nerdfonts_to_get_installed_fonts
 
 - name: NERDFONTS | Install or Upgrade nerdfonts
   when:
