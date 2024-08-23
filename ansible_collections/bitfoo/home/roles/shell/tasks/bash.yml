@@ -20,8 +20,10 @@
     - bash
     - bash/completions
 
-- name: BASH | Copy bashrc to ~/.bashrc
-  ansible.builtin.copy:
-    src: "bash/bashrc"
+- name: BASH | Link bashrc to ~/.bashrc
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/bash/bashrc"
     dest: "{{ ansible_user_dir }}/.bashrc"
+    state: link
+    force: true
     mode: "0440"

@@ -39,7 +39,9 @@
     depth: 1
 
 - name: ZSH-PLUGINS | Copy powerlevel10k-config
-  ansible.builtin.copy:
-    src: zsh/p10k.zsh
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/zsh/p10k.zsh"
     dest: "{{ xdg_dirs_config }}/zsh/plugins/powerlevel10k-config/p10k.zsh"
+    state: link
+    force: true
     mode: "0440"

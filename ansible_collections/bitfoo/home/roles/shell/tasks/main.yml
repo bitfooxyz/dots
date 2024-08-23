@@ -27,9 +27,11 @@
     - always
 
 - name: SHELL | Copy shell profile to ~/.profile
-  ansible.builtin.copy:
-    src: profile
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/profile"
     dest: "{{ ansible_user_dir }}/.profile"
+    state: link
+    force: true
     mode: "0440"
   tags:
     - bash

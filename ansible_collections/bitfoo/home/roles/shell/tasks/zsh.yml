@@ -22,22 +22,28 @@
     - zsh/completions
     - zsh/plugins
 
-- name: ZSH | Copy zshenv to ~/.zshenv
-  ansible.builtin.copy:
-    src: zsh/zshenv
+- name: ZSH | Link zshenv to ~/.zshenv
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/zsh/zshenv"
     dest: "{{ ansible_user_dir }}/.zshenv"
+    state: link
+    force: true
     mode: "0440"
 
-- name: ZSH | Copy zshrc to ~/.config/zsh/.zshrc
-  ansible.builtin.copy:
-    src: "zsh/zshrc"
+- name: ZSH | Link zshrc to ~/.config/zsh/.zshrc
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/zsh/zshrc"
     dest: "{{ xdg_dirs_config }}/zsh/.zshrc"
+    state: link
+    force: true
     mode: "0440"
 
-- name: ZSH | Copy configuration to $XDG_CONFIG_HOME/zsh
-  ansible.builtin.copy:
-    src: "zsh/{{ item }}"
+- name: ZSH | Link configuration to $XDG_CONFIG_HOME/zsh
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/zsh/{{ item }}"
     dest: "{{ xdg_dirs_config }}/zsh/{{ item }}"
+    state: link
+    force: true
     mode: "0440"
   loop:
     - aliases.zsh
