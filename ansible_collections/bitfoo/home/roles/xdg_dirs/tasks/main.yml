@@ -1,10 +1,6 @@
 - name: XDG_DIRS | Import vars file
   ansible.builtin.include_vars: main.yml
-  tags:
-    - always
 
 - name: XDG_DIRS | Import tasks
   ansible.builtin.import_tasks:
     file: xdg_dirs.yml
-  tags:
-    - always
