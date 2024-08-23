@@ -23,7 +23,7 @@
   ansible.builtin.file:
     path: "{{ coreutils_nerdfonts_fonts_directory }}"
     state: directory
-    mode: "0500"
+    mode: "0750"
 
 - name: NERDFONTS | Get latest version
   ansible.builtin.uri:
@@ -85,7 +85,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_latest_version }}/{{ item }}.tar.xz"
         dest: "{{ nerdfonts_tmp_dir.path }}"
-        mode: "0600"
+        mode: "0640"
         checksum: "sha256:{{ nerdfonts_checksums.content | regex_findall('.*' + item + '.tar.xz$', multiline=True) | first | split(' ') | first }}"
       loop: "{{ nerdfonts_to_get_installed_fonts }}"
       register: nerdfonts_downloaded_release
@@ -94,7 +94,7 @@
       ansible.builtin.file:
         path: "{{ coreutils_nerdfonts_fonts_directory }}/{{ item }}"
         state: directory
-        mode: "0500"
+        mode: "0750"
       loop: "{{ nerdfonts_to_get_installed_fonts }}"
 
     - name: NERDFONTS | Unarchive downloaded fonts
@@ -111,7 +111,7 @@
       ansible.builtin.copy:
         content: "{{ nerdfonts_latest_version }}"
         dest: "{{ coreutils_nerdfonts_fonts_directory }}/nerdfonts_version.txt"
-        mode: "0400"
+        mode: "0640"
   always:
     - name: NERDFONTS | Ensure tmp directory is absent
       ansible.builtin.file:
