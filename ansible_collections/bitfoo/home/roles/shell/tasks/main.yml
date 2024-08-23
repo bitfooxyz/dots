@@ -2,6 +2,11 @@
   ansible.builtin.import_role:
     name: xdg_dirs
 
+- name: SHELL | Import geerlingguy.mac.homebrew role
+  ansible.builtin.import_role:
+    name: geerlingguy.mac.homebrew
+  when: ansible_system == "Darwin"
+
 - name: SHELL | Include os dependent vars
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution | lower }}.yml"
