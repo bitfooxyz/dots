@@ -49,6 +49,7 @@
         url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}/{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ mmv_tmp_dir.path }}"
         mode: "0440"
+      check_mode: false
       register: mmv_downloaded_release
 
     - name: MMV | Unarchive downloaded archive
@@ -56,7 +57,7 @@
         src: "{{ mmv_downloaded_release.dest }}"
         dest: "{{ mmv_tmp_dir.path }}"
       register: mmv_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: MMV | Copy mmv binary
       ansible.builtin.copy:
