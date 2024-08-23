@@ -48,7 +48,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}/{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ mmv_tmp_dir.path }}"
-        mode: "0440"
+        mode: "0640"
       check_mode: false
       register: mmv_downloaded_release
 
@@ -63,6 +63,6 @@
       ansible.builtin.copy:
         src: "{{ mmv_tmp_dir.path }}/{{ mmv_full_release_name }}/mmv"
         dest: "{{ xdg_dirs_local_bin }}/mmv"
-        mode: "0550"
+        mode: "0750"
       when: not ansible_check_mode
       diff: false
