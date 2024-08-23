@@ -50,6 +50,7 @@
               v{{ mcfly_latest_version }}/{{ mcfly_full_release_name }}.tar.gz"
         dest: "{{ mcfly_tmp_dir.path }}"
         mode: "0640"
+      check_mode: false
       register: mcfly_downloaded_release
 
     - name: MCFLY | Unarchive downloaded archive
@@ -57,7 +58,7 @@
         src: "{{ mcfly_downloaded_release.dest }}"
         dest: "{{ mcfly_tmp_dir.path }}"
       register: mcfly_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: MCFLY | Copy mcfly binary
       ansible.builtin.copy:
