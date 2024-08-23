@@ -57,6 +57,7 @@
         url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/completions_{{ item }}"
         dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_tldr.{{ item }}"
         mode: "0640"
+      when: not ansible_check_mode
       loop:
         - bash
         - zsh
