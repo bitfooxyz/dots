@@ -45,7 +45,7 @@
       ansible.builtin.get_url:
         url: "https://awscli.amazonaws.com/{{ aws_cli_full_release_name[ansible_system] }}"
         dest: "{{ aws_cli_tmp_dir.path }}"
-        mode: "0660"
+        mode: "0640"
       register: aws_cli_downloaded_release
 
     - name: AWS-CLI | Linux specific tasks
@@ -57,7 +57,7 @@
           ansible.builtin.unarchive:
             src: "{{ aws_cli_downloaded_release.dest }}"
             dest: "{{ aws_cli_tmp_dir.path }}/"
-            mode: "0550"
+            mode: "0750"
           no_log: true
 
         - name: AWS-CLI | Install or update aws-cli
@@ -72,7 +72,7 @@
           ansible.builtin.file:
             path: "{{ xdg_dirs_local_bin }}/{{ item }}"
             state: link
-            mode: "0550"
+            mode: "0750"
           loop:
             - aws
             - aws_completer
@@ -86,7 +86,7 @@
           ansible.builtin.template:
             src: aws_cli/choices.xml.j2
             dest: "{{ aws_cli_tmp_dir.path }}/choices.xml"
-            mode: "0440"
+            mode: "0640"
 
         - name: AWS-CLI | Install or update aws-cli
           ansible.builtin.command:
@@ -101,7 +101,7 @@
           ansible.builtin.file:
             src: "{{ xdg_dirs_local_share }}/aws-cli/{{ item }}"
             dest: "{{ xdg_dirs_local_bin }}/{{ item }}"
-            mode: "0550"
+            mode: "0750"
             state: link
           loop:
             - aws
