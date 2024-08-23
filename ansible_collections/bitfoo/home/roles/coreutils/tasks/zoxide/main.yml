@@ -64,13 +64,13 @@
       ansible.builtin.copy:
         src: "{{ zoxide_tmp_dir.path }}/zoxide"
         dest: "{{ xdg_dirs_local_bin }}/zoxide"
-        mode: "0550"
+        mode: "0750"
 
     - name: ZOXIDE | Copy shell completion
       ansible.builtin.copy:
         src: "{{ zoxide_tmp_dir.path }}/completions/{{ item.file }}"
         dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_zoxide.{{ item.shell }}"
-        mode: "0440"
+        mode: "0640"
       loop:
         - {shell: bash, file: zoxide.bash}
         - {shell: zsh, file: _zoxide}
@@ -79,7 +79,7 @@
       ansible.builtin.copy:
         src: "{{ zoxide_tmp_dir.path }}/man/man1"
         dest: "{{ xdg_dirs_local_share_man }}"
-        mode: "0550"
+        mode: "0750"
   always:
     - name: ZOXIDE | Ensure tmp directory is absent
       ansible.builtin.file:
@@ -91,4 +91,4 @@
   ansible.builtin.file:
     path: "{{ xdg_dirs_config }}/zoxide"
     state: directory
-    mode: "0550"
+    mode: "0750"
