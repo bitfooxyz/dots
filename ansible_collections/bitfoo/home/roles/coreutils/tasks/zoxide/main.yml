@@ -43,6 +43,7 @@
     - name: ZOXIDE | Set release full name
       ansible.builtin.set_fact:
         zoxide_full_release_name: "zoxide-{{ zoxide_latest_version }}-{{ coreutils_zoxide_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
 
     - name: ZOXIDE | Download latest release
       ansible.builtin.get_url:
@@ -50,13 +51,14 @@
         dest: "{{ zoxide_tmp_dir.path }}"
         mode: "0640"
       register: zoxide_downloaded_release
+      check_mode: false
 
     - name: ZOXIDE | Unarchive downloaded archive
       ansible.builtin.unarchive:
         src: "{{ zoxide_downloaded_release.dest }}"
         dest: "{{ zoxide_tmp_dir.path }}"
       register: zoxide_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: ZOXIDE | Copy zoxide binary
       ansible.builtin.copy:
