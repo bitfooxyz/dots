@@ -101,7 +101,7 @@
     - bash
   when:
     - rye_install_cmd.changed or rye_update_cmd.changed | bool
-  no_log: true
+  diff: true
 
 - name: RYE | Copy completion
   ansible.builtin.copy:
@@ -111,7 +111,7 @@
   when:
     - rye_install_cmd.changed or rye_update_cmd.changed | bool
   loop: "{{ rye_completion_cmd.results }}"
-  no_log: true
+  diff: true
 
 - name: RYE | Create config.toml
   ansible.builtin.template:
