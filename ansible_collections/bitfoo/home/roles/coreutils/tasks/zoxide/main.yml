@@ -1,8 +1,6 @@
 - name: ZOXIDE | Include zoxide vars
   ansible.builtin.include_vars:
     file: zoxide/main.yml
-  tags:
-    - always
 
 - name: ZOXIDE | Get latest version
   ansible.builtin.uri:
