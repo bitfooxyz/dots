@@ -57,6 +57,7 @@
         dest: "{{ ripgrep_tmp_dir.path }}"
         mode: "0640"
         checksum: "sha256:{{ ripgrep_checksum.content.split(' ')[0] }}"
+      check_mode: false
       register: ripgrep_downloaded_release
 
     - name: RIPGREP | Unarchive downloaded archive
@@ -64,14 +65,13 @@
         src: "{{ ripgrep_downloaded_release.dest }}"
         dest: "{{ ripgrep_tmp_dir.path }}"
       register: ripgrep_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: RIPGREP | Copy ripgrep binary
       ansible.builtin.copy:
         src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/rg"
         dest: "{{ xdg_dirs_local_bin }}/rg"
         mode: "0550"
-      when: not ansible_check_mode
       no_log: true
 
     - name: RIPGREP | Copy autocompletion files
@@ -82,14 +82,12 @@
       loop:
         - {shell: zsh, file: _rg}
         - {shell: bash, file: rg.bash}
-      when: not ansible_check_mode
 
     - name: RIPGREP | Copy manpages
       ansible.builtin.copy:
         src: "{{ ripgrep_tmp_dir.path }}/{{ ripgrep_full_release_name }}/doc/rg.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/rg.1"
         mode: "0440"
-      when: not ansible_check_mode
   always:
     - name: RIPGREP | Ensure tmp directory is absent
       ansible.builtin.file:
