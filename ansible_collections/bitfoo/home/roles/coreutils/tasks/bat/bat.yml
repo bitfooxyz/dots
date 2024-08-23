@@ -50,6 +50,7 @@
     - name: BAT | Set release full name
       ansible.builtin.set_fact:
         bat_full_release_name: "bat-v{{ bat_latest_version }}-{{ coreutils_bat_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
 
     - name: BAT | Download latest release
       ansible.builtin.get_url:
@@ -57,13 +58,14 @@
         dest: "{{ bat_tmp_dir.path }}"
         mode: "0660"
       register: bat_downloaded_release
+      check_mode: false
 
     - name: BAT | Extract downloaded release archive
       ansible.builtin.unarchive:
         src: "{{ bat_downloaded_release.dest }}"
         dest: "{{ bat_tmp_dir.path }}"
-        mode: "0640"
       register: bat_unarchived_release
+      check_mode: false
 
     - name: BAT | Copy binary to ~/.local/bin
       ansible.builtin.copy:

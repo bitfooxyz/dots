@@ -38,6 +38,7 @@
     - name: BAT-EXTRAS | Set release full name
       ansible.builtin.set_fact:
         bat_extras_full_release_name: "bat-extras-{{ bat_extras_latest_version }}"
+      check_mode: false
 
     - name: BAT-EXTRAS | Download latest release
       ansible.builtin.get_url:
@@ -45,13 +46,14 @@
         dest: "{{ bat_extras_tmp_dir.path }}"
         mode: "0660"
       register: bat_extras_downloaded_release
+      check_mode: false
 
     - name: BAT-EXTRAS | Extract downloaded release archive
       ansible.builtin.unarchive:
         src: "{{ bat_extras_downloaded_release.dest }}"
         dest: "{{ bat_extras_tmp_dir.path }}"
-        mode: "0640"
       register: bat_extras_unarchived_release
+      check_mode: false
 
     - name: BAT-EXTRAS | Copy binary to ~/.local/bin
       ansible.builtin.copy:
