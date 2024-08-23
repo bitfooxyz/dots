@@ -1,8 +1,6 @@
 - name: MMV | Include mmv vars
   ansible.builtin.include_vars:
     file: mmv/main.yml
-  tags:
-    - always
 
 - name: MMV | Get latest version
   ansible.builtin.uri:
