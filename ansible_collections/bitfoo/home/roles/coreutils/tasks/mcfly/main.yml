@@ -65,6 +65,7 @@
         src: "{{ mcfly_tmp_dir.path }}/mcfly"
         dest: "{{ xdg_dirs_local_bin }}/mcfly"
         mode: "0750"
+      diff: false
 
   always:
     - name: MCFLY | Ensure tmp directory is absent
