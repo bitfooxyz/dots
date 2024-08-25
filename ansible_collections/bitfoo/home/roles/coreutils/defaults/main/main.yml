@@ -42,6 +42,11 @@ coreutils_enable_fd: true
 # Force installation regardles of it is already installed
 coreutils_force_fd: false
 
+# Enable sd tasks
+coreutils_enable_sd: true
+# Force installation regardles of it is already installed
+coreutils_force_sd: false
+
 # Enable ripgrep tasks
 coreutils_enable_ripgrep: true
 # Force installation regardles of it is already installed

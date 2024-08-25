@@ -81,6 +81,13 @@
   tags:
     - fd
 
+- name: COREUTILS | Import sd tasks
+  ansible.builtin.import_tasks:
+    file: sd/main.yml
+  when: coreutils_enable_sd
+  tags:
+    - sd
+
 - name: COREUTILS | Import ripgrep tasks
   ansible.builtin.import_tasks:
     file: ripgrep/main.yml

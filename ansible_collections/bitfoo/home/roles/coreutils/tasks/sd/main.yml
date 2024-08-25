@@ -1,0 +1,91 @@
+- name: SD | Include SD vars
+  ansible.builtin.include_vars:
+    file: sd/main.yml
+
+- name: SD | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/chmln/sd/releases/latest
+  register: sd_latest_release_json
+  check_mode: false
+
+- name: SD | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/sd --version"
+  register: sd_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: SD | Register latest release version
+  ansible.builtin.set_fact:
+    sd_latest_version: "{{ sd_latest_release_json.json.tag_name.split('v')[1] }}"
+    sd_current_version: "{{ sd_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: SD | Latest release version
+  ansible.builtin.debug:
+    var: sd_latest_version
+
+- name: SD | Current installed version
+  ansible.builtin.debug:
+    var: sd_current_version
+
+- name: SD | Install or Upgrade sd
+  when:
+    - sd_current_version != sd_latest_version or coreutils_force_sd
+  block:
+    - name: SD | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: sd_
+        state: directory
+      register: sd_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: SD | Set release full name
+      ansible.builtin.set_fact:
+        sd_full_release_name: "sd-v{{ sd_latest_version }}-\
+                              {{ coreutils_fd_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: SD | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/chmln/sd/releases/download/\
+              v{{ sd_latest_version }}/{{ sd_full_release_name }}.tar.gz"
+        dest: "{{ sd_tmp_dir.path }}"
+        mode: "0640"
+      check_mode: false
+      register: sd_downloaded_release
+
+    - name: SD | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ sd_downloaded_release.dest }}"
+        dest: "{{ sd_tmp_dir.path }}"
+      register: sd_unarchived_release
+      check_mode: false
+
+    - name: SD | Copy binary
+      ansible.builtin.copy:
+        src: "{{ sd_tmp_dir.path }}/{{ sd_full_release_name }}/sd"
+        dest: "{{ xdg_dirs_local_bin }}/sd"
+        mode: "0750"
+
+    - name: SD | Copy autocompletion files
+      ansible.builtin.copy:
+        src: "{{ sd_tmp_dir.path }}/{{ sd_full_release_name }}/completions/{{ item.file }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_sd.{{ item.shell }}"
+        mode: "0640"
+      loop:
+        - {shell: zsh, file: _sd}
+        - {shell: bash, file: sd.bash}
+
+    - name: SD | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ sd_tmp_dir.path }}/{{ sd_full_release_name }}/sd.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/sd.1"
+        mode: "0640"
+  always:
+    - name: SD | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ sd_tmp_dir.path }}"
+        state: absent
+      no_log: true
