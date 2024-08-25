@@ -1,0 +1,104 @@
+- name: LAZYGIT | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+  register: lazygit_latest_release_json
+  check_mode: false
+
+- name: LAZYGIT | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/lazygit --version |\
+          cut -d ',' -f 4 | cut -f 2 -d '='"
+  register: lazygit_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: LAZYGIT | Register latest release version
+  ansible.builtin.set_fact:
+    lazygit_latest_version: "{{ lazygit_latest_release_json.json.tag_name.split('v')[1] }}"
+    lazygit_current_version: "{{ lazygit_current_version_cmd.stdout | default('') }}"
+
+- name: LAZYGIT | Latest release version
+  ansible.builtin.debug:
+    var: lazygit_latest_version
+
+- name: LAZYGIT | Current installed version
+  ansible.builtin.debug:
+    var: lazygit_current_version
+
+- name: LAZYGIT | Install or Upgrade lazygit
+  when:
+    - lazygit_current_version != lazygit_latest_version or coreutils_force_lazygit
+  block:
+    - name: LAZYGIT | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: lazygit_
+        state: directory
+      register: lazygit_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: LAZYGIT | Set release full name
+      ansible.builtin.set_fact:
+        lazygit_full_release_name: "lazygit_{{ lazygit_latest_version }}_\
+                                    {{ ansible_system }}_{{ ansible_architecture }}"
+      check_mode: false
+
+    - name: LAZYGIT | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/jesseduffield/lazygit/releases/download/\
+              v{{ lazygit_latest_version }}/checksums.txt"
+        return_content: true
+      register: lazygit_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: LAZYGIT | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        lazygit_file_checksum: "{{ lazygit_checksums.content | \
+                                regex_findall('.*' + lazygit_full_release_name + \
+                                '.tar.gz$', multiline=True) | first | split(' ') | first }}"
+
+
+    - name: LAZYGIT | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/jesseduffield/lazygit/releases/download/\
+              v{{ lazygit_latest_version }}/{{ lazygit_full_release_name }}.tar.gz"
+        dest: "{{ lazygit_tmp_dir.path }}"
+        checksum: "sha256:{{ lazygit_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: lazygit_downloaded_release
+
+    - name: LAZYGIT | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ lazygit_downloaded_release.dest }}"
+        dest: "{{ lazygit_tmp_dir.path }}"
+      register: lazygit_unarchived_release
+      check_mode: false
+
+    - name: LAZYGIT | Copy binary
+      ansible.builtin.copy:
+        src: "{{ lazygit_tmp_dir.path }}/lazygit"
+        dest: "{{ xdg_dirs_local_bin }}/lazygit"
+        mode: "0750"
+  always:
+    - name: LAZYGIT | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ lazygit_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: LAZYGIT | Ensure lazygit configuration directory exists
+  ansible.builtin.file:
+    name: "{{ xdg_dirs_config }}/lazygit"
+    state: directory
+    mode: "0750"
+
+- name: LAZYGIT | Link lazygit configuration
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/lazygit/config.yml"
+    dest: "{{ xdg_dirs_config }}/lazygit/config.yml"
+    state: link
+    force: true
+    mode: "0640"

@@ -122,3 +122,10 @@
   when: coreutils_enable_mcfly
   tags:
     - mcfly
+
+- name: COREUTILS | Import lazygit tasks
+  ansible.builtin.import_tasks:
+    file: lazygit/main.yml
+  when: coreutils_enable_lazygit
+  tags:
+    - lazygit
