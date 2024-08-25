@@ -1,0 +1,71 @@
+---
+- name: NEOVIM | Import xdg_dirs role
+  ansible.builtin.import_role:
+    name: xdg_dirs
+
+- name: NEOVIM | Include os dependent variables
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution | lower }}.yml"
+
+- name: NEOVIM | Install packages on Linux
+  ansible.builtin.package:
+    name: "{{ neovim_packages }}"
+    state: present
+  become: true
+  when: ansible_system == "Linux"
+
+- name: NEOVIM | Install packages on MacOS
+  community.general.homebrew:
+    name: "{{ neovim_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: NEOVIM | Get nvim binary path
+  ansible.builtin.command:
+    cmd: "command -v nvim"
+  register: neovim_path_cmd
+  changed_when: false
+  failed_when: neovim_path_cmd.rc != 0
+
+- name: NEOVIM | Link vi/vim to nvim
+  ansible.builtin.file:
+    src: "{{ neovim_path_cmd.stdout }}"
+    dest: "{{ xdg_dirs_local_bin }}/{{ item }}"
+    state: link
+    force: true
+  loop:
+    - vi
+    - vim
+
+- name: NEOVIM | Create configuration directories
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - nvim
+    - nvim/lua/plugins
+    - nvim/lua/config
+
+- name: NEOVIM | Link init.lua configuration file
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/init.lua"
+    dest: "{{ xdg_dirs_config }}/nvim/init.lua"
+    state: link
+    force: true
+
+- name: NEOVIM | Link plugin files
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ xdg_dirs_config }}/nvim/lua/plugins/{{ item | basename }}"
+    state: link
+    force: true
+  loop: "{{ query('ansible.builtin.fileglob', role_path + '/files/lua/plugins/*.lua') }}"
+
+- name: NEOVIM | Link config files
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ xdg_dirs_config }}/nvim/lua/config/{{ item | basename }}"
+    state: link
+    force: true
+  loop: "{{ query('ansible.builtin.fileglob', role_path + '/files/lua/config/*.lua') }}"

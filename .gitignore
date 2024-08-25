@@ -7,3 +7,4 @@ ansible_collections/*
 !ansible_collections/bitfoo
 !ansible_collections/bitfoo/**
 galaxy_roles/*
+test-play.yml

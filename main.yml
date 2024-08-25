@@ -19,3 +19,9 @@
         name: bitfoo.home.wezterm
       tags:
         - wezterm
+
+    - name: NEOVIM | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.neovim
+      tags:
+        - neovim
