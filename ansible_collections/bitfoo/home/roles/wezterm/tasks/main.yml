@@ -39,20 +39,17 @@
 
 - name: WEZTERM | Link configuration files
   ansible.builtin.file:
-    src: "{{ role_path }}/files/{{ item }}"
-    dest: "{{ xdg_dirs_config }}/wezterm/{{ item }}"
+    src: "{{ item }}"
+    dest: "{{ xdg_dirs_config }}/wezterm/{{ item | basename }}"
     state: link
     force: true
-  loop:
-    - wezterm.lua
-    - keys.lua
-    - tabbar.lua
+  loop: "{{ query('ansible.builtin.fileglob', role_path + '/files/*.lua') }}"
 
-- name: WEZTERM | Create extra configuration
+- name: WEZTERM | Generate secrets.lua file
   ansible.builtin.template:
-    src: extra.lua.j2
-    dest: "{{ xdg_dirs_config }}/wezterm/extra.lua"
-    mode: "0400"
+    src: secrets.lua.j2
+    dest: "{{ xdg_dirs_config }}/wezterm/secrets.lua"
+    mode: "0600"
 
 - name: WEZTERM | Setup tokyonight colorscheme
   block:

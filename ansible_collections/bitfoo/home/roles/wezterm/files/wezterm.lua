@@ -1,7 +1,6 @@
 -- Pull in the wezterm API
 local wezterm = require("wezterm")
 local keys = require("keys")
-local work = require("work")
 require("tabbar").setup()
 
 -- Initialize config if config_builde is available us it
@@ -89,7 +88,7 @@ config.keys = keys.key_bindings
 config.key_tables = keys.key_tables
 
 -- extra configuration
-require("extra")
+require("hyperlink_rules").setup(config)
 
 -- Return config object
 return config
