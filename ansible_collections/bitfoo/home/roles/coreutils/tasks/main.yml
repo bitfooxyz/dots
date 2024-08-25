@@ -137,6 +137,13 @@
   tags:
     - mcfly
 
+- name: COREUTILS | Import git_cliff tasks
+  ansible.builtin.import_tasks:
+    file: git_cliff/main.yml
+  when: coreutils_enable_git_cliff
+  tags:
+    - git_cliff
+
 - name: COREUTILS | Import lazygit tasks
   ansible.builtin.import_tasks:
     file: lazygit/main.yml

@@ -1,0 +1,104 @@
+- name: GIT_CLIFF | Include git_cliff vars
+  ansible.builtin.include_vars:
+    file: git_cliff/main.yml
+
+- name: GIT_CLIFF | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/orhun/git-cliff/releases/latest
+  register: git_cliff_latest_release_json
+  check_mode: false
+
+- name: GIT_CLIFF | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/git_cliff --version"
+  register: git_cliff_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: GIT_CLIFF | Register latest release version
+  ansible.builtin.set_fact:
+    git_cliff_latest_version: "{{ git_cliff_latest_release_json.json.tag_name.split('v')[1] }}"
+    git_cliff_current_version: "{{ git_cliff_current_version_cmd.stdout | default('') }}"
+- name: GIT_CLIFF | Latest release version
+  ansible.builtin.debug:
+    var: git_cliff_latest_version
+
+- name: GIT_CLIFF | Current installed version
+  ansible.builtin.debug:
+    var: git_cliff_current_version
+
+- name: GIT_CLIFF | Install or Upgrade git_cliff
+  when:
+    - git_cliff_current_version != git_cliff_latest_version or coreutils_force_git_cliff
+  block:
+    - name: GIT_CLIFF | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: git_cliff_
+        state: directory
+      register: git_cliff_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: GIT_CLIFF | Set release full name
+      ansible.builtin.set_fact:
+        git_cliff_full_release_name: "git-cliff-{{ git_cliff_latest_version }}-{{ coreutils_git_cliff_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: GIT_CLIFF | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/orhun/git-cliff/releases/download/\
+              v{{ git_cliff_latest_version }}/{{ git_cliff_full_release_name }}.tar.gz.sha512"
+        return_content: true
+      register: git_cliff_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: GIT_CLIFF | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        git_cliff_file_checksum: "{{ git_cliff_checksums.content.split(' ')[0] }}"
+      check_mode: false
+
+    - name: GIT_CLIFF | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/orhun/git-cliff/releases/download/\
+              v{{ git_cliff_latest_version }}/{{ git_cliff_full_release_name }}.tar.gz"
+        dest: "{{ git_cliff_tmp_dir.path }}"
+        checksum: "sha512:{{ git_cliff_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: git_cliff_downloaded_release
+
+    - name: GIT_CLIFF | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ git_cliff_downloaded_release.dest }}"
+        dest: "{{ git_cliff_tmp_dir.path }}"
+      register: git_cliff_unarchived_release
+      check_mode: false
+
+    - name: GIT_CLIFF | Copy binary
+      ansible.builtin.copy:
+        src: "{{ git_cliff_tmp_dir.path }}/git-cliff-{{ git_cliff_latest_version }}/git-cliff"
+        dest: "{{ xdg_dirs_local_bin }}/git_cliff"
+        mode: "0750"
+
+    - name: GIT_CLIFF | Copy autocompletion files
+      ansible.builtin.copy:
+        src: "{{ git_cliff_tmp_dir.path }}/git-cliff-{{ git_cliff_latest_version }}/completions/{{ item.file }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.shell }}/completions/_git-cliff.{{ item.shell }}"
+        mode: "0640"
+      loop:
+        - {shell: zsh, file: _git-cliff}
+        - {shell: bash, file: git-cliff.bash}
+
+    - name: GIT_CLIFF | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ git_cliff_tmp_dir.path }}/git-cliff-{{ git_cliff_latest_version }}/man/git-cliff.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/git-cliff.1"
+        mode: "0640"
+  always:
+    - name: GIT_CLIFF | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ git_cliff_tmp_dir.path }}"
+        state: absent
+      no_log: true
