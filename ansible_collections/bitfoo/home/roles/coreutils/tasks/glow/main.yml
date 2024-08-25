@@ -38,7 +38,7 @@
 
     - name: GLOW | Set release full name
       ansible.builtin.set_fact:
-        glow_full_release_name: "glow_{{ ansible_system }}_{{ ansible_architecture }}"
+        glow_full_release_name: "glow_{{ glow_latest_version }}_{{ ansible_system }}_{{ ansible_architecture }}"
 
     - name: GLOW | Download checksum file
       ansible.builtin.uri:
@@ -59,42 +59,39 @@
         mode: "0640"
         checksum: "sha256:{{ glow_file_checksum }}"
       register: glow_downloaded_release
+      check_mode: false
 
     - name: GLOW | Unarchive downloaded archive
       ansible.builtin.unarchive:
         src: "{{ glow_downloaded_release.dest }}"
         dest: "{{ glow_tmp_dir.path }}"
       register: glow_unarchived_release
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: GLOW | Copy glow binary
       ansible.builtin.copy:
-        src: "{{ glow_tmp_dir.path }}/glow"
+        src: "{{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/glow"
         dest: "{{ xdg_dirs_local_bin }}/glow"
         mode: "0750"
-      when: not ansible_check_mode
 
-    # Commented cause the autocompletion is useless an prevents
-    # file completion in shell
-    # - name: GLOW | Copy autocompletion files
-    #   ansible.builtin.copy:
-    #     src: "{{ glow_tmp_dir.path }}/completions/glow.{{ item }}"
-    #     dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_glow.{{ item }}"
-    #     mode: "0440"
-    #   loop:
-    #     - zsh
-    #     - bash
-    #   when: not ansible_check_mode
+    - name: GLOW | Copy autocompletion files
+      ansible.builtin.copy:
+        src: "{{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/completions/glow.{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_glow.{{ item }}"
+        mode: "0640"
+      loop:
+        - zsh
+        - bash
 
     - name: GLOW | Gunzip manpage
       ansible.builtin.command:
-        cmd: "gunzip {{ glow_tmp_dir.path }}/manpages/glow.1.gz"
+        cmd: "gunzip {{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/manpages/glow.1.gz"
       changed_when: false
-      when: not ansible_check_mode
+      check_mode: false
 
     - name: GLOW | Copy manpages
       ansible.builtin.copy:
-        src: "{{ glow_tmp_dir.path }}/manpages/glow.1"
+        src: "{{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/manpages/glow.1"
         dest: "{{ xdg_dirs_local_share_man }}/man1/glow.1"
         mode: "0640"
       when: not ansible_check_mode
