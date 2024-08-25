@@ -95,6 +95,13 @@
   tags:
     - ripgrep
 
+- name: COREUTILS | Import yq tasks
+  ansible.builtin.import_tasks:
+    file: yq/main.yml
+  when: coreutils_enable_yq
+  tags:
+    - yq
+
 - name: COREUTILS | Import glow tasks
   ansible.builtin.import_tasks:
     file: glow/main.yml

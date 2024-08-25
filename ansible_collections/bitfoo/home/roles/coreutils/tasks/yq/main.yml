@@ -1,0 +1,80 @@
+- name: YQ | Include yq vars
+  ansible.builtin.include_vars:
+    file: yq/main.yml
+
+- name: YQ | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/mikefarah/yq/releases/latest
+  register: yq_latest_release_json
+  check_mode: false
+
+- name: YQ | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/yq --version | cut -d ' ' -f 4"
+  register: yq_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: YQ | Register latest release version
+  ansible.builtin.set_fact:
+    yq_latest_version: "{{ yq_latest_release_json.json.tag_name.split('v')[1] }}"
+    yq_current_version: "{{ yq_current_version_cmd.stdout.split('v')[1] | default('') }}"
+- name: YQ | Latest release version
+  ansible.builtin.debug:
+    var: yq_latest_version
+
+- name: YQ | Current installed version
+  ansible.builtin.debug:
+    var: yq_current_version
+
+- name: YQ | Install or Upgrade yq
+  when:
+    - yq_current_version != yq_latest_version or coreutils_force_yq
+  block:
+    - name: YQ | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: yq_
+        state: directory
+      register: yq_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: YQ | Set release full name
+      ansible.builtin.set_fact:
+        yq_full_release_name: "yq_{{ coreutils_yq_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: YQ | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/mikefarah/yq/releases/download/\
+              v{{ yq_latest_version }}/{{ yq_full_release_name }}.tar.gz"
+        dest: "{{ yq_tmp_dir.path }}"
+        mode: "0640"
+      check_mode: false
+      register: yq_downloaded_release
+
+    - name: YQ | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ yq_downloaded_release.dest }}"
+        dest: "{{ yq_tmp_dir.path }}"
+      register: yq_unarchived_release
+      check_mode: false
+
+    - name: YQ | Copy binary
+      ansible.builtin.copy:
+        src: "{{ yq_tmp_dir.path }}/{{ yq_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/yq"
+        mode: "0750"
+
+    - name: YQ | Copy manpages
+      ansible.builtin.copy:
+        src: "{{ yq_tmp_dir.path }}/yq.1"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/yq.1"
+        mode: "0640"
+  always:
+    - name: YQ | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ yq_tmp_dir.path }}"
+        state: absent
+      no_log: true
