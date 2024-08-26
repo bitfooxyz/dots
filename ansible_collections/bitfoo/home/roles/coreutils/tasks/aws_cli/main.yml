@@ -112,3 +112,19 @@
         dest: "{{ aws_cli_tmp_dir.path }}"
         state: absent
       no_log: true
+
+- name: AWS-CLI | Ensure configuration directory exists
+  ansible.builtin.file:
+    dest: "{{ ansible_user_dir }}/.aws"
+    state: directory
+    mode: "0750"
+
+- name: AWS-CLI | Ensure configuration is present
+  ansible.builtin.copy:
+    src: "aws-cli/{{ item }}"
+    dest: "{{ ansible_user_dir }}/.aws/{{ item }}"
+    mode: "0600"
+  no_log: true
+  loop:
+    - config
+    - credentials
