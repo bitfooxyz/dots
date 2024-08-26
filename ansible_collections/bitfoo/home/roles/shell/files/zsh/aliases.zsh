@@ -63,11 +63,7 @@ alias sysupgrade=_sysupgrade
 
 # Set aliases for cat to bat if bat exists.
 if command -v bat &> /dev/null; then
-    if [ $(uname) = "Darwin" ]; then
-        alias cat="bat --theme=\$(defaults read -globalDomain AppleInterfaceStyle &> /dev/null && echo default || echo GitHub)"
-    else
-        alias cat="bat"
-    fi
+    alias cat="bat"
 fi
 
 # Alias grep with ripgrep to have a better grep tool.

@@ -76,6 +76,10 @@ if command -v tealdeer &> /dev/null; then
     export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 fi
 
+if command -v bat &> /dev/null; then
+    export BAT_THEME="tokyonight_storm"
+fi
+
 if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then
