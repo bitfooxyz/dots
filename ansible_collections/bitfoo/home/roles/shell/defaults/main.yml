@@ -1,1 +1,4 @@
 shell_default_shell: "zsh"
+
+# Enable tasks, that setup work related configuration
+shell_enable_work: true

@@ -19,7 +19,7 @@
   when: ansible_system == "Linux"
 
 - name: SHELL | Install packages on MacOS
-  ansible.builtin.homebrew:
+  community.general.homebrew:
     name: "{{ shell_packages }}"
     state: present
   when: ansible_system == "Darwin"
@@ -35,13 +35,13 @@
     - bash
     - zsh
 
-- name: SHELL | Include bash tasks
+- name: SHELL | Import bash tasks
   ansible.builtin.import_tasks:
     file: bash.yml
   tags:
     - bash
 
-- name: SHELL | Include zsh tasks
+- name: SHELL | Import zsh tasks
   ansible.builtin.import_tasks:
     file: zsh.yml
   tags:
@@ -53,6 +53,13 @@
   tags:
     - zsh
     - zsh_plugins
+
+- name: SHELL | Import work tasks
+  ansible.builtin.import_tasks:
+    file: work.yml
+  when: shell_enable_work | bool
+  tags:
+    - zsh_work
 
 - name: SHELL | Ensure zsh is default shell
   ansible.builtin.user:

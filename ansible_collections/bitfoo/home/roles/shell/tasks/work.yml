@@ -1,0 +1,16 @@
+---
+- name: SHELL | Ensure ~/.config/bku directory exists
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/bku"
+    state: directory
+    mode: "0700"
+
+- name: Copy files to configuration directory
+  ansible.builtin.copy:
+    src: "bku/{{ item }}"
+    dest: "{{ xdg_dirs_config }}/bku/{{ item }}"
+    mode: "0400"
+  no_log: true
+  loop:
+    - credentials.env
+    - keyfile.txt
