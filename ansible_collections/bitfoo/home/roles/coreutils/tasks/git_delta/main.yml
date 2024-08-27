@@ -1,0 +1,93 @@
+- name: GIT-DELTA | Include git_delta vars
+  ansible.builtin.include_vars:
+    file: git_delta/main.yml
+
+- name: GIT-DELTA | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/dandavison/delta/releases/latest
+  register: git_delta_latest_release_json
+  check_mode: false
+
+- name: GIT-DELTA | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/delta --version"
+  register: git_delta_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: GIT-DELTA | Register latest release version
+  ansible.builtin.set_fact:
+    git_delta_latest_version: "{{ git_delta_latest_release_json.json.tag_name }}"
+    git_delta_current_version: "{{ git_delta_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: GIT-DELTA | Latest release version
+  ansible.builtin.debug:
+    var: git_delta_latest_version
+
+- name: GIT-DELTA | Current installed version
+  ansible.builtin.debug:
+    var: git_delta_current_version
+
+- name: GIT-DELTA | Install or Upgrade git_delta
+  when:
+    - git_delta_current_version != git_delta_latest_version or coreutils_force_git_delta
+  block:
+    - name: GIT-DELTA | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: git_delta_
+        state: directory
+      register: git_delta_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: GIT-DELTA | Set release full name
+      ansible.builtin.set_fact:
+        git_delta_full_release_name: "delta-{{ git_delta_latest_version }}-{{ coreutils_git_delta_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: GIT-DELTA | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/dandavison/delta/releases/download/\
+              {{ git_delta_latest_version }}/{{ git_delta_full_release_name }}.tar.gz"
+        dest: "{{ git_delta_tmp_dir.path }}"
+        mode: "0640"
+      check_mode: false
+      register: git_delta_downloaded_release
+
+    - name: GIT-DELTA | Unarchive downloaded archive
+      ansible.builtin.unarchive:
+        src: "{{ git_delta_downloaded_release.dest }}"
+        dest: "{{ git_delta_tmp_dir.path }}"
+      register: git_delta_unarchived_release
+      check_mode: false
+
+    - name: GIT-DELTA | Copy binary
+      ansible.builtin.copy:
+        src: "{{ git_delta_tmp_dir.path }}/{{ git_delta_full_release_name }}/delta"
+        dest: "{{ xdg_dirs_local_bin }}/delta"
+        mode: "0750"
+      diff: false
+
+    - name: GIT-DELTA | Generate shell completions 
+      ansible.builtin.command:
+        cmd: "{{ git_delta_tmp_dir.path }}/{{ git_delta_full_release_name }}/delta --generate-completion {{ item }}"
+      register: git_delta_completion
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: GIT-DELTA | Create shell completion files
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_delta.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ git_delta_completion.results }}"
+  always:
+    - name: GIT-DELTA | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ git_delta_tmp_dir.path }}"
+        state: absent
+      no_log: true

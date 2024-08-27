@@ -39,6 +39,13 @@
     - bat
     - bat_extras
 
+- name: COREUTILS | Import git-delta tasks
+  ansible.builtin.import_tasks:
+    file: git_delta/main.yml
+  when: coreutils_enable_git_delta
+  tags:
+    - git_delta
+
 - name: COREUTILS | Import rye tasks
   ansible.builtin.import_tasks:
     file: rye/main.yml
