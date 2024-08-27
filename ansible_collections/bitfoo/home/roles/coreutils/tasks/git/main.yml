@@ -28,10 +28,17 @@
     - git
     - git/includes
 
+- name: GIT | Link git config
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/git/config"
+    dest: "{{ xdg_dirs_config }}/git/config"
+    state: link
+    force: true
+
 - name: GIT | Create git configuration
   ansible.builtin.template:
-    src: git/config.j2
-    dest: "{{ xdg_dirs_config }}/git/config"
+    src: git/generated.inc.j2
+    dest: "{{ xdg_dirs_config }}/git/generated.inc"
     mode: "0640"
 
 - name: GIT | Create git includes

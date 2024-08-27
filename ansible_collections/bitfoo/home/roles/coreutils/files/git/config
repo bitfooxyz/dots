@@ -18,11 +18,6 @@
 [init]
     defaultBranch = "main"
 
-[user]
-    email = "{{ coreutils_git_user_mail }}"
-    name = "{{ coreutils_git_user_name }}"
+[include]
+    path = "~/.config/git/generated.inc"
 
-{% for item in coreutils_git_include_if %}
-[includeIf "gitdir:{{ item.path }}"]
-    path = "{{ xdg_dirs_config }}/git/includes/{{ item.path | hash('sha1') }}.inc"
-{% endfor %}
