@@ -14,6 +14,12 @@
       tags:
         - coreutils
 
+    - name: ARGOCD | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.argocd
+      tags:
+        - argocd
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm
