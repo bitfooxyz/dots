@@ -20,6 +20,12 @@
       tags:
         - kubectl
 
+    - name: KUBE-LINTER | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.kube_linter
+      tags:
+        - kube_linter
+
     - name: ARGOCD | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.argocd

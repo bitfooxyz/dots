@@ -1,0 +1,85 @@
+- name: KUBE-LINTER | Include kube_linter vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: KUBE-LINTER | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/stackrox/kube-linter/releases/latest
+  register: kube_linter_latest_release_json
+  check_mode: false
+
+- name: KUBE-LINTER | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/kube-linter version"
+  register: kube_linter_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: KUBE-LINTER | Register latest release version
+  ansible.builtin.set_fact:
+    kube_linter_latest_version: "{{ kube_linter_latest_release_json.json.tag_name.split('v')[1] }}"
+    kube_linter_current_version: "{{ kube_linter_current_version_cmd.stdout | default('') }}"
+
+- name: KUBE-LINTER | Latest release version
+  ansible.builtin.debug:
+    var: kube_linter_latest_version
+
+- name: KUBE-LINTER | Current installed version
+  ansible.builtin.debug:
+    var: kube_linter_current_version
+
+- name: KUBE-LINTER | Install or Upgrade kube_linter
+  when:
+    - kube_linter_current_version != kube_linter_latest_version or kube_linter_force_install
+  block:
+    - name: KUBE-LINTER | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: kube_linter_
+        state: directory
+      register: kube_linter_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: KUBE-LINTER | Set release full name
+      ansible.builtin.set_fact:
+        kube_linter_full_release_name: "kube-linter-{{ kube_linter_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: KUBE-LINTER | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/stackrox/kube-linter/releases/download/\
+              v{{ kube_linter_latest_version }}/{{ kube_linter_full_release_name }}"
+        dest: "{{ kube_linter_tmp_dir.path }}"
+        mode: "0750"
+      check_mode: false
+      register: kube_linter_downloaded_release
+
+    - name: KUBE-LINTER | Copy binary
+      ansible.builtin.copy:
+        src: "{{ kube_linter_tmp_dir.path }}/{{ kube_linter_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/kube-linter"
+        mode: "0750"
+
+    - name: KUBE-LINTER | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ kube_linter_tmp_dir.path }}/{{ kube_linter_full_release_name }} completion {{ item }}"
+      register: kube_linter_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: KUBE-LINTER | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_kube-linter.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ kube_linter_shell_completions.results }}"
+  always:
+    - name: KUBE-LINTER | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ kube_linter_tmp_dir.path }}"
+        state: absent
+      no_log: true
