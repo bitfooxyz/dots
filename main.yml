@@ -20,6 +20,12 @@
       tags:
         - kubectl
 
+    - name: KUBECTX | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.kubectx
+      tags:
+        - kubectx
+
     - name: KUBE-LINTER | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.kube_linter

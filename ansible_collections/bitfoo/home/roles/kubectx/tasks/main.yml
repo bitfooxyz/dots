@@ -1,0 +1,116 @@
+- name: KUBECTX | Include kubectx vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: KUBECTX | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/ahmetb/kubectx/releases/latest
+  register: kubectx_latest_release_json
+  check_mode: false
+
+- name: KUBECTX | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/kubectx --version"
+  register: kubectx_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: KUBECTX | Register latest release version
+  ansible.builtin.set_fact:
+    kubectx_latest_version: "{{ kubectx_latest_release_json.json.tag_name.split('v')[1] }}"
+    kubectx_current_version: "{{ kubectx_current_version_cmd.stdout | default('') }}"
+
+- name: KUBECTX | Latest release version
+  ansible.builtin.debug:
+    var: kubectx_latest_version
+
+- name: KUBECTX | Current installed version
+  ansible.builtin.debug:
+    var: kubectx_current_version
+
+- name: KUBECTX | Install or Upgrade kubectx
+  when:
+    - kubectx_current_version != kubectx_latest_version or kubectx_force_install
+  block:
+    - name: KUBECTX | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: kubectx_
+        state: directory
+      register: kubectx_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: KUBECTX | Set release full name
+      ansible.builtin.set_fact:
+        kubectx_full_release_name: "kubectx_v{{ kubectx_latest_version }}_{{ kubectx_os_arch[ansible_system][ansible_architecture] }}"
+        kubens_full_release_name: "kubens_v{{ kubectx_latest_version }}_{{ kubectx_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: KUBECTX | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/ahmetb/kubectx/releases/download/v{{ kubectx_latest_version }}/checksums.txt"
+        return_content: true
+      register: kubectx_checksums
+      changed_when: false
+      check_mode: false
+
+    - name: KUBECTX | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        kubectx_file_checksum: "{{ kubectx_checksums.content | regex_findall('.*' + kubectx_full_release_name + '.*') | first | split(' ') | first }}"
+        kubens_file_checksum: "{{ kubectx_checksums.content | regex_findall('.*' + kubens_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: KUBECTX | Download latest kubectx release
+      ansible.builtin.get_url:
+        url: "https://github.com/ahmetb/kubectx/releases/download/\
+              v{{ kubectx_latest_version }}/{{ kubectx_full_release_name }}.tar.gz"
+        dest: "{{ kubectx_tmp_dir.path }}"
+        checksum: "sha256:{{ kubectx_file_checksum }}"
+        mode: "0750"
+      check_mode: false
+      register: kubectx_downloaded_release
+
+    - name: KUBECTX | Unarchive kubectx archive
+      ansible.builtin.unarchive:
+        src: "{{ kubectx_tmp_dir.path }}/{{ kubectx_full_release_name }}.tar.gz"
+        dest: "{{ kubectx_tmp_dir.path }}"
+      register: kubectx_unarchived_release
+      check_mode: false
+
+    - name: KUBECTX | Copy kubectx binary
+      ansible.builtin.copy:
+        src: "{{ kubectx_tmp_dir.path }}/kubectx"
+        dest: "{{ xdg_dirs_local_bin }}/kubectx"
+        mode: "0750"
+      diff: false
+
+    - name: KUBECTX | Download latest kubens release
+      ansible.builtin.get_url:
+        url: "https://github.com/ahmetb/kubectx/releases/download/\
+              v{{ kubectx_latest_version }}/{{ kubens_full_release_name }}.tar.gz"
+        dest: "{{ kubectx_tmp_dir.path }}"
+        checksum: "sha256:{{ kubens_file_checksum }}"
+        mode: "0750"
+      check_mode: false
+      register: kubens_downloaded_release
+
+    - name: KUBECTX | Unarchive kubens archive
+      ansible.builtin.unarchive:
+        src: "{{ kubectx_tmp_dir.path }}/{{ kubens_full_release_name }}.tar.gz"
+        dest: "{{ kubectx_tmp_dir.path }}"
+      register: kubens_unarchived_release
+      check_mode: false
+
+    - name: KUBECTX | Copy kubens binary
+      ansible.builtin.copy:
+        src: "{{ kubectx_tmp_dir.path }}/kubens"
+        dest: "{{ xdg_dirs_local_bin }}/kubens"
+        mode: "0750"
+      diff: false
+  always:
+    - name: KUBECTX | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ kubectx_tmp_dir.path }}"
+        state: absent
+      no_log: true
