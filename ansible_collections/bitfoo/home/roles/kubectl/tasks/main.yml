@@ -1,0 +1,85 @@
+- name: KUBECTL | Include kubectl vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: KUBECTL | Get latest version
+  ansible.builtin.uri:
+    url: https://dl.k8s.io/release/stable.txt
+    return_content: true
+  register: kubectl_latest_release
+  check_mode: false
+
+- name: KUBECTL | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/kubectl version --client | cut -d ' ' -f 1"
+  register: kubectl_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: KUBECTL | Register latest release version
+  ansible.builtin.set_fact:
+    kubectl_latest_version: "{{ kubectl_latest_release.content }}"
+    kubectl_current_version: "{{ kubectl_current_version_cmd.stdout | default('') }}"
+
+- name: KUBECTL | Latest release version
+  ansible.builtin.debug:
+    var: kubectl_latest_version
+
+- name: KUBECTL | Current installed version
+  ansible.builtin.debug:
+    var: kubectl_current_version
+
+- name: KUBECTL | Install or Upgrade kubectl
+  when:
+    - kubectl_current_version != kubectl_latest_version or kubectl_force_install
+  block:
+    - name: KUBECTL | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: kubectl_
+        state: directory
+      register: kubectl_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: KUBECTL | Set release full name
+      ansible.builtin.set_fact:
+        kubectl_full_release_name: "{{ kubectl_os_arch[ansible_system][ansible_architecture] }}/kubectl"
+      check_mode: false
+
+    - name: KUBECTL | Download latest release
+      ansible.builtin.get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_latest_version }}/bin/{{ kubectl_full_release_name }}"
+        dest: "{{ kubectl_tmp_dir.path }}"
+        mode: "0750"
+      check_mode: false
+      register: kubectl_downloaded_release
+
+    - name: KUBECTL | Copy binary
+      ansible.builtin.copy:
+        src: "{{ kubectl_tmp_dir.path }}/kubectl"
+        dest: "{{ xdg_dirs_local_bin }}/kubectl"
+        mode: "0750"
+
+    - name: KUBECTL | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ kubectl_tmp_dir.path }}/kubectl completion {{ item }}"
+      register: kubectl_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: KUBECTL | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_kubectl.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ kubectl_shell_completions.results }}"
+  always:
+    - name: KUBECTL | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ kubectl_tmp_dir.path }}"
+        state: absent
+      no_log: true
