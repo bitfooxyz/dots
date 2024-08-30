@@ -32,6 +32,12 @@
       tags:
         - kube_linter
 
+    - name: HELM | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.helm
+      tags:
+        - helm
+
     - name: ARGOCD | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.argocd

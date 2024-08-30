@@ -1,0 +1,104 @@
+- name: HELM | Include helm vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: HELM | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/helm/helm/releases/latest
+  register: helm_latest_release_json
+  check_mode: false
+
+- name: HELM | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/helm version --template {{ '{{' }}.Version{{ '}}' }}"
+  register: helm_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: HELM | Register latest release version
+  ansible.builtin.set_fact:
+    helm_latest_version: "{{ helm_latest_release_json.json.tag_name.split('v')[1] }}"
+    helm_current_version: "{{ helm_current_version_cmd.stdout.split('v')[1] | default('') }}"
+
+- name: HELM | Latest release version
+  ansible.builtin.debug:
+    var: helm_latest_version
+
+- name: HELM | Current installed version
+  ansible.builtin.debug:
+    var: helm_current_version
+
+- name: HELM | Install or Upgrade helm
+  when:
+    - helm_current_version != helm_latest_version or helm_force_install
+  block:
+    - name: HELM | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: helm_
+        state: directory
+      register: helm_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: HELM | Set release full name
+      ansible.builtin.set_fact:
+        helm_full_release_name: "helm-v{{ helm_latest_version }}-{{ helm_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: HELM | Get checksum
+      ansible.builtin.uri:
+        url: "https://get.helm.sh/{{ helm_full_release_name }}.tar.gz.sha256"
+        return_content: true
+      check_mode: false
+      register: helm_checksum
+
+    - name: HELM | Download latest release
+      ansible.builtin.get_url:
+        url: "https://get.helm.sh/{{ helm_full_release_name }}.tar.gz"
+        dest: "{{ helm_tmp_dir.path }}"
+        checksum: "sha256:{{ helm_checksum.content }}"
+        mode: "0640"
+      check_mode: false
+      register: helm_downloaded_release
+
+    - name: HELM | Unarchive latest release
+      ansible.builtin.unarchive:
+        src: "{{ helm_tmp_dir.path }}/{{ helm_full_release_name }}.tar.gz"
+        dest: "{{ helm_tmp_dir.path }}"
+      check_mode: false
+      register: helm_unarchive_path
+
+    - name: HELM | Set unarchived file path
+      ansible.builtin.set_fact:
+        helm_unarchived_file_path: "{{ helm_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: HELM | Copy binary
+      ansible.builtin.copy:
+        src: "{{ helm_tmp_dir.path }}/{{ helm_unarchived_file_path }}/helm"
+        dest: "{{ xdg_dirs_local_bin }}/helm"
+        mode: "0750"
+      diff: false
+
+    - name: HELM | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ helm_tmp_dir.path }}/{{ helm_unarchived_file_path }}/helm completion {{ item }}"
+      register: helm_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: HELM | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_helm.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ helm_shell_completions.results }}"
+  always:
+    - name: HELM | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ helm_tmp_dir.path }}"
+        state: absent
+      no_log: true
