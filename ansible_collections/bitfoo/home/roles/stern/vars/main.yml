@@ -1,0 +1,6 @@
+stern_os_arch:
+  Darwin:
+    arm64: darwin_arm64
+  Linux:
+    x86_64: linux_amd64
+    aarch64: linux_arm64

@@ -32,6 +32,12 @@
       tags:
         - kube_linter
 
+    - name: STERN | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.stern
+      tags:
+        - stern
+
     - name: HELM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.helm

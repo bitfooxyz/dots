@@ -1,0 +1,108 @@
+- name: STERN | Include stern vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: STERN | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/stern/stern/releases/latest
+  register: stern_latest_release_json
+  check_mode: false
+
+- name: STERN | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/stern --version | head -n 1 | cut -d ' ' -f 2"
+  register: stern_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: STERN | Register latest release version
+  ansible.builtin.set_fact:
+    stern_latest_version: "{{ stern_latest_release_json.json.tag_name.split('v')[1] }}"
+    stern_current_version: "{{ stern_current_version_cmd.stdout | default('') }}"
+
+- name: STERN | Latest release version
+  ansible.builtin.debug:
+    var: stern_latest_version
+
+- name: STERN | Current installed version
+  ansible.builtin.debug:
+    var: stern_current_version
+
+- name: STERN | Install or Upgrade stern
+  when:
+    - stern_current_version != stern_latest_version or stern_force_install
+  block:
+    - name: STERN | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: stern_
+        state: directory
+      register: stern_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: STERN | Set release full name
+      ansible.builtin.set_fact:
+        stern_full_release_name: "stern_{{ stern_latest_version }}_{{ stern_os_arch[ansible_system][ansible_architecture] }}"
+        stern_checksum_name: "checksums.txt"
+      check_mode: false
+
+    - name: STERN | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/stern/stern/releases/download/\
+              v{{ stern_latest_version }}/{{ stern_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: stern_checksums
+
+    - name: STERN | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        stern_file_checksum: "{{ stern_checksums.content | regex_findall('.*' + stern_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: STERN | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/stern/stern/releases/download/\
+              v{{ stern_latest_version }}/{{ stern_full_release_name }}.tar.gz"
+        dest: "{{ stern_tmp_dir.path }}"
+        checksum: "sha256:{{ stern_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: stern_downloaded_release
+
+    - name: STERN | Unarchive downloaded latest release
+      ansible.builtin.unarchive:
+        src: "{{ stern_tmp_dir.path }}/{{ stern_full_release_name }}.tar.gz"
+        dest: "{{ stern_tmp_dir.path }}"
+      check_mode: false
+      register: stern_unarchived_release
+
+    - name: STERN | Copy binary
+      ansible.builtin.copy:
+        src: "{{ stern_tmp_dir.path }}/stern"
+        dest: "{{ xdg_dirs_local_bin }}/stern"
+        mode: "0750"
+      diff: false
+
+    - name: STERN | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ stern_tmp_dir.path }}/stern --completion {{ item }}"
+      register: stern_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: STERN | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_stern.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ stern_shell_completions.results }}"
+  always:
+    - name: STERN | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ stern_tmp_dir.path }}"
+        state: absent
+      no_log: true
