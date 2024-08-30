@@ -44,6 +44,12 @@
       tags:
         - argocd
 
+    - name: SOPS | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.sops
+      tags:
+        - sops
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm

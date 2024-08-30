@@ -1,0 +1,84 @@
+- name: SOPS | Include sops vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: SOPS | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/getsops/sops/releases/latest
+  register: sops_latest_release_json
+  check_mode: false
+
+- name: SOPS | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/sops --version"
+  register: sops_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: SOPS | Register latest release version
+  ansible.builtin.set_fact:
+    sops_latest_version: "{{ sops_latest_release_json.json.tag_name.split('v')[1] }}"
+    sops_current_version: "{{ sops_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: SOPS | Latest release version
+  ansible.builtin.debug:
+    var: sops_latest_version
+
+- name: SOPS | Current installed version
+  ansible.builtin.debug:
+    var: sops_current_version
+
+- name: SOPS | Install or Upgrade sops
+  when:
+    - sops_current_version != sops_latest_version or sops_force_install
+  block:
+    - name: SOPS | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: sops_
+        state: directory
+      register: sops_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: SOPS | Set release full name
+      ansible.builtin.set_fact:
+        sops_full_release_name: "sops-v{{ sops_latest_version }}.{{ sops_os_arch[ansible_system][ansible_architecture] }}"
+        sops_checksum_name: "sops-v{{ sops_latest_version }}.checksums.txt"
+      check_mode: false
+
+    - name: SOPS | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/getsops/sops/releases/download/\
+              v{{ sops_latest_version }}/{{ sops_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: sops_checksums
+
+    - name: SOPS | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        sops_file_checksum: "{{ sops_checksums.content | regex_findall('.*' + sops_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: SOPS | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/getsops/sops/releases/download/\
+              v{{ sops_latest_version }}/{{ sops_full_release_name }}"
+        dest: "{{ sops_tmp_dir.path }}"
+        checksum: "sha256:{{ sops_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: sops_downloaded_release
+
+    - name: SOPS | Copy binary
+      ansible.builtin.copy:
+        src: "{{ sops_tmp_dir.path }}/{{ sops_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/sops"
+        mode: "0750"
+      diff: false
+  always:
+    - name: SOPS | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ sops_tmp_dir.path }}"
+        state: absent
+      no_log: true
