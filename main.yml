@@ -56,6 +56,12 @@
       tags:
         - sops
 
+    - name: MINIO-CLIENT | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.minio_client
+      tags:
+        - minio_client
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm

@@ -1,0 +1,95 @@
+- name: MINIO-CLIENT | Include minio_client vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: MINIO-CLIENT | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/minio/mc/releases/latest
+  register: minio_client_latest_release_json
+  check_mode: false
+
+- name: MINIO-CLIENT | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/mc --version | head -n 1 | cut -d ' ' -f 3"
+  register: minio_client_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: MINIO-CLIENT | Register latest release version
+  ansible.builtin.set_fact:
+    minio_client_latest_version: "{{ minio_client_latest_release_json.json.tag_name }}"
+    minio_client_current_version: "{{ minio_client_current_version_cmd.stdout | default('') }}"
+
+- name: MINIO-CLIENT | Latest release version
+  ansible.builtin.debug:
+    var: minio_client_latest_version
+
+- name: MINIO-CLIENT | Current installed version
+  ansible.builtin.debug:
+    var: minio_client_current_version
+
+- name: MINIO-CLIENT | Install or Upgrade minio_client
+  when:
+    - minio_client_current_version != minio_client_latest_version or minio_client_force_install
+  block:
+    - name: MINIO-CLIENT | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: minio_client_
+        state: directory
+      register: minio_client_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: MINIO-CLIENT | Set release full name
+      ansible.builtin.set_fact:
+        minio_client_full_release_name: "{{ minio_client_os_arch[ansible_system][ansible_architecture] }}/mc"
+        minio_client_checksum_name: "{{ minio_client_os_arch[ansible_system][ansible_architecture] }}/mc.sha256sum"
+      check_mode: false
+
+    - name: MINIO-CLIENT | Download checksum file
+      ansible.builtin.uri:
+        url: "https://dl.min.io/client/mc/release/{{ minio_client_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: minio_client_checksums
+
+    - name: MINIO-CLIENT | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        minio_client_file_checksum: "{{ minio_client_checksums.content.split(' ')[0] }}"
+      check_mode: false
+
+    - name: MINIO-CLIENT | Download latest release
+      ansible.builtin.get_url:
+        url: "https://dl.min.io/client/mc/release/{{ minio_client_full_release_name }}"
+        dest: "{{ minio_client_tmp_dir.path }}"
+        checksum: "sha256:{{ minio_client_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: minio_client_downloaded_release
+
+    - name: MINIO-CLIENT | Copy binary
+      ansible.builtin.copy:
+        src: "{{ minio_client_tmp_dir.path }}/mc"
+        dest: "{{ xdg_dirs_local_bin }}/mc"
+        mode: "0750"
+      diff: false
+  always:
+    - name: MINIO-CLIENT | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ minio_client_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: MINIO-CLIENT | Create configuration directory
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/mc"
+    state: directory
+    mode: "0750"
+
+- name: MINIO-CLIENT | Link config.json to configuration directory
+  ansible.builtin.copy:
+    src: "{{ role_path }}/files/config.json"
+    dest: "{{ xdg_dirs_config }}/mc/config.json"
+    mode: "0640"
+  no_log: true
