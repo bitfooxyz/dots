@@ -80,6 +80,11 @@ if command -v bat &> /dev/null; then
     export BAT_THEME="tokyonight_storm"
 fi
 
+if command -v mc &> /dev/null; then
+    # set minio_client configuration directory
+    export MC_CONFIG_DIR=~/.config/mc
+fi
+
 if [ -x /opt/homebrew/bin/brew ]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then
