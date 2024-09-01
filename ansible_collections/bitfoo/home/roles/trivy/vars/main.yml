@@ -1,0 +1,6 @@
+trivy_os_arch:
+  Darwin:
+    arm64: macOS-ARM64
+  Linux:
+    x86_64: Linux-64bit
+    aarch64: Linux-ARM64

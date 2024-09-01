@@ -56,6 +56,12 @@
       tags:
         - sops
 
+    - name: TRIVY | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.trivy
+      tags:
+        - trivy
+
     - name: MINIO-CLIENT | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.minio_client

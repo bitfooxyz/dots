@@ -1,0 +1,108 @@
+- name: TRIVY | Include trivy vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: TRIVY | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/aquasecurity/trivy/releases/latest
+  register: trivy_latest_release_json
+  check_mode: false
+
+- name: TRIVY | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/trivy --version | head -n 1 | cut -d ' ' -f 2"
+  register: trivy_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: TRIVY | Register latest release version
+  ansible.builtin.set_fact:
+    trivy_latest_version: "{{ trivy_latest_release_json.json.tag_name.split('v')[1] }}"
+    trivy_current_version: "{{ trivy_current_version_cmd.stdout | default('') }}"
+
+- name: TRIVY | Latest release version
+  ansible.builtin.debug:
+    var: trivy_latest_version
+
+- name: TRIVY | Current installed version
+  ansible.builtin.debug:
+    var: trivy_current_version
+
+- name: TRIVY | Install or Upgrade trivy
+  when:
+    - trivy_current_version != trivy_latest_version or trivy_force_install
+  block:
+    - name: TRIVY | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: trivy_
+        state: directory
+      register: trivy_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: TRIVY | Set release full name
+      ansible.builtin.set_fact:
+        trivy_full_release_name: "trivy_{{ trivy_latest_version }}_{{ trivy_os_arch[ansible_system][ansible_architecture] }}"
+        trivy_checksum_name: "trivy_{{ trivy_latest_version }}_checksums.txt"
+      check_mode: false
+
+    - name: TRIVY | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/aquasecurity/trivy/releases/download/\
+              v{{ trivy_latest_version }}/{{ trivy_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: trivy_checksums
+
+    - name: TRIVY | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        trivy_file_checksum: "{{ trivy_checksums.content | regex_findall('.*' + trivy_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: TRIVY | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/aquasecurity/trivy/releases/download/\
+              v{{ trivy_latest_version }}/{{ trivy_full_release_name }}.tar.gz"
+        dest: "{{ trivy_tmp_dir.path }}"
+        checksum: "sha256:{{ trivy_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: trivy_downloaded_release
+
+    - name: TRIVY | Unarchive downloaded latest release
+      ansible.builtin.unarchive:
+        src: "{{ trivy_tmp_dir.path }}/{{ trivy_full_release_name }}.tar.gz"
+        dest: "{{ trivy_tmp_dir.path }}"
+      check_mode: false
+      register: stern_unarchived_release
+
+    - name: TRIVY | Copy binary
+      ansible.builtin.copy:
+        src: "{{ trivy_tmp_dir.path }}/trivy"
+        dest: "{{ xdg_dirs_local_bin }}/trivy"
+        mode: "0750"
+      diff: false
+
+    - name: TRIVY | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ trivy_tmp_dir.path }}/trivy completion {{ item }}"
+      register: trivy_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: TRIVY | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_trivy.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ trivy_shell_completions.results }}"
+  always:
+    - name: TRIVY | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ trivy_tmp_dir.path }}"
+        state: absent
+      no_log: true
