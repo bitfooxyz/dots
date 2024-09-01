@@ -92,6 +92,12 @@
       tags:
         - kopia
 
+    - name: RUSTSCAN | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.rustscan
+      tags:
+        - rustscan
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm

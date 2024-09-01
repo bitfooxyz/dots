@@ -1,0 +1,76 @@
+- name: RUSTSCAN | Include rustscan vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: RUSTSCAN | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/rustscan/rustscan/releases/latest
+  register: rustscan_latest_release_json
+  check_mode: false
+
+- name: RUSTSCAN | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/rustscan --version"
+  register: rustscan_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: RUSTSCAN | Register latest release version
+  ansible.builtin.set_fact:
+    rustscan_latest_version: "{{ rustscan_latest_release_json.json.tag_name }}"
+    rustscan_current_version: "{{ rustscan_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: RUSTSCAN | Latest release version
+  ansible.builtin.debug:
+    var: rustscan_latest_version
+
+- name: RUSTSCAN | Current installed version
+  ansible.builtin.debug:
+    var: rustscan_current_version
+
+- name: RUSTSCAN | Install or Upgrade rustscan
+  when:
+    - rustscan_current_version != rustscan_latest_version or rustscan_force_install
+  block:
+    - name: RUSTSCAN | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: rustscan_
+        state: directory
+      register: rustscan_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: RUSTSCAN | Set release full name
+      ansible.builtin.set_fact:
+        rustscan_full_release_name: "rustscan-{{ rustscan_latest_version }}-{{ rustscan_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: RUSTSCAN | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/rustscan/rustscan/releases/download/\
+              {{ rustscan_latest_version }}/{{ rustscan_full_release_name }}.tar.xz"
+        dest: "{{ rustscan_tmp_dir.path }}"
+        mode: "0640"
+      check_mode: false
+      register: rustscan_downloaded_release
+
+    - name: RUSTSCAN | Unarchive rustscan archive
+      ansible.builtin.unarchive:
+        src: "{{ rustscan_tmp_dir.path }}/{{ rustscan_full_release_name }}.tar.xz"
+        dest: "{{ rustscan_tmp_dir.path }}"
+      register: rustscan_unarchived_release
+      check_mode: false
+
+    - name: RUSTSCAN | Copy binary
+      ansible.builtin.copy:
+        src: "{{ rustscan_tmp_dir.path }}/{{ rustscan_full_release_name }}/rustscan"
+        dest: "{{ xdg_dirs_local_bin }}/rustscan"
+        mode: "0750"
+      diff: false
+  always:
+    - name: RUSTSCAN | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ rustscan_tmp_dir.path }}"
+        state: absent
+      no_log: true
