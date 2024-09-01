@@ -1,0 +1,108 @@
+- name: VELERO | Include velero vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: VELERO | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/vmware-tanzu/velero/releases/latest
+  register: velero_latest_release_json
+  check_mode: false
+
+- name: VELERO | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/velero version --client-only | head -n 2"
+  register: velero_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: VELERO | Register latest release version
+  ansible.builtin.set_fact:
+    velero_latest_version: "{{ velero_latest_release_json.json.tag_name.split('v')[1] }}"
+    velero_current_version: "{{ velero_current_version_cmd.stdout.split('v')[1] | default('') }}"
+
+- name: VELERO | Latest release version
+  ansible.builtin.debug:
+    var: velero_latest_version
+
+- name: VELERO | Current installed version
+  ansible.builtin.debug:
+    var: velero_current_version
+
+- name: VELERO | Install or Upgrade velero
+  when:
+    - velero_current_version != velero_latest_version or velero_force_install
+  block:
+    - name: VELERO | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: velero_
+        state: directory
+      register: velero_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: VELERO | Set release full name
+      ansible.builtin.set_fact:
+        velero_full_release_name: "velero-v{{ velero_latest_version }}-{{ velero_os_arch[ansible_system][ansible_architecture] }}"
+        velero_checksum_name: "CHECKSUM"
+      check_mode: false
+
+    - name: VELERO | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/vmware-tanzu/velero/releases/download/\
+              v{{ velero_latest_version }}/{{ velero_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: velero_checksums
+
+    - name: VELERO | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        velero_file_checksum: "{{ velero_checksums.content | regex_findall('.*' + velero_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: VELERO | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/vmware-tanzu/velero/releases/download/\
+              v{{ velero_latest_version }}/{{ velero_full_release_name }}.tar.gz"
+        dest: "{{ velero_tmp_dir.path }}"
+        checksum: "sha256:{{ velero_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: velero_downloaded_release
+
+    - name: VELERO | Unarchive velero archive
+      ansible.builtin.unarchive:
+        src: "{{ velero_tmp_dir.path }}/{{ velero_full_release_name }}.tar.gz"
+        dest: "{{ velero_tmp_dir.path }}"
+      register: velero_unarchived_release
+      check_mode: false
+
+    - name: VELERO | Copy binary
+      ansible.builtin.copy:
+        src: "{{ velero_tmp_dir.path }}/{{ velero_full_release_name }}/velero"
+        dest: "{{ xdg_dirs_local_bin }}/velero"
+        mode: "0750"
+      diff: false
+
+    - name: VELERO | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ velero_tmp_dir.path }}/{{ velero_full_release_name }}/velero completion {{ item }}"
+      register: velero_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: VELERO | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_velero.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ velero_shell_completions.results }}"
+  always:
+    - name: VELERO | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ velero_tmp_dir.path }}"
+        state: absent
+      no_log: true

@@ -68,6 +68,12 @@
       tags:
         - minio_client
 
+    - name: VELERO | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.velero
+      tags:
+        - velero
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm
