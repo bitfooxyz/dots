@@ -1,5 +1,6 @@
 # use vi mode on zle
 bindkey -v
+bindkey -M viins 'jk' vi-cmd-mode
 
 # search backwards and forwards with a pattern
 bindkey -M vicmd '/' history-incremental-pattern-search-backward
