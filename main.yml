@@ -74,6 +74,12 @@
       tags:
         - velero
 
+    - name: DIVE | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.dive
+      tags:
+        - dive
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm

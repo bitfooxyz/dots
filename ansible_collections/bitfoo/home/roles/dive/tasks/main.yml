@@ -1,0 +1,91 @@
+- name: DIVE | Include dive vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: DIVE | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/wagoodman/dive/releases/latest
+  register: dive_latest_release_json
+  check_mode: false
+
+- name: DIVE | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/dive --version"
+  register: dive_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: DIVE | Register latest release version
+  ansible.builtin.set_fact:
+    dive_latest_version: "{{ dive_latest_release_json.json.tag_name.split('v')[1] }}"
+    dive_current_version: "{{ dive_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: DIVE | Latest release version
+  ansible.builtin.debug:
+    var: dive_latest_version
+
+- name: DIVE | Current installed version
+  ansible.builtin.debug:
+    var: dive_current_version
+
+- name: DIVE | Install or Upgrade dive
+  when:
+    - dive_current_version != dive_latest_version or dive_force_install
+  block:
+    - name: DIVE | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: dive_
+        state: directory
+      register: dive_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: DIVE | Set release full name
+      ansible.builtin.set_fact:
+        dive_full_release_name: "dive_{{ dive_latest_version }}_{{ dive_os_arch[ansible_system][ansible_architecture] }}"
+        dive_checksum_name: "dive_{{ dive_latest_version }}_checksums.txt"
+      check_mode: false
+
+    - name: DIVE | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/wagoodman/dive/releases/download/\
+              v{{ dive_latest_version }}/{{ dive_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: dive_checksums
+
+    - name: DIVE | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        dive_file_checksum: "{{ dive_checksums.content | regex_findall('.*' + dive_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: DIVE | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/wagoodman/dive/releases/download/\
+              v{{ dive_latest_version }}/{{ dive_full_release_name }}.tar.gz"
+        dest: "{{ dive_tmp_dir.path }}"
+        checksum: "sha256:{{ dive_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: dive_downloaded_release
+
+    - name: DIVE | Unarchive dive archive
+      ansible.builtin.unarchive:
+        src: "{{ dive_tmp_dir.path }}/{{ dive_full_release_name }}.tar.gz"
+        dest: "{{ dive_tmp_dir.path }}"
+      register: dive_unarchived_release
+      check_mode: false
+
+    - name: DIVE | Copy binary
+      ansible.builtin.copy:
+        src: "{{ dive_tmp_dir.path }}/dive"
+        dest: "{{ xdg_dirs_local_bin }}/dive"
+        mode: "0750"
+      diff: false
+  always:
+    - name: DIVE | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ dive_tmp_dir.path }}"
+        state: absent
+      no_log: true
