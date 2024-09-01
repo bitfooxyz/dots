@@ -1,0 +1,139 @@
+- name: RESTIC | Include restic vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: RESTIC | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/restic/restic/releases/latest
+  register: restic_latest_release_json
+  check_mode: false
+
+- name: RESTIC | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/restic version"
+  register: restic_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: RESTIC | Register latest release version
+  ansible.builtin.set_fact:
+    restic_latest_version: "{{ restic_latest_release_json.json.tag_name.split('v')[1] }}"
+    restic_current_version: "{{ restic_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: RESTIC | Latest release version
+  ansible.builtin.debug:
+    var: restic_latest_version
+
+- name: RESTIC | Current installed version
+  ansible.builtin.debug:
+    var: restic_current_version
+
+- name: RESTIC | Install or Upgrade restic
+  when:
+    - restic_current_version != restic_latest_version or restic_force_install
+  block:
+    - name: RESTIC | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: restic_
+        state: directory
+      register: restic_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: RESTIC | Set release full name
+      ansible.builtin.set_fact:
+        restic_full_release_name: "restic_{{ restic_latest_version }}_{{ restic_os_arch[ansible_system][ansible_architecture] }}"
+        restic_checksum_name: "SHA256SUMS"
+      check_mode: false
+
+    - name: RESTIC | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/restic/restic/releases/download/\
+              v{{ restic_latest_version }}/{{ restic_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: restic_checksums
+
+    - name: RESTIC | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        restic_file_checksum: "{{ restic_checksums.content | regex_findall('.*' + restic_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: RESTIC | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/restic/restic/releases/download/\
+              v{{ restic_latest_version }}/{{ restic_full_release_name }}.bz2"
+        dest: "{{ restic_tmp_dir.path }}"
+        checksum: "sha256:{{ restic_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: restic_downloaded_release
+
+    - name: RESTIC | Decompress restic archive
+      ansible.builtin.command:
+        cmd: "bunzip2 {{ restic_tmp_dir.path }}/{{ restic_full_release_name }}.bz2"
+      register: restic_decompressed_release
+      changed_when: restic_decompressed_release.rc == 0 and restic_decompressed_release.stdout == ""
+      failed_when: restic_decompressed_release.rc != 0
+      check_mode: false
+
+    - name: RESTIC | Ensure restic is executable
+      ansible.builtin.file:
+        path: "{{ restic_tmp_dir.path }}/{{ restic_full_release_name }}"
+        mode: "0750"
+        state: file
+      check_mode: false
+
+    - name: RESTIC | Copy binary
+      ansible.builtin.copy:
+        src: "{{ restic_tmp_dir.path }}/{{ restic_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/restic"
+        mode: "0750"
+      diff: false
+
+    - name: RESTIC | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ restic_tmp_dir.path }}/{{ restic_full_release_name }} generate --{{ item }}-completion {{ restic_tmp_dir.path }}/_restic.{{ item }}"
+      register: restic_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: RESTIC | Copy shell completion
+      ansible.builtin.copy:
+        src: "{{ restic_tmp_dir.path }}/_restic.{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_restic.{{ item }}"
+        mode: "0640"
+      loop:
+        - bash
+        - zsh
+
+    - name: RESTIC | Create intermediate man dir
+      ansible.builtin.file:
+        path: "{{ restic_tmp_dir.path }}/man"
+        mode: "0750"
+        state: directory
+      check_mode: false
+
+    - name: RESTIC | Generate man 1 pages
+      ansible.builtin.command:
+        cmd: "{{ restic_tmp_dir.path }}/{{ restic_full_release_name }} generate --man {{ restic_tmp_dir.path }}/man"
+      register: restic_man_page
+      changed_when: false
+      check_mode: false
+
+    - name: RESTIC | Copy man 1 pages
+      ansible.builtin.copy:
+        src: "{{ item }}"
+        dest: "{{ xdg_dirs_local_share_man }}/man1/{{ item | basename }}"
+        mode: "0640"
+      loop: "{{ query('ansible.builtin.fileglob', restic_tmp_dir.path + '/man/*') }}"
+  always:
+    - name: RESTIC | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ restic_tmp_dir.path }}"
+        state: absent
+      no_log: true

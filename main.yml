@@ -80,6 +80,12 @@
       tags:
         - dive
 
+    - name: RESTIC | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.restic
+      tags:
+        - restic
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm
