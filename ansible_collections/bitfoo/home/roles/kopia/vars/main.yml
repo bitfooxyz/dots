@@ -1,0 +1,6 @@
+kopia_os_arch:
+  Darwin:
+    arm64: macOS-arm64
+  Linux:
+    x86_64: linux-x64
+    aarch64: linux-arm64

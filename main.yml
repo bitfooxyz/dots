@@ -86,6 +86,12 @@
       tags:
         - restic
 
+    - name: KOPIA | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.kopia
+      tags:
+        - kopia
+
     - name: WEZTERM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.wezterm

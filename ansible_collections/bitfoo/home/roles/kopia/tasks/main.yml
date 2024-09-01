@@ -1,0 +1,91 @@
+- name: KOPIA | Include kopia vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: KOPIA | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/kopia/kopia/releases/latest
+  register: kopia_latest_release_json
+  check_mode: false
+
+- name: KOPIA | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/kopia --version"
+  register: kopia_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: KOPIA | Register latest release version
+  ansible.builtin.set_fact:
+    kopia_latest_version: "{{ kopia_latest_release_json.json.tag_name.split('v')[1] }}"
+    kopia_current_version: "{{ kopia_current_version_cmd.stdout.split(' ')[0] | default('') }}"
+
+- name: KOPIA | Latest release version
+  ansible.builtin.debug:
+    var: kopia_latest_version
+
+- name: KOPIA | Current installed version
+  ansible.builtin.debug:
+    var: kopia_current_version
+
+- name: KOPIA | Install or Upgrade kopia
+  when:
+    - kopia_current_version != kopia_latest_version or kopia_force_install
+  block:
+    - name: KOPIA | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: kopia_
+        state: directory
+      register: kopia_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: KOPIA | Set release full name
+      ansible.builtin.set_fact:
+        kopia_full_release_name: "kopia-{{ kopia_latest_version }}-{{ kopia_os_arch[ansible_system][ansible_architecture] }}"
+        kopia_checksum_name: "checksums.txt"
+      check_mode: false
+
+    - name: KOPIA | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/kopia/kopia/releases/download/\
+              v{{ kopia_latest_version }}/{{ kopia_checksum_name }}"
+        return_content: true
+      check_mode: false
+      register: kopia_checksums
+
+    - name: KOPIA | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        kopia_file_checksum: "{{ kopia_checksums.content | regex_findall('.*' + kopia_full_release_name + '.*') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: KOPIA | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/kopia/kopia/releases/download/\
+              v{{ kopia_latest_version }}/{{ kopia_full_release_name }}.tar.gz"
+        dest: "{{ kopia_tmp_dir.path }}"
+        checksum: "sha256:{{ kopia_file_checksum }}"
+        mode: "0640"
+      check_mode: false
+      register: kopia_downloaded_release
+
+    - name: KOPIA | Unarchive kopia archive
+      ansible.builtin.unarchive:
+        src: "{{ kopia_tmp_dir.path }}/{{ kopia_full_release_name }}.tar.gz"
+        dest: "{{ kopia_tmp_dir.path }}"
+      register: kopia_unarchived_release
+      check_mode: false
+
+    - name: KOPIA | Copy binary
+      ansible.builtin.copy:
+        src: "{{ kopia_tmp_dir.path }}/{{ kopia_full_release_name }}/kopia"
+        dest: "{{ xdg_dirs_local_bin }}/kopia"
+        mode: "0750"
+      diff: false
+  always:
+    - name: KOPIA | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ kopia_tmp_dir.path }}"
+        state: absent
+      no_log: true
