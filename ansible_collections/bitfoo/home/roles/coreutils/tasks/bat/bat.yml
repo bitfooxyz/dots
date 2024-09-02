@@ -2,6 +2,7 @@
   ansible.builtin.package:
     name: "{{ coreutils_bat_packages }}"
     state: present
+  become: true
   when: ansible_system == "Linux"
 
 - name: BAT | Install dependency packages on MacOS
