@@ -30,7 +30,7 @@
     dest: "{{ ansible_user_dir }}/.profile"
     state: link
     force: true
-    mode: "0440"
+    mode: "0640"
   tags:
     - bash
     - zsh
