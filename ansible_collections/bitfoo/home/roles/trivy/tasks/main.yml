@@ -57,7 +57,7 @@
 
     - name: TRIVY | Set checksum for system and architecture archive
       ansible.builtin.set_fact:
-        trivy_file_checksum: "{{ trivy_checksums.content | regex_findall('.*' + trivy_full_release_name + '.*') | first | split(' ') | first }}"
+        trivy_file_checksum: "{{ trivy_checksums.content | regex_findall('.*' + trivy_full_release_name + '.tar.gz') | first | split(' ') | first }}"
       check_mode: false
 
     - name: TRIVY | Download latest release
