@@ -11,7 +11,7 @@
 
 - name: GIT_CLIFF | Get current installed version
   ansible.builtin.command:
-    cmd: "{{ xdg_dirs_local_bin }}/git_cliff --version"
+    cmd: "{{ xdg_dirs_local_bin }}/git-cliff --version"
   register: git_cliff_current_version_cmd
   changed_when: false
   failed_when: false
@@ -82,7 +82,7 @@
     - name: GIT_CLIFF | Copy binary
       ansible.builtin.copy:
         src: "{{ git_cliff_tmp_dir.path }}/git-cliff-{{ git_cliff_latest_version }}/git-cliff"
-        dest: "{{ xdg_dirs_local_bin }}/git_cliff"
+        dest: "{{ xdg_dirs_local_bin }}/git-cliff"
         mode: "0750"
 
     - name: GIT_CLIFF | Copy autocompletion files
