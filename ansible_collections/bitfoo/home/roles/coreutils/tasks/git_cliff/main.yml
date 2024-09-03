@@ -20,7 +20,7 @@
 - name: GIT_CLIFF | Register latest release version
   ansible.builtin.set_fact:
     git_cliff_latest_version: "{{ git_cliff_latest_release_json.json.tag_name.split('v')[1] }}"
-    git_cliff_current_version: "{{ git_cliff_current_version_cmd.stdout | default('') }}"
+    git_cliff_current_version: "{{ git_cliff_current_version_cmd.stdout.split(' ')[1] | default('') }}"
 - name: GIT_CLIFF | Latest release version
   ansible.builtin.debug:
     var: git_cliff_latest_version
