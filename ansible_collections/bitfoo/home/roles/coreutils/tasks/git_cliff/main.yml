@@ -5,6 +5,7 @@
 - name: GIT_CLIFF | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/orhun/git-cliff/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: git_cliff_latest_release_json
   check_mode: false
 
@@ -49,6 +50,7 @@
       ansible.builtin.uri:
         url: "https://github.com/orhun/git-cliff/releases/download/\
               v{{ git_cliff_latest_version }}/{{ git_cliff_full_release_name }}.tar.gz.sha512"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: git_cliff_checksums
       changed_when: false
@@ -65,6 +67,7 @@
               v{{ git_cliff_latest_version }}/{{ git_cliff_full_release_name }}.tar.gz"
         dest: "{{ git_cliff_tmp_dir.path }}"
         checksum: "sha512:{{ git_cliff_file_checksum }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: git_cliff_downloaded_release

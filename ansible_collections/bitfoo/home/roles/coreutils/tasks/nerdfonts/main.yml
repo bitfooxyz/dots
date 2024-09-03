@@ -28,6 +28,7 @@
 - name: NERDFONTS | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/ryanoasis/nerd-fonts/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: nerdfonts_latest_release_json
   check_mode: false
 
@@ -76,6 +77,7 @@
     - name: NERDFONTS | Download checksum file
       ansible.builtin.uri:
         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_latest_version }}/SHA-256.txt"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: nerdfonts_checksums
       changed_when: false
@@ -86,6 +88,7 @@
         url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ nerdfonts_latest_version }}/{{ item }}.tar.xz"
         dest: "{{ nerdfonts_tmp_dir.path }}"
         mode: "0640"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         checksum: "sha256:{{ nerdfonts_checksums.content | regex_findall('.*' + item + '.tar.xz$', multiline=True) | first | split(' ') | first }}"
       loop: "{{ nerdfonts_to_get_installed_fonts }}"
       register: nerdfonts_downloaded_release

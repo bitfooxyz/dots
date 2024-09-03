@@ -1,6 +1,7 @@
 - name: LAZYGIT | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/jesseduffield/lazygit/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: lazygit_latest_release_json
   check_mode: false
 
@@ -48,6 +49,7 @@
       ansible.builtin.uri:
         url: "https://github.com/jesseduffield/lazygit/releases/download/\
               v{{ lazygit_latest_version }}/checksums.txt"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: lazygit_checksums
       changed_when: false
@@ -66,6 +68,7 @@
               v{{ lazygit_latest_version }}/{{ lazygit_full_release_name }}.tar.gz"
         dest: "{{ lazygit_tmp_dir.path }}"
         checksum: "sha256:{{ lazygit_file_checksum }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: lazygit_downloaded_release

@@ -56,6 +56,7 @@
     - name: WEZTERM | Get current version of tokyonight
       ansible.builtin.uri:
         url: https://api.github.com/repos/folke/tokyonight.nvim/releases/latest
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
       register: wezterm_colors_latest_release_json
       check_mode: false
 

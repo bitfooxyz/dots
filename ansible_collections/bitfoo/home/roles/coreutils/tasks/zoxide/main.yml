@@ -5,6 +5,7 @@
 - name: ZOXIDE | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/ajeetdsouza/zoxide/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: zoxide_latest_release_json
   check_mode: false
 
@@ -49,6 +50,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/ajeetdsouza/zoxide/releases/download/v{{ zoxide_latest_version }}/{{ zoxide_full_release_name }}.tar.gz"
         dest: "{{ zoxide_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       register: zoxide_downloaded_release
       check_mode: false

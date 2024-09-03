@@ -5,6 +5,7 @@
 - name: GIT-DELTA | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/dandavison/delta/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: git_delta_latest_release_json
   check_mode: false
 
@@ -51,6 +52,7 @@
         url: "https://github.com/dandavison/delta/releases/download/\
               {{ git_delta_latest_version }}/{{ git_delta_full_release_name }}.tar.gz"
         dest: "{{ git_delta_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: git_delta_downloaded_release

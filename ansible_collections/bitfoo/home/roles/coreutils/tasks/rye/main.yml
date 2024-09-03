@@ -5,6 +5,7 @@
 - name: RYE | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/astral-sh/rye/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: rye_latest_release_json
   check_mode: false
 
@@ -47,6 +48,7 @@
     - name: RYE | Get checksum file
       ansible.builtin.uri:
         url: "https://github.com/astral-sh/rye/releases/download/{{ rye_latest_version }}/{{ rye_full_release_name }}.gz.sha256"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: rye_release_checksum
       check_mode: false
@@ -55,6 +57,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/astral-sh/rye/releases/download/{{ rye_latest_version }}/{{ rye_full_release_name }}.gz"
         dest: "{{ rye_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0660"
         checksum: "sha256:{{ rye_release_checksum.content }}"
       check_mode: false

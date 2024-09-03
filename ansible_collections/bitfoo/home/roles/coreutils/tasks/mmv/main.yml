@@ -5,6 +5,7 @@
 - name: MMV | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/itchyny/mmv/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: mmv_latest_release_json
   check_mode: false
 
@@ -49,6 +50,7 @@
         url: "https://github.com/itchyny/mmv/releases/download/v{{ mmv_latest_version }}\
               /{{ mmv_full_release_name }}.{{ 'tar.gz' if ansible_system == 'Linux' else 'zip' }}"
         dest: "{{ mmv_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: mmv_downloaded_release

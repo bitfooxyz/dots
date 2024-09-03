@@ -1,6 +1,7 @@
 - name: GLOW | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/charmbracelet/glow/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: glow_latest_release_json
   check_mode: false
 
@@ -43,6 +44,7 @@
     - name: GLOW | Download checksum file
       ansible.builtin.uri:
         url: "https://github.com/charmbracelet/glow/releases/download/v{{ glow_latest_version }}/checksums.txt"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: glow_checksums
       changed_when: false
@@ -57,6 +59,7 @@
         url: "https://github.com/charmbracelet/glow/releases/download/v{{ glow_latest_version }}/{{ glow_full_release_name }}.tar.gz"
         dest: "{{ glow_tmp_dir.path }}"
         mode: "0640"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         checksum: "sha256:{{ glow_file_checksum }}"
       register: glow_downloaded_release
       check_mode: false

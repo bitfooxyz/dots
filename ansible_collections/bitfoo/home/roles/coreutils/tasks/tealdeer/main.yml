@@ -5,6 +5,7 @@
 - name: TEALDEER | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/dbrgn/tealdeer/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: tealdeer_latest_release_json
   check_mode: false
 
@@ -40,6 +41,7 @@
     - name: TEALDEER | Get checksum
       ansible.builtin.uri:
         url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/{{ tealdeer_full_release_name }}.sha256"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: tealdeer_checksum
       check_mode: false
@@ -49,6 +51,7 @@
         url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/{{ tealdeer_full_release_name }}"
         dest: "{{ xdg_dirs_local_bin }}/tldr"
         mode: "0750"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         checksum: "sha256:{{ tealdeer_checksum.content.split(' ')[0] }}"
       register: tealdeer_downloaded_release
 
@@ -56,6 +59,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/dbrgn/tealdeer/releases/download/v{{ tealdeer_latest_version }}/completions_{{ item }}"
         dest: "{{ xdg_dirs_config }}/{{ item }}/completions/_tldr.{{ item }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       when: not ansible_check_mode
       loop:

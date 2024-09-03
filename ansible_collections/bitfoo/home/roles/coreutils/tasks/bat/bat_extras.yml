@@ -1,6 +1,7 @@
 - name: BAT-EXTRAS | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/eth-p/bat-extras/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: bat_extras_latest_release_json
   check_mode: false
 
@@ -44,6 +45,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/eth-p/bat-extras/releases/download/v{{ bat_extras_latest_version }}/{{ bat_extras_full_release_name }}.zip"
         dest: "{{ bat_extras_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0660"
       register: bat_extras_downloaded_release
       check_mode: false

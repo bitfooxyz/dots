@@ -24,6 +24,7 @@
     - name: EZA | Get latest version
       ansible.builtin.uri:
         url: https://api.github.com/repos/eza-community/eza/releases/latest
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
       register: eza_latest_release_json
       check_mode: false
 
@@ -72,6 +73,7 @@
             url: "https://github.com/eza-community/eza/releases/download/\
                   v{{ eza_latest_version }}/{{ eza_full_release_name }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
+            headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
             mode: "0640"
           check_mode: false
           register: eza_downloaded_release
@@ -95,6 +97,7 @@
             url: "https://github.com/eza-community/eza/releases/download/\
                   v{{ eza_latest_version }}/completions-{{ eza_latest_version }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
+            headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
             mode: "0640"
           check_mode: false
           register: eza_downloaded_release
@@ -121,6 +124,7 @@
             url: "https://github.com/eza-community/eza/releases/download/\
                   v{{ eza_latest_version }}/man-{{ eza_latest_version }}.tar.gz"
             dest: "{{ eza_tmp_dir.path }}"
+            headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
             mode: "0640"
           check_mode: false
           register: eza_downloaded_release

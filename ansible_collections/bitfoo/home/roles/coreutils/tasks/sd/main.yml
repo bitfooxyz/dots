@@ -5,6 +5,7 @@
 - name: SD | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/chmln/sd/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: sd_latest_release_json
   check_mode: false
 
@@ -52,6 +53,7 @@
         url: "https://github.com/chmln/sd/releases/download/\
               v{{ sd_latest_version }}/{{ sd_full_release_name }}.tar.gz"
         dest: "{{ sd_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: sd_downloaded_release

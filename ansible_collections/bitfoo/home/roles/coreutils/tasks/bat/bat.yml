@@ -14,6 +14,7 @@
 - name: BAT | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/sharkdp/bat/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: bat_latest_release_json
   check_mode: false
 
@@ -57,6 +58,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/sharkdp/bat/releases/download/v{{ bat_latest_version }}/{{ bat_full_release_name }}.tar.gz"
         dest: "{{ bat_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0660"
       register: bat_downloaded_release
       check_mode: false

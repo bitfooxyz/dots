@@ -5,6 +5,7 @@
 - name: SOPS | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/getsops/sops/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: sops_latest_release_json
   check_mode: false
 
@@ -51,6 +52,7 @@
       ansible.builtin.uri:
         url: "https://github.com/getsops/sops/releases/download/\
               v{{ sops_latest_version }}/{{ sops_checksum_name }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       check_mode: false
       register: sops_checksums
@@ -66,6 +68,7 @@
               v{{ sops_latest_version }}/{{ sops_full_release_name }}"
         dest: "{{ sops_tmp_dir.path }}"
         checksum: "sha256:{{ sops_file_checksum }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: sops_downloaded_release

@@ -9,6 +9,7 @@
 - name: FZF | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/junegunn/fzf/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: fzf_latest_release_json
   check_mode: false
 
@@ -52,6 +53,7 @@
     - name: FZF | Download checksum file
       ansible.builtin.uri:
         url: "https://github.com/junegunn/fzf/releases/download/v{{ fzf_latest_version }}/fzf_{{ fzf_latest_version }}_checksums.txt"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: fzf_checksums
       changed_when: false
@@ -68,6 +70,7 @@
               v{{ fzf_latest_version }}/{{ fzf_full_release_name }}.tar.gz"
         dest: "{{ fzf_tmp_dir.path }}"
         mode: "0640"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         checksum: "sha256:{{ fzf_file_checksum }}"
       register: fzf_downloaded_release
       check_mode: false
@@ -88,6 +91,7 @@
     - name: FZF | Download manpages
       ansible.builtin.uri:
         url: "https://raw.githubusercontent.com/junegunn/fzf/v{{ fzf_latest_version }}/man/man1/{{ item }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       register: fzf_manpages
       check_mode: false

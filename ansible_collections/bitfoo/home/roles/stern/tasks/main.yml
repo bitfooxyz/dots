@@ -5,6 +5,7 @@
 - name: STERN | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/stern/stern/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: stern_latest_release_json
   check_mode: false
 
@@ -51,6 +52,7 @@
       ansible.builtin.uri:
         url: "https://github.com/stern/stern/releases/download/\
               v{{ stern_latest_version }}/{{ stern_checksum_name }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         return_content: true
       check_mode: false
       register: stern_checksums
@@ -66,6 +68,7 @@
               v{{ stern_latest_version }}/{{ stern_full_release_name }}.tar.gz"
         dest: "{{ stern_tmp_dir.path }}"
         checksum: "sha256:{{ stern_file_checksum }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: stern_downloaded_release

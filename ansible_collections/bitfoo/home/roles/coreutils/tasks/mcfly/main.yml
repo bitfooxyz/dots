@@ -5,6 +5,7 @@
 - name: MCFLY | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/cantino/mcfly/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: mcfly_latest_release_json
   check_mode: false
 
@@ -49,6 +50,7 @@
         url: "https://github.com/cantino/mcfly/releases/download/\
               v{{ mcfly_latest_version }}/{{ mcfly_full_release_name }}.tar.gz"
         dest: "{{ mcfly_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: mcfly_downloaded_release

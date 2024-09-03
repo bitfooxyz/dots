@@ -5,6 +5,7 @@
 - name: YQ | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/mikefarah/yq/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: yq_latest_release_json
   check_mode: false
 
@@ -50,6 +51,7 @@
         url: "https://github.com/mikefarah/yq/releases/download/\
               v{{ yq_latest_version }}/{{ yq_full_release_name }}.tar.gz"
         dest: "{{ yq_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: yq_downloaded_release

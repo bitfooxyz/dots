@@ -5,6 +5,7 @@
 - name: FD | Get latest version
   ansible.builtin.uri:
     url: https://api.github.com/repos/sharkdp/fd/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
   register: fd_latest_release_json
   check_mode: false
 
@@ -48,6 +49,7 @@
       ansible.builtin.get_url:
         url: "https://github.com/sharkdp/fd/releases/download/v{{ fd_latest_version }}/{{ fd_full_release_name }}.tar.gz"
         dest: "{{ fd_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
         mode: "0640"
       check_mode: false
       register: fd_downloaded_release
