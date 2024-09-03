@@ -2,4 +2,4 @@ rustscan_os_arch:
   Darwin:
     arm64: aarch64-macos
   Linux:
-    x86_64: x86_64-linux-amd64
+    x86_64: x86_64-linux
