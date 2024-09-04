@@ -56,3 +56,5 @@
 [include]
     path = "~/.config/git/generated.inc"
 
+[pull]
+	rebase = true
