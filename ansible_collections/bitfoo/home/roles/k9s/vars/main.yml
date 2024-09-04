@@ -1,0 +1,6 @@
+k9s_os_arch:
+  Darwin:
+    arm64: Darwin_arm64
+  Linux:
+    x86_64: Linux_amd64
+    aarch64: Linux_arm64

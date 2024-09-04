@@ -20,6 +20,12 @@
       tags:
         - kubectl
 
+    - name: K9S | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.k9s
+      tags:
+        - k9s
+
     - name: KUBECTX | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.kubectx

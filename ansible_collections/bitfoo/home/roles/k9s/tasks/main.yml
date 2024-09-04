@@ -1,0 +1,127 @@
+- name: K9S | Include k9s vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: K9S | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/derailed/k9s/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: k9s_latest_release_json
+  check_mode: false
+
+- name: K9S | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/k9s version --short | head -n 1 | cut -d 'v' -f 2"
+  register: k9s_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: K9S | Register latest release version
+  ansible.builtin.set_fact:
+    k9s_latest_version: "{{ k9s_latest_release_json.json.tag_name.split('v')[1] }}"
+    k9s_current_version: "{{ k9s_current_version_cmd.stdout | default('') }}"
+
+- name: K9S | Latest release version
+  ansible.builtin.debug:
+    var: k9s_latest_version
+
+- name: K9S | Current installed version
+  ansible.builtin.debug:
+    var: k9s_current_version
+
+- name: K9S | Install or Upgrade k9s
+  when:
+    - k9s_current_version != k9s_latest_version or k9s_force_install
+  block:
+    - name: K9S | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: k9s_
+        state: directory
+      register: k9s_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: K9S | Set release full name
+      ansible.builtin.set_fact:
+        k9s_full_release_name: "k9s_{{ k9s_os_arch[ansible_system][ansible_architecture] }}"
+        k9s_checksum_name: "checksums.sha256"
+      check_mode: false
+
+    - name: K9S | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/derailed/k9s/releases/download/\
+              v{{ k9s_latest_version }}/{{ k9s_checksum_name }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        return_content: true
+      check_mode: false
+      register: k9s_checksums
+
+    - name: K9S | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        k9s_file_checksum: "{{ k9s_checksums.content | regex_findall('.*' + k9s_full_release_name + '.tar.gz') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: K9S | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/derailed/k9s/releases/download/\
+              v{{ k9s_latest_version }}/{{ k9s_full_release_name }}.tar.gz"
+        dest: "{{ k9s_tmp_dir.path }}"
+        checksum: "sha256:{{ k9s_file_checksum }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0640"
+      check_mode: false
+      register: k9s_downloaded_release
+
+    - name: K9S | Unarchive k9s archive
+      ansible.builtin.unarchive:
+        src: "{{ k9s_tmp_dir.path }}/{{ k9s_full_release_name }}.tar.gz"
+        dest: "{{ k9s_tmp_dir.path }}"
+      register: k9s_unarchived_release
+      check_mode: false
+
+    - name: K9S | Copy binary
+      ansible.builtin.copy:
+        src: "{{ k9s_tmp_dir.path }}/k9s"
+        dest: "{{ xdg_dirs_local_bin }}/k9s"
+        mode: "0750"
+      diff: false
+
+    - name: K9S | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ k9s_tmp_dir.path }}/k9s completion {{ item }}"
+      register: k9s_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: K9S | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_k9s.{{ item.item }}"
+        mode: "0640"
+      loop: "{{ k9s_shell_completions.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+      diff: false
+  always:
+    - name: K9S | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ k9s_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: K9S | Create configuration directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/k9s"
+    state: directory
+    mode: "0750"
+
+- name: K9S | Link global configuration file
+  ansible.builtin.file:
+    src: "{{ k9s_global_config_file }}"
+    dest: "{{ xdg_dirs_config }}/k9s/config.yaml"
+    state: link
+    force: true
