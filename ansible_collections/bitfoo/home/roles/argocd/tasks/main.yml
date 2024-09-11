@@ -75,7 +75,7 @@
 
     - name: ARGOCD | Copy shell completion
       ansible.builtin.copy:
-        content: "{{ item }}"
+        content: "{{ item.stdout }}"
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_argocd.{{ item.item }}"
         mode: "0640"
       loop: "{{ argocd_shell_completions.results }}"

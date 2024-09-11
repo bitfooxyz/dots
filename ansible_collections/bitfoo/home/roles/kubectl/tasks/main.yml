@@ -73,7 +73,7 @@
 
     - name: KUBECTL | Copy shell completion
       ansible.builtin.copy:
-        content: "{{ item }}"
+        content: "{{ item.stdout }}"
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_kubectl.{{ item.item }}"
         mode: "0640"
       loop: "{{ kubectl_shell_completions.results }}"

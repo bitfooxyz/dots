@@ -99,7 +99,7 @@
 
     - name: TRIVY | Copy shell completion
       ansible.builtin.copy:
-        content: "{{ item }}"
+        content: "{{ item.stdout }}"
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_trivy.{{ item.item }}"
         mode: "0640"
       loop: "{{ trivy_shell_completions.results }}"
