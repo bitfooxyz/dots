@@ -8,3 +8,7 @@ coreutils_os_packages:
   - tar # Install default tar instead of bsd's tar
   - yt-dlp-bash-completion # youtoube downloader completion
   - yt-dlp-zsh-completion # youtoube downloader completion
+  - hdparm # Get/Set HDD/SSD parameter
+  - dmidecode # Get BIOS information
+  - compsize # Calculate real size on compressed BTRFS subvols
+  - inotify-tools # Inotify cli utils
