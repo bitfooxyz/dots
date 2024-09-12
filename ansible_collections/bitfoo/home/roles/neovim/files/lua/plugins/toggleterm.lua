@@ -50,17 +50,12 @@ return {
         },
         on_open = function(term)
           vim.cmd("startinsert!")
-          vim.api.nvim_buf_set_keymap(
-            term.bufnr,
-            "i",
-            "<ESC><ESC>",
-            "<cmd>ToggleTerm<cmd>",
-            { noremap = true, silent = true }
-          )
+          vim.keymap.del("t", "<ESC><ESC>")
           vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
         end,
         -- function to run on closing the terminal
         on_close = function()
+          vim.keymap.set("t", "<Esc><Esc>", "<cmd>ToggleTerm<CR>", { desc = "Exit terminal mode" })
           vim.cmd("startinsert!")
         end,
       })
