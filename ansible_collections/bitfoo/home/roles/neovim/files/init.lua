@@ -207,6 +207,11 @@ vim.keymap.set("n", "<M-j>", "3<C-w>-", { silent = false, desc = "Move focus to 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
+-- Delete trailing whitespaces
+vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+  pattern = { "*" },
+  command = [[%s/\s\+$//e]],
+})
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.highlight.on_yank()`
