@@ -1,0 +1,8 @@
+---
+applications_homebrew_packages:
+  - android-file-transfer
+  - bitwarden
+  - caffeine
+  - ferdium
+  - spotify
+  - utm
