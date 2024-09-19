@@ -13,7 +13,6 @@ return {
     },
     init = function()
       -- Create toggleterm keymap with better control
-      vim.keymap.set("n", "<leader>\\", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
       vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "Toggle terminal" })
       --
       -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
@@ -22,7 +21,6 @@ return {
       -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
       -- or just use <C-\><C-n> to exit terminal mode
       vim.keymap.set("t", "<Esc><Esc>", "<cmd>ToggleTerm<CR>", { desc = "Exit terminal mode" })
-      vim.keymap.set("t", "jkjk", "<cmd>ToggleTerm<CR>", { desc = "Exit terminal mode" })
       --  See `:help window-resize` for a list of all window commands
       vim.keymap.set("t", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
       vim.keymap.set("t", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
@@ -50,12 +48,10 @@ return {
         },
         on_open = function(term)
           vim.cmd("startinsert!")
-          vim.keymap.del("t", "<ESC><ESC>")
           vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", { noremap = true, silent = true })
         end,
         -- function to run on closing the terminal
         on_close = function()
-          vim.keymap.set("t", "<Esc><Esc>", "<cmd>ToggleTerm<CR>", { desc = "Exit terminal mode" })
           vim.cmd("startinsert!")
         end,
       })

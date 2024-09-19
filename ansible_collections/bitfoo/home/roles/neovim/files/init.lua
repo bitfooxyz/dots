@@ -157,10 +157,6 @@ vim.opt.scrolloff = 10
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
--- Set jk to <ESC> to have a faster way to press <ESC>
-vim.keymap.set("i", "jk", "<ESC>")
-vim.keymap.set("t", "jk", "<ESC>")
-
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
 vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>")
