@@ -1,0 +1,9 @@
+---
+# Flatpak applications installed on Linux systems
+applications_flatpak_packages: []
+# Distribution package manager packages on Linux systems
+applications_distribution_packages: []
+
+# Homebrew applications installed on Darwin systems
+applications_homebrew_packages: []
+

@@ -1,0 +1,22 @@
+---
+- name: APPLICATIONS | Install Linux packages
+  when: ansible_system == "Linux"
+  block:
+    - name: APPLICATIONS | Install applications from flathub
+      community.general.flatpak:
+        name: "{{ applications_flatpak_packages }}"
+        state: present
+
+    - name: APPLICATIONS | Install applications from distribution package manager
+      ansible.builtin.package:
+        name: "{{ applications_distribution_packages }}"
+        state: present
+      become: true
+
+- name: APPLICATIONS | Install Darwin packages
+  when: ansible_system == "Darwin"
+  block:
+    - name: APPLICATIONS | Install applications from brew
+      community.general.homebrew:
+        name: "{{ applications_homebrew_packages }}"
+        state: present
