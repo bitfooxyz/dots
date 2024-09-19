@@ -2,3 +2,7 @@ all:
   hosts:
     macdb:
       ansible_connection: local
+    game:
+      ansible_connection: local
+    nerd:
+      ansible_connection: local

@@ -1,6 +1,6 @@
 ---
 - name: Configure dots on localhost
-  hosts: macdb
+  hosts: nerd
   tasks:
     - name: SHELL | Import role
       ansible.builtin.import_role:
@@ -13,6 +13,12 @@
         name: bitfoo.home.coreutils
       tags:
         - coreutils
+
+    - name: APPLICATION | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.applications
+      tags:
+        - applications
 
     - name: KUBECTL | Import role
       ansible.builtin.import_role:
