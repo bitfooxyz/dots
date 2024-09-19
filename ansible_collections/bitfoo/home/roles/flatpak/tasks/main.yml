@@ -10,7 +10,7 @@
   become: true
 
 - name: FLATPAK | Add flathub repository
-  ansible.builtin.flatpak_remote:
+  community.general.flatpak_remote:
     name: flathub
     flatpakrepo_url: https://dl.flathub.org/repo/flathub.flatpakrepo
     state: present
