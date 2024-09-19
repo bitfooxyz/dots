@@ -1,6 +1,8 @@
 return {
   {
     "stevearc/dressing.nvim",
-    opts = {},
+    opts = {
+      title_pos = "center",
+    },
   },
 }
