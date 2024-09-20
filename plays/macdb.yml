@@ -121,3 +121,9 @@
         name: bitfoo.home.neovim
       tags:
         - neovim
+
+    - name: PODMAN | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.podman
+      tags:
+        - podman
