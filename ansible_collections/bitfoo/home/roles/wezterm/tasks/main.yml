@@ -17,7 +17,7 @@
     file: "{{ ansible_distribution }}.yml"
 
 - name: WEZTERM | Install packages on MacOS
-  community.general.homebrew:
+  community.general.homebrew_cask:
     name: "{{ coreutils_wezterm_packages }}"
     state: present
   when: ansible_system == "Darwin"
