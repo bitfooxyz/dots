@@ -3,3 +3,4 @@ neovim_packages:
   - neovim
   - lua
   - luarocks
+  - nodejs
