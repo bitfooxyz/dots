@@ -83,6 +83,13 @@
         - not ansible_check_mode
         - ansible_system == "Darwin"
       block:
+        - name: AWS-CLI | Install rosetta 2
+          ansible.builtin.command:
+            cmd: "softwareupdate --install-rosetta --agree-to-license"
+          register: aws_cli_rosetta_cmd
+          changed_when: false
+          failed_when: aws_cli_rosetta_cmd.rc != 0
+
         - name: AWS-CLI | Create choises.xml file
           ansible.builtin.template:
             src: aws_cli/choices.xml.j2
