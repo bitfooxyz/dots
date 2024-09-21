@@ -1,5 +1,5 @@
 ---
-applications_homebrew_packages:
+applications_homebrew_cask_packages:
   - android-file-transfer
   - bitwarden
   - caffeine

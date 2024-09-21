@@ -20,3 +20,8 @@
       community.general.homebrew:
         name: "{{ applications_homebrew_packages }}"
         state: present
+
+    - name: APPLICATIONS | Install applications from brew cask
+      community.general.homebrew_cask:
+        name: "{{ applications_homebrew_cask_packages }}"
+        state: present

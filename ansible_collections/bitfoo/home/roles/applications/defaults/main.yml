@@ -6,4 +6,6 @@ applications_distribution_packages: []
 
 # Homebrew applications installed on Darwin systems
 applications_homebrew_packages: []
+# Homebrew cask applications installed on Darwin systems
+applications_homebrew_cask_packages: []
 
