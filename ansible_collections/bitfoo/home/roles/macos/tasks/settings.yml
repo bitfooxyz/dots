@@ -1,0 +1,13 @@
+---
+- name: MACOS | Configure MacOS default settings
+  community.general.osx_defaults:
+    host: "currentHost"
+    domain: "{{ settings.key }}"
+    key: "{{ item.key }}"
+    type: "{{ macos_settings_var_type[item.value | ansible.builtin.type_debug] }}"
+    value: "{{ item.value }}"
+    state: present
+  loop: "{{ settings.value | dict2items }}"
+  notify:
+    - MACOS | Activate settings
+    - MACOS | Add state file

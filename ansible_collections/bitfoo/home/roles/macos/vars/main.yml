@@ -1,0 +1,6 @@
+macos_settings_var_type:
+  int: integer
+  float: float
+  list: array
+  str: string
+  bool: boolean

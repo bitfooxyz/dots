@@ -127,3 +127,10 @@
         name: bitfoo.home.podman
       tags:
         - podman
+
+    - name: MACOS | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.macos
+      tags:
+        - macos
+      when: ansible_system == "Darwin"

@@ -1,0 +1,13 @@
+---
+- name: MACOS | Stat state file
+  ansible.builtin.stat:
+    path: "{{ xdg_dirs_local_state }}/{{ macos_settings_state_file }}"
+  register: macos_stat_state_file
+
+- name: MACOS | Configure MacOS user settings
+  ansible.builtin.include_tasks:
+    file: settings.yml
+  loop: "{{ macos_default_settings | dict2items }}"
+  when: macos_force_default_settings | bool or not macos_stat_state_file.stat.exists
+  loop_control:
+    loop_var: settings

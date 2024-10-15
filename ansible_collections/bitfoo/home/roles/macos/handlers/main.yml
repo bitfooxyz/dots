@@ -1,0 +1,11 @@
+---
+- name: MACOS | Activate settings
+  ansible.builtin.command:
+    cmd: /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+  changed_when: true
+
+- name: MACOS | Add state file
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_local_state }}/{{ macos_settings_state_file }}"
+    state: touch
+    mode: "0640"

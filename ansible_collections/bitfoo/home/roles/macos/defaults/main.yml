@@ -1,0 +1,99 @@
+---
+# Only provision default settings once this role will
+# put a file under ~/.local/state/macos_settings_state
+# to ensure that this role only runs once and for all
+# subsequent runs, the user must either delete the file
+# or set this variable to True
+macos_force_default_settings: False
+
+macos_settings_state_file: macos_settings_state
+
+# Default settings for documentation see
+# https://daiderd.com/nix-darwin/manual/index.html#opt-system.defaults._.GlobalPreferences_._com.apple.mouse.scaling_
+macos_default_settings:
+  NSGlobalDomain:
+    AppleICUForce24HourTime: true
+    AppleInterfaceStyle: Light
+    AppleShowAllExtensions: true
+    AppleShowAllFiles: true
+    AppleShowScrollBars: "Automatic"
+    AppleWindowTabbingMode: "always"
+    InitialKeyRepeat: 15
+    KeyRepeat: 2
+    NSDisableAutomaticTermination: true
+    NSDocumentSaveNewDocumentsToCloud: false
+    NSNavPanelExpandedStateForSaveMode: true
+    NSNavPanelExpandedStateForSaveMode2: true
+    NSTableViewDefaultSizeMode: 1
+    NSWindowResizeTime: 0.001
+    PMPrintingExpandedStateForPrint: true
+    PMPrintingExpandedStateForPrint2: true
+    "com.apple.keyboard.fnState": false
+    "com.apple.swipescrolldirection": false
+    "com.apple.trackpad.scaling": 1.5
+
+  com.apple.dock:
+    appswitcher-all-displays: true
+    autohide: true
+    autohide-delay: 0.25
+    expose-group-by-app: true
+    launchanim: true
+    magnification: false
+    mineffect: "scale"
+    minimize-to-application: true
+    orientation: "bottom"
+    show-process-indicators: true
+    show-recents: false
+    tilesize: 39
+    wvous-bl-corner: 1
+    wvous-br-corner: 1
+    wvous-tl-corner: 1
+    wvous-tr-corner: 1
+
+  com.apple.finder:
+    AppleShowAllExtensions: True
+    AppleShowAllFiles: True
+    FXEnableExtensionChangeWarning: False
+    FXPreferredViewStyle: "Nlsv"
+    QuitMenuItem: True
+    ShowPathbar: True
+    ShowStatusBar: True
+    _FXShowPosixPathInTitle: True
+    _FXSortFoldersFirst: True
+    FXDefaultSearchScope: "SCcf"
+
+  com.apple.menuextra.clock:
+    Show24Hour: True
+    ShowAMPM: False
+    ShowDate: 0
+    ShowDayOfMonth: True
+    ShowDayOfWeek: True
+    ShowSeconds: True
+
+  com.apple.screensaver:
+    askForPassword: True
+    askForPasswordDelay: 0
+
+  com.apple.spaces:
+    spans-displays: True
+
+  com.apple.AppleMultitouchTrackpad:
+    ActuationStrength: 1
+    Clicking: True
+    Dragging: True
+    FirstClickThreshold: 0
+    SecondClickThreshold: 0
+    TrackpadRightClick: True
+    TrackpadThreeFingerDrag: False
+
+  com.apple.desktopservices:
+    # Avoid creating .DS_Store files on network or USB volumes
+    DSDontWriteNetworkStores: True
+    DSDontWriteUSBStores: True
+
+  com.apple.AdLib:
+    allowApplePersonalizedAdvertising: False
+
+  # Prevent Photos from opening automatically when devices are plugged in
+  com.apple.ImageCapture:
+    disableHotPlug: True
