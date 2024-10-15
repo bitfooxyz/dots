@@ -9,3 +9,4 @@ ansible_collections/*
 galaxy_roles/*
 test-play.yml
 TODO.md
+default.json

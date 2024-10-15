@@ -1,6 +1,6 @@
 ---
 - name: Configure dots on localhost
-  hosts: nerd
+  hosts: all
   tasks:
     - name: SHELL | Import role
       ansible.builtin.import_role:
@@ -121,3 +121,9 @@
         name: bitfoo.home.neovim
       tags:
         - neovim
+
+    - name: PODMAN | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.podman
+      tags:
+        - podman
