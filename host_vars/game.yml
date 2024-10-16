@@ -1,5 +1,5 @@
 ---
 applications_flatpak_packages:
-  - bitwarden
-  - ferdium
-  - spotify
+  - com.bitwarden.desktop
+  - org.ferdium.Ferdium
+  - com.spotify.Client
