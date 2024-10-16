@@ -2,6 +2,7 @@ return {
   {
     "akinsho/toggleterm.nvim",
     opts = {
+      open_mapping = [[<leader>tt]],
       size = function(term)
         if term.direction == "horizontal" then
           return 20
@@ -11,9 +12,6 @@ return {
       end,
     },
     init = function()
-      -- Toggle terminal
-      vim.keymap.set("n", "<leader>tt", "<cmd>ToggleTerm<CR>", { desc = "[t]oggle [t]erminal" })
-
       --  See `:help window-resize` for a list of all window commands
       vim.keymap.set("t", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
       vim.keymap.set("t", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
