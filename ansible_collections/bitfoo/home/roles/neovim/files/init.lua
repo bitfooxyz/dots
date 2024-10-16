@@ -184,10 +184,10 @@ vim.keymap.set("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower win
 vim.keymap.set("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
 --  See `:help windows-resize` for a list of all window commands
-vim.keymap.set("n", "<M-h>", "3<C-w><", { silent = false, desc = "Move focus to the left window" })
-vim.keymap.set("n", "<M-l>", "3<C-w>>", { silent = false, desc = "Move focus to the right window" })
-vim.keymap.set("n", "<M-k>", "3<C-w>+", { silent = false, desc = "Move focus to the lower window" })
-vim.keymap.set("n", "<M-j>", "3<C-w>-", { silent = false, desc = "Move focus to the upper window" })
+vim.keymap.set("n", "<M-h>", "3<C-w><", { silent = false, desc = "Resize window to the left" })
+vim.keymap.set("n", "<M-l>", "3<C-w>>", { silent = false, desc = "Resize window to the right" })
+vim.keymap.set("n", "<M-k>", "3<C-w>+", { silent = false, desc = "Resize window upwards" })
+vim.keymap.set("n", "<M-j>", "3<C-w>-", { silent = false, desc = "Resize window downwards" })
 -- vim.keymap.set("n", "<C-H>", function()
 -- 	vim.cmd("vertical resize +3")
 -- end, { silent = true, desc = "Move focus to the left window" })

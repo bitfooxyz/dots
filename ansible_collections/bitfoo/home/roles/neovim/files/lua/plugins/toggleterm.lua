@@ -2,7 +2,7 @@ return {
   {
     "akinsho/toggleterm.nvim",
     opts = {
-      open_mapping = [[<leader>tt]],
+      open_mapping = { [[<leader>tt]], [[<c-\>]] },
       size = function(term)
         if term.direction == "horizontal" then
           return 20
@@ -19,10 +19,10 @@ return {
       vim.keymap.set("t", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
 
       --  See `:help windows-resize` for a list of all window commands
-      vim.keymap.set("t", "<M-h>", "3<C-w><", { silent = false, desc = "Move focus to the left window" })
-      vim.keymap.set("t", "<M-l>", "3<C-w>>", { silent = false, desc = "Move focus to the right window" })
-      vim.keymap.set("t", "<M-k>", "3<C-w>+", { silent = false, desc = "Move focus to the lower window" })
-      vim.keymap.set("t", "<M-j>", "3<C-w>-", { silent = false, desc = "Move focus to the upper window" })
+      vim.keymap.set("t", "<M-h>", "3<C-w><", { silent = false, desc = "Resize window to the left" })
+      vim.keymap.set("t", "<M-l>", "3<C-w>>", { silent = false, desc = "Resize window to the right" })
+      vim.keymap.set("t", "<M-k>", "3<C-w>+", { silent = false, desc = "Resize window upwards" })
+      vim.keymap.set("t", "<M-j>", "3<C-w>-", { silent = false, desc = "Resize window downwards" })
 
       -- Require Terminal class from toggleterm
       local Terminal = require("toggleterm.terminal").Terminal
