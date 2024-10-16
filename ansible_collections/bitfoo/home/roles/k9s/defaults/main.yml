@@ -1,4 +1,3 @@
 ---
 k9s_force_install: false
 k9s_global_config_file: "{{ role_path }}/files/config.yaml"
-

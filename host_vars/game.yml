@@ -1,5 +1,4 @@
 ---
-# Linux Game
 applications_flatpak_packages:
   - bitwarden
   - ferdium

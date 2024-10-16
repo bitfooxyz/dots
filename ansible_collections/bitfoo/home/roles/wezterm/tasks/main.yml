@@ -18,13 +18,13 @@
 
 - name: WEZTERM | Install packages on MacOS
   community.general.homebrew_cask:
-    name: "{{ coreutils_wezterm_packages }}"
+    name: "{{ wezterm_packages }}"
     state: present
   when: ansible_system == "Darwin"
 
 - name: WEZTERM | Install flathub package on Linux
   community.general.flatpak:
-    name: "{{ coreutils_wezterm_packages }}"
+    name: "{{ wezterm_packages }}"
     state: present
   when: ansible_system == "Linux"
 

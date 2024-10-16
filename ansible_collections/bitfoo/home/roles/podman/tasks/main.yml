@@ -10,4 +10,3 @@
     name: podman-desktop
     state: present
   when: ansible_system == "Darwin"
-

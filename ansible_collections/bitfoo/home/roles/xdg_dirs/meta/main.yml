@@ -21,12 +21,12 @@ galaxy_info:
   platforms:
     - name: Fedora
       versions:
-      - all
+        - all
 
   galaxy_tags:
     - home
     - dots
-    - xdg_dirs
+    - xdgdirs
     - xdg
     # List tags for your role here, one per line. A tag is a keyword that describes
     # and categorizes the role. Users find roles by searching for tags. Be sure to

@@ -52,7 +52,9 @@
 
     - name: GLOW | Set checksum for system and architecture archive
       ansible.builtin.set_fact:
-        glow_file_checksum: "{{ glow_checksums.content | regex_findall('.*' + glow_full_release_name + '.tar.gz$', multiline=True) | first | split(' ') | first }}"
+        glow_file_checksum: "{{ glow_checksums.content |
+                                regex_findall('.*' + glow_full_release_name + '.tar.gz$', multiline=True) |
+                                first | split(' ') | first }}"
 
     - name: GLOW | Download latest release
       ansible.builtin.get_url:

@@ -30,7 +30,7 @@
 
     - name: EZA | Get current installed version
       ansible.builtin.shell:
-        cmd: "{{ xdg_dirs_local_bin }}/eza --version | head -n2 | \
+        cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/eza --version | head -n2 | \
               tail -n 1 | cut -f 1 -d ' ' | cut -f 2 -d 'v'"
       register: eza_current_version_cmd
       changed_when: false
@@ -139,13 +139,13 @@
 
         - name: EZA | Copy manpages section 1
           ansible.builtin.copy:
-            src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/eza.1"
+            src: "{{ eza_tmp_dir.path }}/target/man-{{ eza_latest_version }}/eza.1"
             dest: "{{ xdg_dirs_local_share_man }}/man1/eza.1"
             mode: "0640"
 
         - name: EZA | Copy manpages section 5
           ansible.builtin.copy:
-            src: "{{eza_tmp_dir.path }}/target/man-{{eza_latest_version}}/{{ item }}"
+            src: "{{ eza_tmp_dir.path }}/target/man-{{ eza_latest_version }}/{{ item }}"
             dest: "{{ xdg_dirs_local_share_man }}/man5/{{ item }}"
             mode: "0640"
           loop:

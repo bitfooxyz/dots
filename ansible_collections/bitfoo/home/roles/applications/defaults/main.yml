@@ -8,4 +8,3 @@ applications_distribution_packages: []
 applications_homebrew_packages: []
 # Homebrew cask applications installed on Darwin systems
 applications_homebrew_cask_packages: []
-

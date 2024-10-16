@@ -3,8 +3,8 @@
 # put a file under ~/.local/state/macos_settings_state
 # to ensure that this role only runs once and for all
 # subsequent runs, the user must either delete the file
-# or set this variable to True
-macos_force_default_settings: False
+# or set this variable to true
+macos_force_default_settings: false
 
 macos_settings_state_file: macos_settings_state
 
@@ -51,49 +51,49 @@ macos_default_settings:
     wvous-tr-corner: 1
 
   com.apple.finder:
-    AppleShowAllExtensions: True
-    AppleShowAllFiles: True
-    FXEnableExtensionChangeWarning: False
+    AppleShowAllExtensions: true
+    AppleShowAllFiles: true
+    FXEnableExtensionChangeWarning: false
     FXPreferredViewStyle: "Nlsv"
-    QuitMenuItem: True
-    ShowPathbar: True
-    ShowStatusBar: True
-    _FXShowPosixPathInTitle: True
-    _FXSortFoldersFirst: True
+    QuitMenuItem: true
+    ShowPathbar: true
+    ShowStatusBar: true
+    _FXShowPosixPathInTitle: true
+    _FXSortFoldersFirst: true
     FXDefaultSearchScope: "SCcf"
 
   com.apple.menuextra.clock:
-    Show24Hour: True
-    ShowAMPM: False
+    Show24Hour: true
+    ShowAMPM: false
     ShowDate: 0
-    ShowDayOfMonth: True
-    ShowDayOfWeek: True
-    ShowSeconds: True
+    ShowDayOfMonth: true
+    ShowDayOfWeek: true
+    ShowSeconds: true
 
   com.apple.screensaver:
-    askForPassword: True
+    askForPassword: true
     askForPasswordDelay: 0
 
   com.apple.spaces:
-    spans-displays: True
+    spans-displays: true
 
   com.apple.AppleMultitouchTrackpad:
     ActuationStrength: 1
-    Clicking: True
-    Dragging: True
+    Clicking: true
+    Dragging: true
     FirstClickThreshold: 0
     SecondClickThreshold: 0
-    TrackpadRightClick: True
-    TrackpadThreeFingerDrag: False
+    TrackpadRightClick: true
+    TrackpadThreeFingerDrag: false
 
   com.apple.desktopservices:
     # Avoid creating .DS_Store files on network or USB volumes
-    DSDontWriteNetworkStores: True
-    DSDontWriteUSBStores: True
+    DSDontWriteNetworkStores: true
+    DSDontWriteUSBStores: true
 
   com.apple.AdLib:
-    allowApplePersonalizedAdvertising: False
+    allowApplePersonalizedAdvertising: false
 
   # Prevent Photos from opening automatically when devices are plugged in
   com.apple.ImageCapture:
-    disableHotPlug: True
+    disableHotPlug: true
