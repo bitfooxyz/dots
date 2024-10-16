@@ -108,7 +108,7 @@
     - rye_install_cmd.changed or rye_update_cmd.changed | bool
   diff: true
 
-- name: RYE | Copy completion
+- name: RYE | Copy shell completion
   ansible.builtin.copy:
     content: "{{ item.stdout }}"
     dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_rye.{{ item.item }}"
@@ -116,7 +116,7 @@
   when:
     - rye_install_cmd.changed or rye_update_cmd.changed | bool
   loop: "{{ rye_completion_cmd.results }}"
-  diff: true
+  diff: false
 
 - name: RYE | Create config.toml
   ansible.builtin.template:

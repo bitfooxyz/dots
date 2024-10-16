@@ -96,6 +96,7 @@
         content: "{{ item.stdout }}"
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_helm.{{ item.item }}"
         mode: "0640"
+      diff: false
       loop: "{{ helm_shell_completions.results }}"
   always:
     - name: HELM | Ensure tmp directory is absent
