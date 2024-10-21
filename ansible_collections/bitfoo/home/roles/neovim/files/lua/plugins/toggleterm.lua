@@ -51,6 +51,45 @@ return {
       vim.keymap.set("n", "<leader>tg", function()
         lazygit_term:toggle()
       end, { desc = "Toggle lazy[g]it in terminal" })
+
+      -- Create a terminal and execute some python repl in it
+      local python_term = function()
+        local cmds = {
+          "bpython",
+          "ipython",
+          "python",
+        }
+        local term_opt = {}
+        for _, cmd in ipairs(cmds) do
+          if vim.fn.executable(cmd) == 1 then
+            term_opt["cmd"] = cmd
+            term_opt["display_name"] = cmd
+          else
+            term_opt["cmd"] = [[
+              printf "Neither ipython, bpython or python is installed.\n"
+              printf "Press any key to exit."
+              read ans
+              exit 0
+              ]]
+            term_opt["display_name"] = "python"
+          end
+          return Terminal:new({
+            cmd = term_opt.cmd,
+            display_name = term_opt.display_name,
+            direction = "float",
+            close_on_exit = true,
+            hidden = true,
+            float_opts = {
+              border = "double",
+              title_pos = "center",
+            },
+          })
+        end
+      end
+      -- Keymap to open python iterpretes
+      vim.keymap.set("n", "<leader>tp", function()
+        python_term():toggle()
+      end, { desc = "Toggle [p]ython repl in terminal" })
     end,
   },
 }
