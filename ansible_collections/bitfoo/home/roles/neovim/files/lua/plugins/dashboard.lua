@@ -4,7 +4,7 @@ return {
     event = "VimEnter",
     opts = {
       shortcut_type = "letter",
-      shuffle_letter = true,
+      shuffle_letter = false,
       hide = {
         statusline = true, -- hide statusline default is true
         tabline = true, -- hide the tabline
