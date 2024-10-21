@@ -95,4 +95,8 @@ if command -v nvim &> /dev/null; then
     alias vi="nvim"
 fi
 
+if command -v lazygit &> /dev/null; then
+    alias lg="lazygit"
+fi
+
 alias bku-sops="SOPS_AGE_KEY_FILE=$XDG_CONFIG_HOME/bku/keyfile.txt sops exec-env $XDG_CONFIG_HOME/bku/credentials.env"
