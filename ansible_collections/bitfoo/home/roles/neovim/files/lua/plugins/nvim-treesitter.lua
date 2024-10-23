@@ -1,22 +1,62 @@
 return {
   { -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
+    dependencies = {
+      {
+        "nvim-treesitter/nvim-treesitter-context",
+        ---@module 'treesitter-context'
+        ---@type TSContext.UserConfig
+        opts = {
+          max_lines = 5,
+          trim_scope = "inner",
+          mode = "topline",
+          separator = "~",
+        },
+        init = function()
+          vim.keymap.set(
+            "n",
+            "<leader>tsc",
+            require("treesitter-context").toggle,
+            { desc = "[T]oggle [T]reesitter [C]ontext" }
+          )
+        end,
+      },
+    },
     build = ":TSUpdate",
     opts = {
       ensure_installed = {
         "bash",
         "c",
+        "css",
         "diff",
+        "dockerfile",
+        "editorconfig",
+        "gitcommit",
+        "gitignore",
+        "go",
+        "gomod",
+        "gotmpl",
+        "json",
         "html",
+        "hcl",
         "lua",
         "luadoc",
+        "luap",
         "markdown",
         "markdown_inline",
+        "nix",
+        "norg",
+        "python",
+        "requirements",
         "query",
+        "regex",
+        "sql",
+        "ssh_config",
+        "starlark",
+        "toml",
         "vim",
         "vimdoc",
-        "python",
-        "regex",
+        "yaml",
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
