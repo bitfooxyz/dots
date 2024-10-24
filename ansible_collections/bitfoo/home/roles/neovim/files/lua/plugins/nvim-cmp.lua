@@ -73,6 +73,7 @@ return {
               calc = "[Calc]",
               digraphs = "[Digraphs]",
               spell = "[Spell]",
+              path = "[Path]",
             }
             -- initialise kind with lspkind and manipulate it afterwards
             local kind = require("lspkind").cmp_format({
