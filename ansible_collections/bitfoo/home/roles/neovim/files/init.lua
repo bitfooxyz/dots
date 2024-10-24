@@ -93,6 +93,16 @@ vim.g.maplocalleader = " "
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+-- Filetypes which do not get lualine, indent-blankline or bufferline or
+-- any other special plugin modification
+vim.g.disabled_filetypes = {
+  "undotree",
+  "toggleterm",
+  "dashboard",
+  "neo-tree",
+  "diff",
+}
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
