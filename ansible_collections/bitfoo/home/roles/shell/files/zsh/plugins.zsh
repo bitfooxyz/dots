@@ -1,6 +1,14 @@
 # Setup completion for for custom commands
 fpath+="$HOME/.config/zsh/completions"
 
+# Prerequisites for macos
+if [[ $(uname) == "Darwin" ]]; then
+  if command -v brew &> /dev/null; then
+    path+="/opt/homebrew/share/zsh/site-functions"
+    fpath+="/opt/homebrew/share/zsh/site-functions"
+  fi
+fi
+
 path+="$HOME/.config/zsh/plugins/zsh-autosuggestions"
 fpath+="$HOME/.config/zsh/plugins/zsh-autosuggestions"
 path+="$HOME/.config/zsh/plugins/zsh-history-substring-search"
