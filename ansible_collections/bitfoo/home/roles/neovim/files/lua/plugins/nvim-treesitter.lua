@@ -15,9 +15,9 @@ return {
         init = function()
           vim.keymap.set(
             "n",
-            "<leader>tsc",
+            "<leader>ttsc",
             require("treesitter-context").toggle,
-            { desc = "[T]oggle [T]reesitter [C]ontext" }
+            { desc = "[T]oggle [T]ree[s]itter [C]ontext" }
           )
         end,
       },
