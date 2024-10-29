@@ -222,7 +222,11 @@ vim.keymap.set("n", "<M-j>", "3<C-w>-", { silent = false, desc = "Resize window 
 -- Delete trailing whitespaces
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
   pattern = { "*" },
-  command = [[%s/\s\+$//e]],
+  callback = function()
+    local save_cursor = vim.fn.getpos(".")
+    vim.cmd([[%s/\s\+$//e]])
+    vim.fn.setpos(".", save_cursor)
+  end,
 })
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
