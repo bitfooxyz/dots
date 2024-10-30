@@ -3,3 +3,5 @@ applications_flatpak_packages:
   - com.bitwarden.desktop
   - org.ferdium.Ferdium
   - com.spotify.Client
+  - com.nextcloud.desktopclient.nextcloud
+  - com.spotify.Client

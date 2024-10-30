@@ -4,5 +4,7 @@ applications_homebrew_cask_packages:
   - bitwarden
   - caffeine
   - ferdium
+  - logi-options-plus
+  - nextcloud
   - spotify
   - utm

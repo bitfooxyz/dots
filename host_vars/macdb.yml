@@ -1,10 +1,13 @@
 # Mac Work
 applications_homebrew_cask_packages:
-  - spotify
-  - rectangle
+  - amazon-workspaces
   - caffeine
   - keepassxc
-  - amazon-workspaces
+  - logi-options-plus
+  - microsoft-remote-desktop
+  - onedrive
+  - rectangle
+  - spotify
 
 # Work related path to change username and email
 coreutils_git_include_if:
