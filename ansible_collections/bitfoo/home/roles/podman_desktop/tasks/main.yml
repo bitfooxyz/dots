@@ -1,0 +1,35 @@
+---
+- name: PODMAN | Include vars
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution | lower }}.yml"
+
+- name: PODMAN | Install podman-desktop on linux
+  community.general.flatpak:
+    name: "{{ podman_desktop_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+
+- name: PODMAN | Install podman on linux
+  ansible.builtin.package:
+    name: "{{ podman_packages }}"
+    state: present
+  when: ansible_system == "Linux"
+  become: true
+
+- name: PODMAN | Install podman-desktop on Darwin
+  community.general.homebrew:
+    name: "{{ podman_desktop_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: PODMAN | Install podman on Darwin
+  community.general.homebrew:
+    name: "{{ podman_packages }}"
+    state: present
+  when: ansible_system == "Darwin"
+
+- name: PODMAN | Create configuration directory
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/containers"
+    state: directory
+    mode: "0755"

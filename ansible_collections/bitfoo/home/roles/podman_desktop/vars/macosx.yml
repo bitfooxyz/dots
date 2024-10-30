@@ -1,0 +1,6 @@
+podman_desktop_packages:
+  - podman-desktop
+
+podman_packages:
+  - podman
+
