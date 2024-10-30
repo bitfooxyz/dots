@@ -13,7 +13,7 @@ macos_settings_state_file: macos_settings_state
 macos_default_settings:
   NSGlobalDomain:
     AppleICUForce24HourTime: true
-    AppleInterfaceStyle: Light
+    AppleInterfaceStyle: Dark
     AppleShowAllExtensions: true
     AppleShowAllFiles: true
     AppleShowScrollBars: "Automatic"
