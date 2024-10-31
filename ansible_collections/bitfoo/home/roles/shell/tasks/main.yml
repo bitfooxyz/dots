@@ -64,7 +64,8 @@
 - name: SHELL | Ensure zsh is default shell
   ansible.builtin.user:
     name: "{{ ansible_user_id }}"
-    shell: /bin/zsh
+    shell: "{{ shell_default_shell }}"
+  when: shell_default_shell != "None"
   become: true
   tags:
     - zsh

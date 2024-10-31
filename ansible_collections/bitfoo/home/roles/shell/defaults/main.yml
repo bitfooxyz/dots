@@ -1,4 +1,6 @@
-shell_default_shell: "zsh"
+# Path to binary to the default shell
+# None means disable any other value 
+shell_default_shell: "/bin/zsh"
 
 # Enable tasks, that setup work related configuration
 shell_enable_work: true
