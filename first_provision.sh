@@ -51,8 +51,8 @@ fi
 echo "Install ansible galaxy requirements from requirements.yml"
 ansible-galaxy install -r requirements.yml
 
-echo -n "Enter play name [without .yml]: "
-read PLAYBOOK
+echo -n "Limit to which host: "
+read LIMIT_HOST
 
 echo "Running ansible-playbook"
-ansible-playbook plays/${PLAYBOOK}.yml --diff --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file $@
+ansible-playbook play.yml --diff --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file --limit $LIMIT_HOST
