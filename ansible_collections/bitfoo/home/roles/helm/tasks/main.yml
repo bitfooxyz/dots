@@ -49,14 +49,14 @@
 
     - name: HELM | Get checksum
       ansible.builtin.uri:
-        url: "https://get.helm.sh/{{ helm_full_release_name }}.tar.gz.sha256"
+        url: "{{ helm_download_url }}/{{ helm_full_release_name }}.tar.gz.sha256"
         return_content: true
       check_mode: false
       register: helm_checksum
 
     - name: HELM | Download latest release
       ansible.builtin.get_url:
-        url: "https://get.helm.sh/{{ helm_full_release_name }}.tar.gz"
+        url: "{{ helm_download_url }}/{{ helm_full_release_name }}.tar.gz"
         dest: "{{ helm_tmp_dir.path }}"
         checksum: "sha256:{{ helm_checksum.content }}"
         mode: "0640"
