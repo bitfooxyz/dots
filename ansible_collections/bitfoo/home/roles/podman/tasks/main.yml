@@ -27,7 +27,7 @@
     mode: "0755"
 
 - name: PODMAN | Install podman-desktop
-  when: podman_enabled_podman_desktop
+  when: podman_enable_podman_desktop
   block:
     - name: PODMAN | Install podman-desktop on linux
       community.general.flatpak:
