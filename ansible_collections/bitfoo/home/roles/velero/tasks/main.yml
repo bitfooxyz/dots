@@ -103,6 +103,8 @@
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_velero.{{ item.item }}"
         mode: "0640"
       loop: "{{ velero_shell_completions.results }}"
+      loop_control:
+        label: "Completion for {{ item.item }}"
   always:
     - name: VELERO | Ensure tmp directory is absent
       ansible.builtin.file:
