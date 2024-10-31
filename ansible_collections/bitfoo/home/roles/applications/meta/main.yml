@@ -11,6 +11,8 @@ galaxy_info:
 
 dependencies:
   - name: bitfoo.home.flatpak
-    when: ansible_system == "Linux"
+    when: 
+      - ansible_system == "Linux"
+      - applications_flatpak_enabled | bool
   - name: geerlingguy.mac.homebrew
     when: ansible_system == "Darwin"

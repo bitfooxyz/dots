@@ -1,4 +1,7 @@
 ---
+# Whether to allow installation of flatpak packages
+applications_flatpak_enabled: true
+
 # Flatpak applications installed on Linux systems
 applications_flatpak_packages: []
 # Distribution package manager packages on Linux systems

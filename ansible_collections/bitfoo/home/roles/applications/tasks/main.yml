@@ -6,6 +6,7 @@
       community.general.flatpak:
         name: "{{ applications_flatpak_packages }}"
         state: present
+      when: applications_flatpak_enabled | bool
 
     - name: APPLICATIONS | Install applications from distribution package manager
       ansible.builtin.package:
