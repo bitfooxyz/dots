@@ -1,2 +1,3 @@
 ---
 wezterm_extra_config: ""
+wezterm_force_install: false

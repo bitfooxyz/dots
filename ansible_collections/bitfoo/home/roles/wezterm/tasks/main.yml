@@ -5,7 +5,9 @@
 - name: WEZTERM | Import flatpak role
   ansible.builtin.import_role:
     name: bitfoo.home.flatpak
-  when: ansible_system == "Linux"
+  when:
+    - ansible_system == "Linux"
+    - ansible_distribution != "RedHat"
 
 - name: WEZTERM | Include geerlingguy.mac role
   ansible.builtin.include_role:
@@ -14,7 +16,7 @@
 
 - name: WEZTERM | Include os vars
   ansible.builtin.include_vars:
-    file: "{{ ansible_distribution }}.yml"
+    file: "{{ ansible_distribution | lower }}.yml"
 
 - name: WEZTERM | Install packages on MacOS
   community.general.homebrew_cask:
@@ -26,7 +28,15 @@
   community.general.flatpak:
     name: "{{ wezterm_packages }}"
     state: present
-  when: ansible_system == "Linux"
+  when:
+    - ansible_system == "Linux"
+    - ansible_distribution != "RedHat"
+
+- name: WEZTERM | Install unsupported package of wezterm
+  ansible.builtin.include_tasks:
+    file: unsupported_wezterm.yml
+  when: ansible_distribution == "RedHat"
+
 
 - name: WEZTERM | Create wezterm config folder
   ansible.builtin.file:

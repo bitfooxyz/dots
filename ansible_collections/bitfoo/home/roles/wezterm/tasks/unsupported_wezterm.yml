@@ -1,0 +1,85 @@
+- name: WEZTERM | Include wezterm vars
+  ansible.builtin.include_vars:
+    file: "{{ ansible_distribution | lower }}.yml"
+
+- name: WEZTERM | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/wez/wezterm/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: wezterm_latest_release_json
+  check_mode: false
+
+- name: WEZTERM | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; wezterm --version | cut -d ' ' -f 2"
+  register: wezterm_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: WEZTERM | Register latest release version
+  ansible.builtin.set_fact:
+    wezterm_latest_version: "{{ wezterm_latest_release_json.json.tag_name }}"
+    wezterm_current_version: "{{ wezterm_current_version_cmd.stdout | default('') }}"
+
+- name: WEZTERM | Latest release version
+  ansible.builtin.debug:
+    var: wezterm_latest_version
+
+- name: WEZTERM | Current installed version
+  ansible.builtin.debug:
+    var: wezterm_current_version
+
+- name: WEZTERM | Install or Upgrade wezterm
+  when:
+    - wezterm_current_version != wezterm_latest_version or wezterm_force_install
+  block:
+    - name: WEZTERM | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: wezterm_
+        state: directory
+      register: wezterm_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: WEZTERM | Set release full name
+      ansible.builtin.set_fact:
+        wezterm_full_release_name: "wezterm-{{ wezterm_latest_version.replace('-', '_') }}-1.centos\
+                                    {{ ansible_distribution_major_version }}.x86_64.rpm"
+      check_mode: false
+
+    - name: WEZTERM | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/wez/wezterm/releases/download/\
+              {{ wezterm_latest_version }}/{{ wezterm_full_release_name }}.sha256"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        return_content: true
+      check_mode: false
+      register: wezterm_checksums
+
+    - name: WEZTERM | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        wezterm_file_checksum: "{{ wezterm_checksums.content | split(' ') | first }}"
+
+    - name: WEZTERM | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/wez/wezterm/releases/download/\
+              {{ wezterm_latest_version }}/{{ wezterm_full_release_name }}"
+        dest: "{{ wezterm_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0640"
+        # checksum: "sha256:{{ wezterm_file_checksum }}"
+      check_mode: false
+      register: wezterm_downloaded_release
+
+    - name: WEZTERM | Install downloaded RPM package
+      ansible.builtin.dnf:
+        name: "{{ wezterm_tmp_dir.path }}/{{ wezterm_full_release_name }}"
+        state: present
+      become: true
+  always:
+    - name: WEZTERM | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ wezterm_tmp_dir.path }}"
+        state: absent
+      no_log: true
