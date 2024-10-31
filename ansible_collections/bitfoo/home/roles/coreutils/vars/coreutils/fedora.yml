@@ -12,3 +12,4 @@ coreutils_os_packages:
   - dmidecode # Get BIOS information
   - compsize # Calculate real size on compressed BTRFS subvols
   - inotify-tools # Inotify cli utils
+  - yt-dlp # youtoube downloader

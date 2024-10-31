@@ -2,5 +2,5 @@ coreutils_git_delta_os_arch:
   Darwin:
     arm64: aarch64-apple-darwin
   Linux:
-    x86_64: x86_64-unknown-linux-gnu
-    aarch64: aarch64-unknown-linux-gnu
+    x86_64: x86_64-unknown-linux-musl
+    aarch64: aarch64-unknown-linux-musl

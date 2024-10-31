@@ -2,3 +2,4 @@ coreutils_os_packages:
   - bind # to get dig
   - gnu-tar # Install default tar instead of bsd's tar
   - watch # Watch command from procps-ng
+  - yt-dlp # youtoube downloader

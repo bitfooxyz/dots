@@ -1,0 +1,7 @@
+---
+coreutils_nerdfonts_packages:
+  - fontconfig
+  - tar
+  - xz
+
+coreutils_nerdfonts_fonts_directory: "{{ xdg_dirs_local_share }}/fonts/nerdfonts"

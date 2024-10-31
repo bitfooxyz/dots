@@ -1,0 +1,8 @@
+coreutils_os_packages:
+  - bind-utils # to get dig
+  - iftop # Bandwith monitor
+  - iputils # Networking utilities like ping, traceroute, etc.
+  - nmap-ncat # Netcat package from nmap
+  - p7zip # 7zip
+  - procps-ng # Watch command
+  - tar # Install default tar instead of bsd's tar

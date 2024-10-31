@@ -14,4 +14,3 @@ coreutils_packages:
   - smartmontools # S.M.A.R.T utility
   - trash-cli # CLI to use the OS trash directories
   - wget # Utility to download files from http/ftp
-  - yt-dlp # youtoube downloader
