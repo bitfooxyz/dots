@@ -1,5 +1,7 @@
 all:
   hosts:
+    pandb:
+      ansible_connection: local
     macdb:
       ansible_connection: local
     game:
