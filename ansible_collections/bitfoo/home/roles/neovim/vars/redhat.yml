@@ -1,0 +1,6 @@
+---
+neovim_force_install: false
+neovim_packages:
+  - lua
+  - luarocks
+  - nodejs

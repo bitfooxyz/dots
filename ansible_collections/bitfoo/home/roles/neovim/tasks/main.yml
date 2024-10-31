@@ -14,6 +14,11 @@
   become: true
   when: ansible_system == "Linux"
 
+- name: NEOVIM | Install unsupported package of neovim
+  ansible.builtin.include_tasks:
+    file: unsupported_neovim.yml
+  when: ansible_distribution == "RedHat"
+
 - name: NEOVIM | Install packages on MacOS
   community.general.homebrew:
     name: "{{ neovim_packages }}"
