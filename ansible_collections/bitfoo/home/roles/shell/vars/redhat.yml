@@ -1,0 +1,12 @@
+---
+shell_packages:
+  - git
+  - glibc-langpack-en
+  - glibc-langpack-de
+
+shell_bash_packages:
+  - bash
+  - bash-completion
+
+shell_zsh_packages:
+  - zsh
