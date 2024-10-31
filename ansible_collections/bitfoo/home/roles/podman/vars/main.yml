@@ -1,0 +1,7 @@
+---
+podman_os_arch:
+  Darwin:
+    arm64: darwin-arm64
+  Linux:
+    x86_64: linux-amd64
+    aarch64: linux-arm64
