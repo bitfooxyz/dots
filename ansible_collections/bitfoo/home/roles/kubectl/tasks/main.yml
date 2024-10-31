@@ -4,7 +4,7 @@
 
 - name: KUBECTL | Get latest version
   ansible.builtin.uri:
-    url: https://dl.k8s.io/release/stable.txt
+    url: "{{ kubectl_download_url }}/release/stable.txt"
     return_content: true
   register: kubectl_latest_release
   check_mode: false
@@ -49,7 +49,7 @@
 
     - name: KUBECTL | Download latest release
       ansible.builtin.get_url:
-        url: "https://dl.k8s.io/release/{{ kubectl_latest_version }}/bin/{{ kubectl_full_release_name }}"
+        url: "{{ kubectl_download_url }}/release/{{ kubectl_latest_version }}/bin/{{ kubectl_full_release_name }}"
         dest: "{{ kubectl_tmp_dir.path }}"
         mode: "0750"
       check_mode: false
