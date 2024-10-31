@@ -98,6 +98,8 @@
         mode: "0640"
       diff: false
       loop: "{{ helm_shell_completions.results }}"
+      loop_control:
+        label: "Completion for {{ item.item }}"
   always:
     - name: HELM | Ensure tmp directory is absent
       ansible.builtin.file:
