@@ -104,6 +104,8 @@
         mode: "0640"
       diff: false
       loop: "{{ trivy_shell_completions.results }}"
+      loop_control:
+        label: "Completion for {{ item.item }}"
   always:
     - name: TRIVY | Ensure tmp directory is absent
       ansible.builtin.file:
