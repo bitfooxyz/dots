@@ -50,7 +50,7 @@
 
     - name: MINIO-CLIENT | Download checksum file
       ansible.builtin.uri:
-        url: "https://dl.min.io/client/mc/release/{{ minio_client_checksum_name }}"
+        url: "{{ minio_client_download_url }}/client/mc/release/{{ minio_client_checksum_name }}"
         return_content: true
       check_mode: false
       register: minio_client_checksums
@@ -62,7 +62,7 @@
 
     - name: MINIO-CLIENT | Download latest release
       ansible.builtin.get_url:
-        url: "https://dl.min.io/client/mc/release/{{ minio_client_full_release_name }}"
+        url: "{{ minio_client_download_url }}/client/mc/release/{{ minio_client_full_release_name }}"
         dest: "{{ minio_client_tmp_dir.path }}"
         checksum: "sha256:{{ minio_client_file_checksum }}"
         mode: "0640"
