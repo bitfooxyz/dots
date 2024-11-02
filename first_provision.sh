@@ -31,7 +31,11 @@ fi
 
 echo "Source venv and install dependencies from requirements.lock"
 source .venv/bin/activate
-pip3 install ansible
+if command -v rye &> /dev/null; then
+  rye sync
+else
+  pip3 install ansible
+fi
 
 mkdir -p ./secrets/
 if [[ ! -f secrets/become_password_file ]]; then
