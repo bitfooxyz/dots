@@ -218,6 +218,12 @@ return {
       vim.list_extend(ensure_installed, {
         "stylua", -- Used to format Lua code
       })
+
+      -- Install hadolint only on non Darwin arm64 platforms
+      local uname = vim.uv.os_uname()
+      if uname.sysname ~= "Darwin" and uname.machine ~= "arm64" then
+        vim.list_extend(ensure_installed, { "hadolint" })
+      end
       require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
       require("mason-lspconfig").setup({

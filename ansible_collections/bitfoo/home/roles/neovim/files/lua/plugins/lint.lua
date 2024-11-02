@@ -9,12 +9,12 @@ return {
 
       -- Set linters for filetype
       lint.linters_by_ft["markdown"] = { "markdownlint" }
+      lint.linters_by_ft["dockerfile"] = { "hadolint" }
 
       -- Set nil on default linters, this is neccessary, this is neccessary because,
       -- they are not overwritten by the lint.linters_by_ft for the default linters
       -- see https://github.com/mfussenegger/nvim-lint/blob/master/lua/lint.lua#L35
       lint.linters_by_ft["clojure"] = nil
-      lint.linters_by_ft["dockerfile"] = nil
       lint.linters_by_ft["inko"] = nil
       lint.linters_by_ft["janet"] = nil
       lint.linters_by_ft["json"] = nil

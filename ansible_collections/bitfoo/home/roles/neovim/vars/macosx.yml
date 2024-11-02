@@ -5,3 +5,6 @@ neovim_packages:
   - luarocks
   - nodejs
   - gcc
+  # Install hadolint with brew, it is not working
+  # with mason from github releases. (segfault)
+  - hadolint
