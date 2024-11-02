@@ -45,4 +45,5 @@
   ansible.builtin.include_tasks:
     file: "{{ item }}"
   loop:
+    - docker_credential_helper.yml
     - ecr_credential_helper.yml
