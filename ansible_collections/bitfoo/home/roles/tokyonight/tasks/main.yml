@@ -1,0 +1,29 @@
+- name: TOKYONIGHT | Create themes config folder
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/themes"
+    state: directory
+    mode: "0750"
+
+- name: TOKYONIGHT | Get current version of tokyonight
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/folke/tokyonight.nvim/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: themes_colors_latest_release_json
+  check_mode: false
+
+- name: TOKYONIGHT | Register latest release version
+  ansible.builtin.set_fact:
+    themes_colors_latest_version: "{{ themes_colors_latest_release_json.json.tag_name }}"
+
+- name: TOKYONIGHT | Create colorscheme directories
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/themes/tokyonight.nvim"
+    state: directory
+    mode: "0700"
+
+- name: TOKYONIGHT | Clone folke/tokyonight colorscheme
+  ansible.builtin.git:
+    repo: https://github.com/folke/tokyonight.nvim
+    dest: "{{ xdg_dirs_config }}/themes/tokyonight.nvim"
+    version: "{{ themes_colors_latest_version }}"
+    depth: 1
