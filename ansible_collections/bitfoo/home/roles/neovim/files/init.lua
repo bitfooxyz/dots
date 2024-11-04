@@ -101,6 +101,8 @@ vim.g.disabled_filetypes = {
   "dashboard",
   "neo-tree",
   "diff",
+  "lazy",
+  "mason",
 }
 
 -- [[ Setting options ]]
