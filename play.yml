@@ -8,6 +8,12 @@
       tags:
         - shell
 
+    - name: GIT | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.git
+      tags:
+        - git
+
     - name: COREUTILS | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.coreutils
