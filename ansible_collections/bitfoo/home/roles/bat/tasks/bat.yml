@@ -1,13 +1,13 @@
 - name: BAT | Install dependency packages on Linux
   ansible.builtin.package:
-    name: "{{ coreutils_bat_packages }}"
+    name: "{{ bat_packages }}"
     state: present
   become: true
   when: ansible_system == "Linux"
 
 - name: BAT | Install dependency packages on MacOS
   community.general.homebrew:
-    name: "{{ coreutils_bat_packages }}"
+    name: "{{ bat_packages }}"
     state: present
   when: ansible_system == "Darwin"
 
@@ -40,7 +40,7 @@
     var: bat_current_version
 
 - name: BAT | Install or Upgrade bat
-  when: bat_current_version != bat_latest_version or coreutils_force_bat
+  when: bat_current_version != bat_latest_version or bat_force_install
   block:
     - name: BAT | Create tmp directory
       ansible.builtin.tempfile:
@@ -51,7 +51,7 @@
 
     - name: BAT | Set release full name
       ansible.builtin.set_fact:
-        bat_full_release_name: "bat-v{{ bat_latest_version }}-{{ coreutils_bat_os_arch[ansible_system][ansible_architecture] }}"
+        bat_full_release_name: "bat-v{{ bat_latest_version }}-{{ bat_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: BAT | Download latest release
@@ -75,6 +75,8 @@
         src: "{{ bat_unarchived_release.dest }}/{{ bat_full_release_name }}/bat"
         dest: "{{ xdg_dirs_local_bin }}/bat"
         mode: "0750"
+      notify:
+        - Rebuild bat cache
 
     - name: BAT | Copy shell autocomplete files
       ansible.builtin.copy:

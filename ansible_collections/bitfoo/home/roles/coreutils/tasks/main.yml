@@ -22,15 +22,6 @@
   tags:
     - nerdfonts
 
-# BAT tasks and vars
-- name: COREUTILS | Import bat tasks
-  ansible.builtin.import_tasks:
-    file: bat/main.yml
-  when: coreutils_enable_bat
-  tags:
-    - bat
-    - bat_extras
-
 - name: COREUTILS | Import git-delta tasks
   ansible.builtin.import_tasks:
     file: git_delta/main.yml

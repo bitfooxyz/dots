@@ -1,0 +1,3 @@
+---
+# Force installation regardles of it is already installed
+bat_force_install: false

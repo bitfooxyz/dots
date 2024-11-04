@@ -1,0 +1,21 @@
+---
+- name: BAT | Create bat config dir
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - bat
+    - bat/themes
+  notify:
+    - Rebuild bat cache
+
+- name: BAT | Link tokyonight theme
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ xdg_dirs_config }}/bat/themes/{{ item | basename }}"
+    state: link
+    force: true
+  loop: "{{ query('ansible.builtin.fileglob', xdg_dirs_config + '/themes/tokyonight.nvim/extras/sublime/*.tmTheme') }}"
+  notify:
+    - Rebuild bat cache

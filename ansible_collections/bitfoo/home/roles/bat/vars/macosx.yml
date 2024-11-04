@@ -1,5 +1,5 @@
-coreutils_bat_packages:
-  - tar
+bat_packages:
+  - gnu-tar
   - less
   - man-db
   - unzip

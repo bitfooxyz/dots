@@ -1,7 +1,7 @@
 # BAT tasks and vars
 - name: BAT | Include bat vars
   ansible.builtin.include_vars:
-    file: bat/main.yml
+    file: main.yml
   tags:
     - bat
     - bat_extras
@@ -9,19 +9,25 @@
 # BAT tasks and vars
 - name: BAT | Include bat vars
   ansible.builtin.include_vars:
-    file: "bat/{{ ansible_distribution | lower }}.yml"
+    file: "{{ ansible_distribution | lower }}.yml"
   tags:
     - bat
     - bat_extras
 
 - name: BAT | Import bat task
   ansible.builtin.import_tasks:
-    file: bat/bat.yml
+    file: bat.yml
   tags:
     - bat
 
 - name: BAT-EXTRAS | Import bat-extras tasks
   ansible.builtin.import_tasks:
-    file: bat/bat_extras.yml
+    file: bat_extras.yml
   tags:
     - bat_extras
+
+- name: BAT | Import config task
+  ansible.builtin.import_tasks:
+    file: config.yml
+  tags:
+    - bat_config

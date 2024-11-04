@@ -1,0 +1,14 @@
+
+galaxy_info:
+  author: Daniel von Essen
+  description: Install and configure bat and bat extras
+  issue_tracker_url: https://gitlab.com/bitfooxyz/dots/-/issues
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags:
+    - bat
+    - bat_extras
+
+dependencies:
+  - role: bitfoo.home.xdg_dirs
+  - role: bitfoo.home.tokyonight

@@ -1,0 +1,7 @@
+---
+- name: Rebuild bat cache
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/bat cache --build"
+  register: bat_cache_cmd
+  failed_when: bat_cache_cmd.rc != 0
+  changed_when: false

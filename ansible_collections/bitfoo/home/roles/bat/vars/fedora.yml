@@ -1,4 +1,4 @@
-coreutils_bat_packages:
+bat_packages:
   - tar
   - less
   - man-db
