@@ -45,28 +45,10 @@
     dest: "{{ xdg_dirs_config }}/wezterm/secrets.lua"
     mode: "0600"
 
-- name: WEZTERM | Setup tokyonight colorscheme
-  block:
-    - name: WEZTERM | Get current version of tokyonight
-      ansible.builtin.uri:
-        url: https://api.github.com/repos/folke/tokyonight.nvim/releases/latest
-        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
-      register: wezterm_colors_latest_release_json
-      check_mode: false
-
-    - name: WEZTERM | Register latest release version
-      ansible.builtin.set_fact:
-        wezterm_colors_latest_version: "{{ wezterm_colors_latest_release_json.json.tag_name }}"
-
-    - name: WEZTERM | Create colorscheme directories
-      ansible.builtin.file:
-        dest: "{{ xdg_dirs_config }}/wezterm/colors/tokyonight.nvim"
-        state: directory
-        mode: "0700"
-
-    - name: WEZTERM | Clone folke/tokyonight colorscheme
-      ansible.builtin.git:
-        repo: https://github.com/folke/tokyonight.nvim
-        dest: "{{ xdg_dirs_config }}/wezterm/colors/tokyonight.nvim"
-        version: "{{ wezterm_colors_latest_version }}"
-        depth: 1
+- name: WEZTERM | Link tokyonight theme
+  ansible.builtin.file:
+    src: "{{ item }}"
+    dest: "{{ xdg_dirs_config }}/wezterm/colors/{{ item | basename }}"
+    state: link
+    force: true
+  loop: "{{ query('ansible.builtin.fileglob', xdg_dirs_config + '/themes/tokyonight.nvim/extras/wezterm/*.toml') }}"

@@ -6,7 +6,7 @@ require("tabbar").setup()
 -- Initialize config if config_builde is available us it
 local config = {}
 if wezterm.config_builder then
-	config = wezterm.config_builder()
+  config = wezterm.config_builder()
 end
 config.tab_and_split_indices_are_zero_based = false
 ---------------------------------
@@ -20,8 +20,8 @@ config.command_palette_bg_color = "#24283b"
 config.command_palette_fg_color = "#c0caf5"
 -- Set fonts and fallback fonts
 config.font = wezterm.font_with_fallback({
-	{ family = "FiraCode Nerd Font Mono" },
-	{ family = "UbuntuMono Nerd Font", scale = 1.2 },
+  { family = "FiraCode Nerd Font Mono" },
+  { family = "UbuntuMono Nerd Font", scale = 1.2 },
 })
 config.font_size = 14
 -- Do not adjust the window size if changing font size
