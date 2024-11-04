@@ -204,18 +204,11 @@ vim.keymap.set("n", "<M-h>", "3<C-w><", { silent = false, desc = "Resize window 
 vim.keymap.set("n", "<M-l>", "3<C-w>>", { silent = false, desc = "Resize window to the right" })
 vim.keymap.set("n", "<M-k>", "3<C-w>+", { silent = false, desc = "Resize window upwards" })
 vim.keymap.set("n", "<M-j>", "3<C-w>-", { silent = false, desc = "Resize window downwards" })
--- vim.keymap.set("n", "<C-H>", function()
--- 	vim.cmd("vertical resize +3")
--- end, { silent = true, desc = "Move focus to the left window" })
--- vim.keymap.set("n", "<C-L>", function()
--- 	vim.cmd("vertical resize -3")
--- end, { silent = true, desc = "Move focus to the right window" })
--- vim.keymap.set("n", "<C-K>", function()
--- 	vim.cmd("vertical resize +3")
--- end, { silent = true, desc = "Move focus to the lower window" })
--- vim.keymap.set("n", "<C-J>", function()
--- 	vim.cmd("vertical resize -3")
--- end, { silent = true, desc = "Move focus to the upper window" })
+
+-- Scroll Page Up/Down keep cursor in the middle
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
