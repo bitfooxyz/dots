@@ -15,14 +15,6 @@
   tags:
     - coreutils
 
-# GIT tasks and vars
-- name: COREUTILS | Import git tasks
-  ansible.builtin.import_tasks:
-    file: git/main.yml
-  when: coreutils_enable_git
-  tags:
-    - git
-
 - name: COREUTILS | Import nerdfonts tasks
   ansible.builtin.import_tasks:
     file: nerdfonts/main.yml
