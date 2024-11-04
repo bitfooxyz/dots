@@ -1,4 +1,0 @@
-collections:
-  - name: bitfoo.home.xdg_dirs
-  - name: bitfoo.home.flatpak
-  - name: geerlingguy.mac

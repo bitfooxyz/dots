@@ -1,19 +1,4 @@
-- name: WEZTERM | Import xdg_dirs role
-  ansible.builtin.import_role:
-    name: bitfoo.home.xdg_dirs
-
-- name: WEZTERM | Import flatpak role
-  ansible.builtin.import_role:
-    name: bitfoo.home.flatpak
-  when:
-    - ansible_system == "Linux"
-    - ansible_distribution != "RedHat"
-
-- name: WEZTERM | Include geerlingguy.mac role
-  ansible.builtin.include_role:
-    name: geerlingguy.mac.homebrew
-  when: ansible_system == "Darwin"
-
+---
 - name: WEZTERM | Include os vars
   ansible.builtin.include_vars:
     file: "{{ ansible_distribution | lower }}.yml"
@@ -36,7 +21,6 @@
   ansible.builtin.include_tasks:
     file: unsupported_wezterm.yml
   when: ansible_distribution == "RedHat"
-
 
 - name: WEZTERM | Create wezterm config folder
   ansible.builtin.file:
