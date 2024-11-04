@@ -14,6 +14,12 @@
       tags:
         - git
 
+    - name: BAT | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.bat
+      tags:
+        - bat
+
     - name: COREUTILS | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.coreutils
