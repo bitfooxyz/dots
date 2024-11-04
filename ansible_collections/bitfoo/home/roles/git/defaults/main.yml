@@ -1,8 +1,8 @@
 ---
-coreutils_git_user_name: ""
-coreutils_git_user_mail: ""
+git_user_name: ""
+git_user_mail: ""
 
-coreutils_git_include_if: []
+git_include_if: []
   # - path: ""
   #   user_name: ""
   #   user_mail: ""
