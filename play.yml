@@ -38,6 +38,12 @@
       tags:
         - applications
 
+    - name: AWS_CLI | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.aws_cli
+      tags:
+        - aws_cli
+
     - name: KUBECTL | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.kubectl
