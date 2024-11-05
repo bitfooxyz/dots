@@ -40,6 +40,15 @@ if [[ -d $XDG_CONFIG_HOME/bash/completions ]]; then
   done
 fi
 
+# Source plugins installed from other tools like eza, mcfly etc.
+if [[ -d $XDG_CONFIG_HOME/bash/plugins ]]; then
+  # shellcheck disable=SC2044
+  for file in $(find "$XDG_CONFIG_HOME/bash/plugins/" \( -type f -o -type l \) \( -iname "*.sh" -or -iname "*.bash" \)); do
+    # shellcheck source=/dev/null
+    source "$file"
+  done
+fi
+
 # Enable aws cli completions
 if command -v aws_completer &> /dev/null; then
   complete -C aws_completer aws

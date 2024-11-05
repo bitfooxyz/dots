@@ -19,6 +19,7 @@
   loop:
     - bash
     - bash/completions
+    - bash/plugins
 
 - name: BASH | Link bashrc to ~/.bashrc
   ansible.builtin.file:
