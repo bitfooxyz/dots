@@ -27,7 +27,7 @@
     var: aws_cli_current_version
 
 - name: AWS-CLI | Install
-  when: aws_cli_current_version != aws_cli_latest_version or coreutils_force_aws_cli
+  when: aws_cli_current_version != aws_cli_latest_version or aws_cli_force_install | bool
   block:
     - name: AWS-CLI | Create tmp directory
       ansible.builtin.tempfile:
@@ -127,9 +127,10 @@
     state: directory
     mode: "0750"
 
+
 - name: AWS-CLI | Ensure configuration is present
   ansible.builtin.copy:
-    src: "aws-cli/{{ item }}"
+    src: "{{ item }}"
     dest: "{{ ansible_user_dir }}/.aws/{{ item }}"
     mode: "0600"
   no_log: true

@@ -36,13 +36,6 @@
   tags:
     - rye
 
-- name: COREUTILS | Import aws_cli tasks
-  ansible.builtin.import_tasks:
-    file: aws_cli/main.yml
-  when: coreutils_enable_aws_cli
-  tags:
-    - aws_cli
-
 - name: COREUTILS | Import tealdeer tasks
   ansible.builtin.import_tasks:
     file: tealdeer/main.yml

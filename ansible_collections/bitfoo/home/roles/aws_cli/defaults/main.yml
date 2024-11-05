@@ -1,0 +1,4 @@
+---
+# Force installation regardles of it is already installed
+aws_cli_force_install: false
+
