@@ -91,5 +91,5 @@ customCommands:
       {{- else if eq .Form.Type "chore" }}{{ $icon = ":chore:" }}
       {{- end }}
 
-      git commit --message '{{ .Form.Type }}{{ if .Form.Scope }}({{ .Form.Scope }}){{ end }}{{.Form.Breaking}}: {{ $icon }} {{ if .Form.Story }}({{ .Form.Story }}){{ end }}{{ .Form.Message }}'
+      git commit --message '{{ .Form.Type }}{{ if .Form.Scope }}({{ .Form.Scope }}){{ end }}{{.Form.Breaking}}: {{ $icon }} {{ if .Form.Story }}({{ .Form.Story }}) {{ end }}{{ .Form.Message }}'
     loadingText: "Creating conventional commit..."
