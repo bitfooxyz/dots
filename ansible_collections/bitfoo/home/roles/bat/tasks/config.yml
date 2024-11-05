@@ -19,3 +19,13 @@
   loop: "{{ query('ansible.builtin.fileglob', xdg_dirs_config + '/themes/tokyonight.nvim/extras/sublime/*.tmTheme') }}"
   notify:
     - Rebuild bat cache
+
+- name: BAT | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/bat.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/bat.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh

@@ -11,4 +11,5 @@ galaxy_info:
 
 dependencies:
   - role: bitfoo.home.xdg_dirs
+  - role: bitfoo.home.shell
   - role: bitfoo.home.tokyonight
