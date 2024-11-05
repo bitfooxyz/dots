@@ -61,18 +61,9 @@ _sysupgrade() {
 }
 alias sysupgrade=_sysupgrade
 
-# Set aliases for cat to bat if bat exists.
-if command -v bat &> /dev/null; then
-    alias cat="bat"
-fi
-
 # Alias grep with ripgrep to have a better grep tool.
 if command -v rg &> /dev/null; then
     alias grep="rg"
-fi
-
-if command -v batman &> /dev/null; then
-    alias man=batman
 fi
 
 if command -v btop &> /dev/null; then

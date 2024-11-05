@@ -76,10 +76,6 @@ if command -v tealdeer &> /dev/null; then
     export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
 fi
 
-if command -v bat &> /dev/null; then
-    export BAT_THEME="tokyonight_storm"
-fi
-
 if command -v mc &> /dev/null; then
     # set minio_client configuration directory
     export MC_CONFIG_DIR=~/.config/mc
