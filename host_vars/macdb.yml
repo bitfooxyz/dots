@@ -10,7 +10,7 @@ applications_homebrew_cask_packages:
   - spotify
 
 # Work related path to change username and email
-coreutils_git_include_if:
+git_include_if:
   - path: !vault |
       $ANSIBLE_VAULT;1.2;AES256;dots
       36316531623032393666303836663965393533326465363966303339393635663135646333353433
