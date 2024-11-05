@@ -1,0 +1,14 @@
+---
+- name: EZA | Import install tasks
+  ansible.builtin.import_tasks:
+    file: install.yml
+  tags:
+    - eza
+    - eza_install
+
+- name: EZA | Import config tasks
+  ansible.builtin.import_tasks:
+    file: config.yml
+  tags:
+    - eza
+    - eza_config

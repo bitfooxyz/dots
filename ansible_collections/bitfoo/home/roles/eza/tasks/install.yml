@@ -1,14 +1,14 @@
 - name: EZA | Include vars
   ansible.builtin.include_vars:
-    file: "eza/main.yml"
+    file: "main.yml"
 
 - name: EZA | Include os vars
   ansible.builtin.include_vars:
-    file: "eza/{{ ansible_distribution | lower }}.yml"
+    file: "{{ ansible_distribution | lower }}.yml"
 
 - name: EZA | Install packages on MacOS
   community.general.homebrew:
-    name: "{{ coreutils_eza_packages }}"
+    name: "{{ eza_packages }}"
     state: present
   when: ansible_system == "Darwin"
 
@@ -17,7 +17,7 @@
   block:
     - name: EZA | Install packages on Linux
       ansible.builtin.package:
-        name: "{{ coreutils_eza_packages }}"
+        name: "{{ eza_packages }}"
         state: present
       become: true
 
@@ -52,7 +52,7 @@
 
     - name: EZA | Install or Upgrade eza
       when:
-        - eza_current_version != eza_latest_version or coreutils_force_eza
+        - eza_current_version != eza_latest_version or eza_force_install | bool
       block:
         - name: EZA | Create tmp directory
           ansible.builtin.tempfile:
@@ -63,9 +63,7 @@
 
         - name: EZA | Set release full name
           ansible.builtin.set_fact:
-            eza_full_release_name: "eza_{{ coreutils_eza_os_arch\
-                                  [ansible_system]\
-                                  [ansible_architecture] }}"
+            eza_full_release_name: "eza_{{ eza_os_arch[ansible_system][ansible_architecture] }}"
           check_mode: false
 
         - name: EZA | Download latest release

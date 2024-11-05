@@ -1,5 +1,5 @@
 ---
-coreutils_eza_os_arch:
+eza_os_arch:
   Darwin:
     arm64: darwin-arm64
   Linux:

@@ -1,0 +1,25 @@
+---
+- name: EZA | Create config dir
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/{{ item }}"
+    state: directory
+    mode: "0750"
+  loop:
+    - eza
+
+- name: EZA | Link tokyonight theme
+  ansible.builtin.file:
+    src: "{{ xdg_dirs_config }}/themes/tokyonight.nvim/extras/eza/tokyonight.yml"
+    dest: "{{ xdg_dirs_config }}/eza/theme.yml"
+    state: link
+    force: true
+
+- name: EZA | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/eza.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/eza.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh

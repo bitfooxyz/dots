@@ -1,0 +1,4 @@
+---
+# Force installation regardles of it is already installed
+eza_force_install: false
+
