@@ -71,16 +71,6 @@ if command -v rg &> /dev/null; then
     alias grep="rg"
 fi
 
-if command -v eza &> /dev/null; then
-    alias eza="eza --icons --group-directories-first --group --header --mounts --git"
-    alias la="eza -a"
-    alias ll="eza -l"
-    alias lla="eza -la"
-    alias ls="eza"
-    alias lt="eza --tree"
-    alias tree="eza --tree"
-fi
-
 if command -v batman &> /dev/null; then
     alias man=batman
 fi
