@@ -26,6 +26,12 @@
       tags:
         - bat
 
+    - name: FZF | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.fzf
+      tags:
+        - fzf
+
     - name: FD | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.fd
