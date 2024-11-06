@@ -14,6 +14,12 @@
       tags:
         - git
 
+    - name: GIT_CLIFF | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.git_cliff
+      tags:
+        - git_cliff
+
     - name: EZA | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.eza
