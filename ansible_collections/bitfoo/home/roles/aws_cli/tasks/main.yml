@@ -92,7 +92,7 @@
 
         - name: AWS-CLI | Create choises.xml file
           ansible.builtin.template:
-            src: aws_cli/choices.xml.j2
+            src: choices.xml.j2
             dest: "{{ aws_cli_tmp_dir.path }}/choices.xml"
             mode: "0640"
 
@@ -127,7 +127,6 @@
     state: directory
     mode: "0750"
 
-
 - name: AWS-CLI | Ensure configuration is present
   ansible.builtin.copy:
     src: "{{ item }}"
@@ -137,3 +136,13 @@
   loop:
     - config
     - credentials
+
+- name: AWS-CLI | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/aws_cli.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/aws_cli.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh
