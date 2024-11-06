@@ -56,17 +56,6 @@ if command -v mcfly &> /dev/null; then
     export MCFLY_KEY_SCHEME="vim"
 fi
 
-# Set exports if fzf is installed
-if command -v fzf &> /dev/null; then
-    export FZF_DEFAULT_OPTS="--cycle --border=bold"
-    if command -v fd &> /dev/null; then
-        export FZF_DEFAULT_COMMAND="fd --type f"
-    fi
-    if [[ -r "$XDG_CONFIG_HOME/fzf/preview.sh" ]]; then
-        export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --preview '$XDG_CONFIG_HOME/fzf/preview.sh {}'"
-    fi
-fi
-
 # Set colors for jq output
 if command -v jq &> /dev/null; then
     export JQ_COLORS="1;30:0;37:0;37:0;37:0;32:1;37:1;37"
