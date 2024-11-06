@@ -1,6 +1,6 @@
 - name: FD | Include fd vars
   ansible.builtin.include_vars:
-    file: fd/main.yml
+    file: main.yml
 
 - name: FD | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: FD | Install or Upgrade fd
   when:
-    - fd_current_version != fd_latest_version or coreutils_force_fd
+    - fd_current_version != fd_latest_version or fd_force_install
   block:
     - name: FD | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: FD | Set release full name
       ansible.builtin.set_fact:
-        fd_full_release_name: "fd-v{{ fd_latest_version }}-{{ coreutils_fd_os_arch[ansible_system][ansible_architecture] }}"
+        fd_full_release_name: "fd-v{{ fd_latest_version }}-{{ fd_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: FD | Download latest release
       ansible.builtin.get_url:

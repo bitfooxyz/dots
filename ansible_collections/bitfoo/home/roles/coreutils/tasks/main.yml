@@ -57,13 +57,6 @@
   tags:
     - fzf
 
-- name: COREUTILS | Import fd tasks
-  ansible.builtin.import_tasks:
-    file: fd/main.yml
-  when: coreutils_enable_fd
-  tags:
-    - fd
-
 - name: COREUTILS | Import sd tasks
   ansible.builtin.import_tasks:
     file: sd/main.yml
