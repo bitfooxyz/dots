@@ -10,3 +10,4 @@ galaxy_info:
 
 dependencies:
   - role: bitfoo.home.xdg_dirs
+  - role: bitfoo.home.git_delta
