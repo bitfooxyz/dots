@@ -138,3 +138,13 @@
     src: preview.sh
     dest: "{{ xdg_dirs_config }}/fzf/preview.sh"
     mode: "0750"
+
+- name: FZF | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/fzf.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/fzf.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh

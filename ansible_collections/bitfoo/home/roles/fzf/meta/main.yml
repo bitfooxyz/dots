@@ -11,4 +11,5 @@ galaxy_info:
 
 dependencies:
   - role: bitfoo.home.xdg_dirs
-  - role: bitfoo.home.git
+  - role: bitfoo.home.bat
+  - role: bitfoo.home.fd
