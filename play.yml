@@ -26,6 +26,12 @@
       tags:
         - bat
 
+    - name: FD | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.fd
+      tags:
+        - fd
+
     - name: COREUTILS | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.coreutils
