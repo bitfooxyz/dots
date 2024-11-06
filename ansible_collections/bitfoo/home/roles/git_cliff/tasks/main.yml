@@ -1,6 +1,6 @@
 - name: GIT_CLIFF | Include git_cliff vars
   ansible.builtin.include_vars:
-    file: git_cliff/main.yml
+    file: main.yml
 
 - name: GIT_CLIFF | Get latest version
   ansible.builtin.uri:
@@ -31,7 +31,7 @@
 
 - name: GIT_CLIFF | Install or Upgrade git_cliff
   when:
-    - git_cliff_current_version != git_cliff_latest_version or coreutils_force_git_cliff
+    - git_cliff_current_version != git_cliff_latest_version or git_cliff_force_install | bool
   block:
     - name: GIT_CLIFF | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: GIT_CLIFF | Set release full name
       ansible.builtin.set_fact:
-        git_cliff_full_release_name: "git-cliff-{{ git_cliff_latest_version }}-{{ coreutils_git_cliff_os_arch[ansible_system][ansible_architecture] }}"
+        git_cliff_full_release_name: "git-cliff-{{ git_cliff_latest_version }}-{{ git_cliff_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: GIT_CLIFF | Download checksum file

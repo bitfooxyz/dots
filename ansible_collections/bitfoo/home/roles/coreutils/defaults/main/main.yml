@@ -68,8 +68,3 @@ coreutils_force_mcfly: false
 coreutils_enable_lazygit: true
 # Force installation regardles of it is already installed
 coreutils_force_lazygit: false
-
-# Enable git_cliff tasks
-coreutils_enable_git_cliff: true
-# Force installation regardles of it is already installed
-coreutils_force_git_cliff: false
