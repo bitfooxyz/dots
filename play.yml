@@ -50,6 +50,12 @@
       tags:
         - fd
 
+    - name: GLOW | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.glow
+      tags:
+        - glow
+
     - name: COREUTILS | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.coreutils
