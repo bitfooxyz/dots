@@ -28,7 +28,7 @@
 
 - name: GLOW | Install or Upgrade glow
   when:
-    - glow_current_version != glow_latest_version or coreutils_force_glow
+    - glow_current_version != glow_latest_version or glow_force_install | bool
   block:
     - name: GLOW | Create tmp directory
       ansible.builtin.tempfile:
@@ -78,6 +78,7 @@
         src: "{{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/glow"
         dest: "{{ xdg_dirs_local_bin }}/glow"
         mode: "0750"
+      diff: false
 
     - name: GLOW | Copy autocompletion files
       ansible.builtin.copy:
@@ -87,12 +88,15 @@
       loop:
         - zsh
         - bash
+      loop_control:
+        label: "{{ item }}"
 
     - name: GLOW | Gunzip manpage
       ansible.builtin.command:
         cmd: "gunzip {{ glow_tmp_dir.path }}/{{ glow_full_release_name }}/manpages/glow.1.gz"
       changed_when: false
       check_mode: false
+      diff: false
 
     - name: GLOW | Copy manpages
       ansible.builtin.copy:
@@ -100,6 +104,7 @@
         dest: "{{ xdg_dirs_local_share_man }}/man1/glow.1"
         mode: "0640"
       when: not ansible_check_mode
+      diff: false
   always:
     - name: GLOW | Ensure tmp directory is absent
       ansible.builtin.file:
