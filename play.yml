@@ -14,6 +14,12 @@
       tags:
         - git
 
+    - name: GIT_DELTA | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.git_delta
+      tags:
+        - git_delta
+
     - name: GIT_CLIFF | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.git_cliff
