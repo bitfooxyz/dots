@@ -1,4 +1,4 @@
-coreutils_git_delta_os_arch:
+git_delta_os_arch:
   Darwin:
     arm64: aarch64-apple-darwin
   Linux:

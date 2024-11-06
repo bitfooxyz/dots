@@ -6,11 +6,6 @@ coreutils_enable_nerdfonts: true
 # Force installation regardles of it is already installed
 coreutils_force_nerdfonts: false
 
-# Enable git_delta tasks
-coreutils_enable_git_delta: true
-# Force installation regardles of it is already installed
-coreutils_force_git_delta: false
-
 # Enable rye tasks
 coreutils_enable_rye: true
 

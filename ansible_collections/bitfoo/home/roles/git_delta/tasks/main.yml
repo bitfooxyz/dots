@@ -1,6 +1,6 @@
 - name: GIT-DELTA | Include git_delta vars
   ansible.builtin.include_vars:
-    file: git_delta/main.yml
+    file: main.yml
 
 - name: GIT-DELTA | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: GIT-DELTA | Install or Upgrade git_delta
   when:
-    - git_delta_current_version != git_delta_latest_version or coreutils_force_git_delta
+    - git_delta_current_version != git_delta_latest_version or git_delta_force_install | bool
   block:
     - name: GIT-DELTA | Create tmp directory
       ansible.builtin.tempfile:
@@ -44,7 +44,7 @@
 
     - name: GIT-DELTA | Set release full name
       ansible.builtin.set_fact:
-        git_delta_full_release_name: "delta-{{ git_delta_latest_version }}-{{ coreutils_git_delta_os_arch[ansible_system][ansible_architecture] }}"
+        git_delta_full_release_name: "delta-{{ git_delta_latest_version }}-{{ git_delta_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: GIT-DELTA | Download latest release
@@ -87,6 +87,8 @@
         dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_delta.{{ item.item }}"
         mode: "0640"
       loop: "{{ git_delta_completion.results }}"
+      loop_control:
+        label: "{{ item.item }}"
   always:
     - name: GIT-DELTA | Ensure tmp directory is absent
       ansible.builtin.file:
