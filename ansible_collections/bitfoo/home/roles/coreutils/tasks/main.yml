@@ -50,13 +50,6 @@
   tags:
     - zoxide
 
-- name: COREUTILS | Import fzf tasks
-  ansible.builtin.import_tasks:
-    file: fzf/main.yml
-  when: coreutils_enable_fzf
-  tags:
-    - fzf
-
 - name: COREUTILS | Import sd tasks
   ansible.builtin.import_tasks:
     file: sd/main.yml

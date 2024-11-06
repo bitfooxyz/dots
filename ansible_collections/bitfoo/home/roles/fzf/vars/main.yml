@@ -1,4 +1,4 @@
-coreutils_fzf_os_arch:
+fzf_os_arch:
   Darwin:
     arm64: darwin_arm64
   Linux:

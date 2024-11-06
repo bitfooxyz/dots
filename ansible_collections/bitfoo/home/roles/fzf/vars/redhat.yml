@@ -1,4 +1,4 @@
-coreutils_fzf_packages:
+fzf_packages:
   - gzip
   - xz
   - unzip

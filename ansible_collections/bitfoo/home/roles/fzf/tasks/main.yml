@@ -1,10 +1,10 @@
 - name: FZF | Include fzf vars
   ansible.builtin.include_vars:
-    file: fzf/main.yml
+    file: main.yml
 
 - name: FZF | Include os dependent vars
   ansible.builtin.include_vars:
-    file: "fzf/{{ ansible_distribution | lower }}.yml"
+    file: "{{ ansible_distribution | lower }}.yml"
 
 - name: FZF | Get latest version
   ansible.builtin.uri:
@@ -36,7 +36,7 @@
 
 - name: FZF | Install or Upgrade fzf
   when:
-    - fzf_current_version != fzf_latest_version or coreutils_force_fzf
+    - fzf_current_version != fzf_latest_version or fzf_force_install
   block:
     - name: FZF | Create tmp directory
       ansible.builtin.tempfile:
@@ -47,7 +47,7 @@
 
     - name: FZF | Set release full name
       ansible.builtin.set_fact:
-        fzf_full_release_name: "fzf-{{ fzf_latest_version }}-{{ coreutils_fzf_os_arch[ansible_system][ansible_architecture] }}"
+        fzf_full_release_name: "fzf-{{ fzf_latest_version }}-{{ fzf_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: FZF | Download checksum file
@@ -105,6 +105,8 @@
         dest: "{{ xdg_dirs_local_share_man }}/man1/{{ item.item }}"
         mode: "0750"
       loop: "{{ fzf_manpages.results }}"
+      loop_control:
+        label: "{{ item.item }}"
   always:
     - name: FZF | Ensure tmp directory is absent
       ansible.builtin.file:
@@ -114,14 +116,14 @@
 
 - name: FZF | Install preview.sh Linux dependencies
   ansible.builtin.package:
-    name: "{{ coreutils_fzf_packages }}"
+    name: "{{ fzf_packages }}"
     state: present
   become: true
   when: ansible_system == "Linux"
 
 - name: FZF | Install preview.sh MacOS dependencies
   ansible.builtin.package:
-    name: "{{ coreutils_fzf_packages }}"
+    name: "{{ fzf_packages }}"
     state: present
   when: ansible_system == "Darwin"
 
@@ -133,6 +135,6 @@
 
 - name: FZF | Ensure preview.sh exists
   ansible.builtin.copy:
-    src: lf/preview.sh
+    src: preview.sh
     dest: "{{ xdg_dirs_config }}/fzf/preview.sh"
     mode: "0750"

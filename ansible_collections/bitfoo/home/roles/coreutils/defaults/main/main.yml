@@ -29,11 +29,6 @@ coreutils_enable_zoxide: true
 # Force installation regardles of it is already installed
 coreutils_force_zoxide: false
 
-# Enable fzf tasks
-coreutils_enable_fzf: true
-# Force installation regardles of it is already installed
-coreutils_force_fzf: false
-
 # Enable sd tasks
 coreutils_enable_sd: true
 # Force installation regardles of it is already installed
