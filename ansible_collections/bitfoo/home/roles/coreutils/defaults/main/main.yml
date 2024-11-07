@@ -53,8 +53,3 @@ coreutils_force_mmv: false
 coreutils_enable_mcfly: true
 # Force installation regardles of it is already installed
 coreutils_force_mcfly: false
-
-# Enable lazygit tasks
-coreutils_enable_lazygit: true
-# Force installation regardles of it is already installed
-coreutils_force_lazygit: false

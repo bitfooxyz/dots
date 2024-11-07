@@ -29,7 +29,7 @@
 
 - name: LAZYGIT | Install or Upgrade lazygit
   when:
-    - lazygit_current_version != lazygit_latest_version or coreutils_force_lazygit
+    - lazygit_current_version != lazygit_latest_version or lazygit_force_install | bool
   block:
     - name: LAZYGIT | Create tmp directory
       ansible.builtin.tempfile:
@@ -60,7 +60,6 @@
         lazygit_file_checksum: "{{ lazygit_checksums.content | \
                                 regex_findall('.*' + lazygit_full_release_name + \
                                 '.tar.gz$', multiline=True) | first | split(' ') | first }}"
-
 
     - name: LAZYGIT | Download latest release
       ansible.builtin.get_url:
@@ -100,8 +99,7 @@
 
 - name: LAZYGIT | Link lazygit configuration
   ansible.builtin.file:
-    src: "{{ role_path }}/files/lazygit/config.yml"
+    src: "{{ role_path }}/files/config.yml"
     dest: "{{ xdg_dirs_config }}/lazygit/config.yml"
     state: link
     force: true
-    mode: "0640"

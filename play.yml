@@ -26,6 +26,12 @@
       tags:
         - git_cliff
 
+    - name: LAZYGIT | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.lazygit
+      tags:
+        - lazygit
+
     - name: EZA | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.eza
