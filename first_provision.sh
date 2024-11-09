@@ -24,18 +24,13 @@ if [[ $(uname) == "Darwin" ]]; then
   fi
 fi
 
-if [[ ! -d .venv ]]; then
-  echo "Create .venv virtualenv"
-  python3 -m venv .venv
+if ! command -v uv &> /dev/null; then
+  echo "uv not present downloading and installing uv"
+  curl -LsSf https://astral.sh/uv/install.sh | sh
 fi
 
-echo "Source venv and install dependencies from requirements.lock"
-source .venv/bin/activate
-if command -v rye &> /dev/null; then
-  rye sync
-else
-  pip3 install ansible
-fi
+echo "Install dependencies from with uv"
+uv sync
 
 mkdir -p ./secrets/
 if [[ ! -f secrets/become_password_file ]]; then
@@ -53,10 +48,10 @@ if [[ ! -f secrets/vault_password_file ]]; then
 fi
 
 echo "Install ansible galaxy requirements from requirements.yml"
-ansible-galaxy install -r requirements.yml
+uvx ansible-galaxy install -r requirements.yml
 
 echo -n "Limit to which host: "
 read LIMIT_HOST
 
 echo "Running ansible-playbook"
-ansible-playbook play.yml --diff --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file --limit $LIMIT_HOST
+uvx ansible-playbook play.yml --diff --become-password-file ./secrets/become_password_file --vault-password-file ./secrets/vault_password_file --limit $LIMIT_HOST
