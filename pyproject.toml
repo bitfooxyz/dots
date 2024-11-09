@@ -18,3 +18,8 @@ requires-python = ">= 3.12"
 dev-dependencies = []
 environments = ["platform_system != 'Windows'"]
 package = false
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
