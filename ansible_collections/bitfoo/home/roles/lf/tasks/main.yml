@@ -1,21 +1,21 @@
 - name: LF | Include vars
   ansible.builtin.include_vars:
-    file: lf/main.yml
+    file: main.yml
 
 - name: LF | Include os vars
   ansible.builtin.include_vars:
-    file: "lf/{{ ansible_distribution | lower }}.yml"
+    file: "{{ ansible_distribution | lower }}.yml"
 
 - name: LF | Install packages on Linux
   ansible.builtin.package:
-    name: "{{ coreutils_lf_packages }}"
+    name: "{{ lf_packages }}"
     state: present
   become: true
   when: ansible_system == "Linux"
 
 - name: LF | Install packages on MacOS
   community.general.homebrew:
-    name: "{{ coreutils_lf_packages }}"
+    name: "{{ lf_packages }}"
     state: present
   when: ansible_system == "Darwin"
 
@@ -49,7 +49,7 @@
 
 - name: LF | Install or Upgrade lf
   when:
-    - lf_current_version != lf_latest_version or coreutils_force_lf
+    - lf_current_version != lf_latest_version or lf_force_install | bool
   block:
     - name: LF | Create tmp directory
       ansible.builtin.tempfile:
@@ -60,7 +60,7 @@
 
     - name: LF | Set release full name
       ansible.builtin.set_fact:
-        lf_full_release_name: "lf-{{ coreutils_lf_os_arch\
+        lf_full_release_name: "lf-{{ lf_os_arch\
                               [ansible_system]\
                               [ansible_architecture] }}"
       check_mode: false
@@ -111,7 +111,7 @@
 
 - name: LF | Copy configuration files
   ansible.builtin.copy:
-    src: "lf/{{ item }}"
+    src: "{{ item }}"
     dest: "{{ xdg_dirs_config }}/lf/{{ item }}"
     mode: "0640"
   loop:
@@ -120,6 +120,6 @@
 
 - name: LF | Ensure preview.sh exists
   ansible.builtin.copy:
-    src: lf/preview.sh
+    src: preview.sh
     dest: "{{ xdg_dirs_config }}/lf/preview.sh"
     mode: "0750"

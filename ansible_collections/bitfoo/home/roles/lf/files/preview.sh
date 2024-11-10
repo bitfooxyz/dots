@@ -43,7 +43,7 @@ image() {
   else
     PREVIEW_LINES=${3}
   fi
-	chafa -f sixel -s "${PREVIEW_COLUMNS}x${PREVIEW_LINES}" --animate off --polite on "${1}"
+  chafa -f sixel -s "${PREVIEW_COLUMNS}x${PREVIEW_LINES}" --animate off --polite on "${1}"
 }
 
 

@@ -1,4 +1,4 @@
-coreutils_lf_packages:
+lf_packages:
   - ImageMagick
   - binutils # nm
   - chafa # ImageToText converter

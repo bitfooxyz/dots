@@ -31,11 +31,6 @@ coreutils_enable_yq: true
 # Force installation regardles of it is already installed
 coreutils_force_yq: false
 
-# Enable lf tasks
-coreutils_enable_lf: true
-# Force installation regardles of it is already installed
-coreutils_force_lf: false
-
 # Enable mmv tasks
 coreutils_enable_mmv: true
 # Force installation regardles of it is already installed

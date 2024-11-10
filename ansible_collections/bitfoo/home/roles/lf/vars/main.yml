@@ -1,4 +1,4 @@
-coreutils_lf_os_arch:
+lf_os_arch:
   Darwin:
     arm64: darwin-arm64
   Linux:
