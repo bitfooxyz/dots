@@ -74,6 +74,12 @@
       tags:
         - applications
 
+    - name: UV | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.uv
+      tags:
+        - uv
+
     - name: AWS_CLI | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.aws_cli
