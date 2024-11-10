@@ -47,15 +47,6 @@ if [ $(uname) = "Darwin" ]; then
     export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 fi
 
-# Set exports if mcfly exists
-if command -v mcfly &> /dev/null; then
-    export MCFLY_INTERFACE_VIEW=bottom
-    export MCFLY_PROMPT="❯"
-    export MCFLY_RESULTS=50
-    export MCFLY_FUZZY="2"
-    export MCFLY_KEY_SCHEME="vim"
-fi
-
 # Set colors for jq output
 if command -v jq &> /dev/null; then
     export JQ_COLORS="1;30:0;37:0;37:0;37:0;32:1;37:1;37"

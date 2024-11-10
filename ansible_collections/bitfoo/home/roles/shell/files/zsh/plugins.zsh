@@ -73,7 +73,4 @@ if command -v fzf &> /dev/null; then
   compdef _gnu_generic fzf
 fi
 
-if command -v mcfly &> /dev/null; then
-  export MCFLY_PATH=$(command -v mcfly)
-  eval "$(mcfly init zsh)"
 fi
