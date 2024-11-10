@@ -1,6 +1,6 @@
 - name: MCFLY | Include mcfly vars
   ansible.builtin.include_vars:
-    file: mcfly/main.yml
+    file: main.yml
 
 - name: MCFLY | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: MCFLY | Install or Upgrade mcfly
   when:
-    - mcfly_current_version != mcfly_latest_version or coreutils_force_mcfly
+    - mcfly_current_version != mcfly_latest_version or mcfly_force_install | bool
   block:
     - name: MCFLY | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: MCFLY | Set release full name
       ansible.builtin.set_fact:
-        mcfly_full_release_name: "mcfly-v{{ mcfly_latest_version }}-{{ coreutils_mcfly_os_arch[ansible_system][ansible_architecture] }}"
+        mcfly_full_release_name: "mcfly-v{{ mcfly_latest_version }}-{{ mcfly_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: MCFLY | Download latest release
       ansible.builtin.get_url:
@@ -69,9 +69,39 @@
         mode: "0750"
       diff: false
 
+    - name: MCFLY | Get shell init source
+      ansible.builtin.command:
+        cmd: "{{ xdg_dirs_local_bin }}/mcfly init {{ item }}"
+      changed_when: false
+      register: mcfly_shell_init
+      loop:
+        - bash
+        - zsh
+      loop_control:
+        label: "{{ item }}"
+
+    - name: MCFLY | Create shell init files
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/plugins/mcfly_init.sh"
+        mode: "0640"
+      loop: "{{ mcfly_shell_init.results }}"
+      diff: false
+      loop_control:
+        label: "{{ item.item }}"
   always:
     - name: MCFLY | Ensure tmp directory is absent
       ansible.builtin.file:
         dest: "{{ mcfly_tmp_dir.path }}"
         state: absent
       no_log: true
+
+- name: MCFLY | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/mcfly.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/mcfly.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh

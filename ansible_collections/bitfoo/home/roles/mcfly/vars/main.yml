@@ -1,4 +1,4 @@
-coreutils_mcfly_os_arch:
+mcfly_os_arch:
   Darwin:
     arm64: x86_64-apple-darwin
   Linux:
