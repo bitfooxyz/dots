@@ -38,6 +38,12 @@
       tags:
         - eza
 
+    - name: MCFLY | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.mcfly
+      tags:
+        - mcfly
+
     - name: BAT | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.bat
