@@ -6,14 +6,6 @@ coreutils_enable_nerdfonts: true
 # Force installation regardles of it is already installed
 coreutils_force_nerdfonts: false
 
-# Enable rye tasks
-coreutils_enable_rye: true
-
-# Enable aws_cli tasks
-coreutils_enable_aws_cli: true
-# Force installation regardles of it is already installed
-coreutils_force_aws_cli: false
-
 # Enable tealdeer tasks
 coreutils_enable_tealdeer: true
 # Force installation regardles of it is already installed

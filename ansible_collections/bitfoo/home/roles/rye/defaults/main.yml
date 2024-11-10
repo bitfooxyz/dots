@@ -1,6 +1,6 @@
 # Extra sources configuration
 # See: https://rye.astral.sh/guide/sources/#ssltls-verification
-coreutils_rye_config_sources: []
+rye_config_sources: []
   # - name: "pypi"
   #   url: "https://some.custom-url.com/foo/bar"
   #   username: "foo"
@@ -8,7 +8,7 @@ coreutils_rye_config_sources: []
 
 # Credentials file for publish command
 # See: https://rye.astral.sh/guide/publish/#publish
-coreutils_rye_publish_credentials: []
+rye_publish_credentials: []
   # - repository: "test-repository"
   #   repository-url: "https://some.custom-url.com/foo/bar"
   #   username: "foo"

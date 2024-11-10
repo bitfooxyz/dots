@@ -1,4 +1,4 @@
-coreutils_rye_os_arch:
+rye_os_arch:
   Darwin:
     arm64: aarch64-macos
   Linux:

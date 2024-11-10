@@ -1,6 +1,6 @@
 - name: RYE | Include vars files
   ansible.builtin.include_vars:
-    file: rye/main.yml
+    file: main.yml
 
 - name: RYE | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: RYE | Install
   when:
-    - rye_current_version == ""
+    - rye_current_version == "" or rye_force_install | bool
   block:
     - name: RYE | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: RYE | Set release full name
       ansible.builtin.set_fact:
-        rye_full_release_name: "rye-{{ coreutils_rye_os_arch[ansible_system][ansible_architecture] }}"
+        rye_full_release_name: "rye-{{ rye_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: RYE | Get checksum file
       ansible.builtin.uri:
@@ -120,14 +120,14 @@
 
 - name: RYE | Create config.toml
   ansible.builtin.template:
-    src: rye/config.toml.j2
+    src: config.toml.j2
     dest: "{{ ansible_user_dir }}/.rye/config.toml"
     mode: "0640"
   no_log: true
 
 - name: RYE | Create credentials file to store publish tokens
   ansible.builtin.template:
-    src: rye/credentials.j2
+    src: credentials.j2
     dest: "{{ ansible_user_dir }}/.rye/credentials"
     mode: "0640"
   no_log: true
