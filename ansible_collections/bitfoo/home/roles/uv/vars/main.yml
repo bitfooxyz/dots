@@ -1,0 +1,6 @@
+uv_os_arch:
+  Darwin:
+    arm64: aarch64-apple-darwin
+  Linux:
+    x86_64: x86_64-unknown-linux-gnu
+    aarch64: aarch64-unknown-linux-gnu

@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+{%- if uv_config != "" %}
+# UV configuration
+{{ uv_config }}
+{%- endif %}
+
+{%- if uv_extra_config != "" %}
+# UV extra configuration
+{{ uv_extra_config }}
+{%- endif %}

@@ -1,0 +1,144 @@
+- name: UV | Include vars files
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: UV | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/astral-sh/uv/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: uv_latest_release_json
+  check_mode: false
+
+- name: UV | Get current installed version
+  ansible.builtin.shell:
+    cmd: "set -eo pipefail; {{ xdg_dirs_local_bin }}/uv --no-config version | cut -d ' ' -f 2"
+  register: uv_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: UV | Register latest release version
+  ansible.builtin.set_fact:
+    uv_latest_version: "{{ uv_latest_release_json.json.tag_name }}"
+    uv_current_version: "{{ uv_current_version_cmd.stdout | default('') }}"
+
+- name: UV | Latest release version
+  ansible.builtin.debug:
+    var: uv_latest_version
+
+- name: UV | Current installed version
+  ansible.builtin.debug:
+    var: uv_current_version
+
+- name: UV | Install
+  when:
+    - uv_current_version != uv_latest_version or uv_force_install
+  block:
+    - name: UV | Create tmp directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: uv_
+      register: uv_tmp_dir
+      check_mode: false
+
+    - name: UV | Set release full name
+      ansible.builtin.set_fact:
+        uv_full_release_name: "uv-{{ uv_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: UV | Get checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/astral-sh/uv/releases/download/{{ uv_latest_version }}/{{ uv_full_release_name }}.tar.gz.sha256"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        return_content: true
+      register: uv_release_checksum
+      check_mode: false
+
+    - name: UV | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/astral-sh/uv/releases/download/{{ uv_latest_version }}/{{ uv_full_release_name }}.tar.gz"
+        dest: "{{ uv_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0660"
+        checksum: "sha256:{{ uv_release_checksum.content.split(' ')[0] }}"
+      check_mode: false
+      register: uv_downloaded_release
+
+    - name: UV | Unarchive downloaded latest release
+      ansible.builtin.unarchive:
+        src: "{{ uv_tmp_dir.path }}/{{ uv_full_release_name }}.tar.gz"
+        dest: "{{ uv_tmp_dir.path }}"
+      check_mode: false
+      register: uv_unarchived_release
+
+    - name: UV | Copy binary
+      ansible.builtin.copy:
+        src: "{{ uv_tmp_dir.path }}/{{ uv_full_release_name }}/{{ item }}"
+        dest: "{{ xdg_dirs_local_bin }}/{{ item }}"
+        mode: "0750"
+      diff: false
+      loop:
+        - uv
+        - uvx
+
+    - name: UV | Generate shell completion for uv
+      ansible.builtin.command:
+        cmd: "{{ uv_tmp_dir.path }}/{{ uv_full_release_name }}/uv --no-config generate-shell-completion {{ item }}"
+      register: uv_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+      loop_control:
+        label: "{{ item }}"
+
+    - name: UV | Copy shell completion for uv
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_uv.{{ item.item }}"
+        mode: "0640"
+      diff: false
+      loop: "{{ uv_shell_completions.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: UV | Generate shell completion for uvx
+      ansible.builtin.command:
+        cmd: "{{ uv_tmp_dir.path }}/{{ uv_full_release_name }}/uvx --no-config --generate-shell-completion {{ item }}"
+      register: uv_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+      loop_control:
+        label: "{{ item }}"
+
+    - name: UV | Copy shell completion for uvx
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_uvx.{{ item.item }}"
+        mode: "0640"
+      diff: false
+      loop: "{{ uv_shell_completions.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+  always:
+    - name: UV | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ uv_tmp_dir.path }}"
+        state: absent
+
+- name: UV | Create uv config dir
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/uv"
+    state: directory
+    mode: "0750"
+
+- name: UV | Create config.toml
+  ansible.builtin.template:
+    src: uv.toml.j2
+    dest: "{{ xdg_dirs_config }}/uv/uv.toml"
+    mode: "0640"
+  when: (uv_config != "" or uv_extra_config != "")
+  no_log: true

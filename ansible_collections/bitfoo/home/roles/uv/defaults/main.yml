@@ -1,0 +1,8 @@
+---
+uv_force_install: false
+# Configuration of uv.toml file
+uv_config: ""
+# Extra configuration of uv.toml file
+# use this for host/group specific configuration.
+# Gets appended after `uv_config` configuration
+uv_extra_config: ""
