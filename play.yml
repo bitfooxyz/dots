@@ -62,6 +62,12 @@
       tags:
         - glow
 
+    - name: LF | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.lf
+      tags:
+        - lf
+
     - name: COREUTILS | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.coreutils
