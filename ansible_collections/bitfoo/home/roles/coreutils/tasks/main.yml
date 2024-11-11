@@ -29,13 +29,6 @@
   tags:
     - zoxide
 
-- name: COREUTILS | Import sd tasks
-  ansible.builtin.import_tasks:
-    file: sd/main.yml
-  when: coreutils_enable_sd
-  tags:
-    - sd
-
 - name: COREUTILS | Import yq tasks
   ansible.builtin.import_tasks:
     file: yq/main.yml

@@ -1,4 +1,4 @@
-coreutils_fd_os_arch:
+fd_os_arch:
   Darwin:
     arm64: aarch64-apple-darwin
   Linux:

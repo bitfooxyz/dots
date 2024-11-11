@@ -1,6 +1,6 @@
 - name: SD | Include SD vars
   ansible.builtin.include_vars:
-    file: sd/main.yml
+    file: main.yml
 
 - name: SD | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: SD | Install or Upgrade sd
   when:
-    - sd_current_version != sd_latest_version or coreutils_force_sd
+    - sd_current_version != sd_latest_version or sd_force_install | bool
   block:
     - name: SD | Create tmp directory
       ansible.builtin.tempfile:
@@ -45,7 +45,7 @@
     - name: SD | Set release full name
       ansible.builtin.set_fact:
         sd_full_release_name: "sd-v{{ sd_latest_version }}-\
-                              {{ coreutils_fd_os_arch[ansible_system][ansible_architecture] }}"
+                              {{ fd_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: SD | Download latest release

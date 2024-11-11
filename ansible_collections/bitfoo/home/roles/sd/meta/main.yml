@@ -1,0 +1,14 @@
+
+galaxy_info:
+  author: Daniel von Essen
+  description: Installs and configures sd a faster sed alternative
+  issue_tracker_url: https://gitlab.com/bitfooxyz/dots/-/issues
+  license: MIT
+  min_ansible_version: "2.1"
+  galaxy_tags:
+    - sd
+    - sed
+
+dependencies:
+  - role: bitfoo.home.xdg_dirs
+
