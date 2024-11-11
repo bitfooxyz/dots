@@ -77,3 +77,15 @@
     src: config.toml
     dest: "{{ xdg_dirs_config }}/tealdeer/config.toml"
     mode: "0640"
+
+- name: TEALDEER | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/tealdeer.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/tealdeer.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh
+  loop_control:
+    label: "{{ item }}"
