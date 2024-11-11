@@ -1,0 +1,6 @@
+nerdfonts_packages:
+  - fontconfig
+  - gnu-tar
+  - xz
+
+nerdfonts_fonts_directory: "{{ ansible_user_dir }}/Library/Fonts/nerdfonts"

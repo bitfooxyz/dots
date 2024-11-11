@@ -1,3 +1,0 @@
-- name: COREUTILS | Import nerdfonts hanlders
-  ansible.builtin.import_tasks:
-    file: nerdfonts/main.yml

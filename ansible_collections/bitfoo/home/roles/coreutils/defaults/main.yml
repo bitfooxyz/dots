@@ -1,11 +1,6 @@
 # Enable git tasks
 coreutils_enable_coreutils: true
 
-# Enable nerdfonts tasks
-coreutils_enable_nerdfonts: true
-# Force installation regardles of it is already installed
-coreutils_force_nerdfonts: false
-
 # Enable tealdeer tasks
 coreutils_enable_tealdeer: true
 # Force installation regardles of it is already installed
