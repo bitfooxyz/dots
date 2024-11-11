@@ -25,3 +25,7 @@ galaxy_info:
     - zsh
     - bash
     - coreutils
+
+dependencies:
+  - role: geerlingguy.mac.homebrew
+    when: ansible_system == "Darwin"
