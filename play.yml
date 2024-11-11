@@ -32,6 +32,12 @@
       tags:
         - ripgrep
 
+    - name: YQ | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.yq
+      tags:
+        - yq
+
     - name: TEASLDEER | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.tealdeer
