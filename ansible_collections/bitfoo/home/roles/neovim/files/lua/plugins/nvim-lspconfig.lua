@@ -168,6 +168,7 @@ return {
                   reportUnknownMemberType = false,
                   reportMissingTypeStubs = false,
                   reportUnusedCallResult = false,
+                  reportUnannotatedClassAttribute = false,
                 },
               },
             },
