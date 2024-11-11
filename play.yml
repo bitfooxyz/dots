@@ -32,6 +32,12 @@
       tags:
         - mmv
 
+    - name: NERDFONTS | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.nerdfonts
+      tags:
+        - nerdfonts
+
     - name: LAZYGIT | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.lazygit
