@@ -1,4 +1,4 @@
-coreutils_mmv_os_arch:
+mmv_os_arch:
   Darwin:
     arm64: darwin_arm64
   Linux:

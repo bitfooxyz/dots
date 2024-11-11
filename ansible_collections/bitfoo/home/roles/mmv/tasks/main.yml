@@ -1,6 +1,6 @@
 - name: MMV | Include mmv vars
   ansible.builtin.include_vars:
-    file: mmv/main.yml
+    file: main.yml
 
 - name: MMV | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: MMV | Install or Upgrade mmv
   when:
-    - mmv_current_version != mmv_latest_version or coreutils_force_mmv
+    - mmv_current_version != mmv_latest_version or mmv_force_install | bool
   block:
     - name: MMV | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: MMV | Set release full name
       ansible.builtin.set_fact:
-        mmv_full_release_name: "mmv_v{{ mmv_latest_version }}_{{ coreutils_mmv_os_arch[ansible_system][ansible_architecture] }}"
+        mmv_full_release_name: "mmv_v{{ mmv_latest_version }}_{{ mmv_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: MMV | Get latest release
       ansible.builtin.get_url:
