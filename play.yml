@@ -32,6 +32,12 @@
       tags:
         - ripgrep
 
+    - name: TEASLDEER | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.tealdeer
+      tags:
+        - tealdeer
+
     - name: SD | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.sd
