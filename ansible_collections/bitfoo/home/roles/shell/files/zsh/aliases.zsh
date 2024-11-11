@@ -61,11 +61,6 @@ _sysupgrade() {
 }
 alias sysupgrade=_sysupgrade
 
-# Alias grep with ripgrep to have a better grep tool.
-if command -v rg &> /dev/null; then
-    alias grep="rg"
-fi
-
 if command -v btop &> /dev/null; then
     alias top=btop
 fi
