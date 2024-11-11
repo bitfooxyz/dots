@@ -14,10 +14,3 @@
   when: coreutils_enable_coreutils
   tags:
     - coreutils
-
-- name: COREUTILS | Import zoxide tasks
-  ansible.builtin.import_tasks:
-    file: zoxide/main.yml
-  when: coreutils_enable_zoxide
-  tags:
-    - zoxide

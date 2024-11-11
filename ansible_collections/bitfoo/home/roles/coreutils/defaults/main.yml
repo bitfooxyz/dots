@@ -1,7 +1,2 @@
 # Enable git tasks
 coreutils_enable_coreutils: true
-
-# Enable zoxide tasks
-coreutils_enable_zoxide: true
-# Force installation regardles of it is already installed
-coreutils_force_zoxide: false

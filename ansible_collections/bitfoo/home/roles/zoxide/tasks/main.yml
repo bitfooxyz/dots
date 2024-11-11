@@ -1,6 +1,6 @@
 - name: ZOXIDE | Include zoxide vars
   ansible.builtin.include_vars:
-    file: zoxide/main.yml
+    file: main.yml
 
 - name: ZOXIDE | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: ZOXIDE | Install or Upgrade zoxide
   when:
-    - zoxide_current_version != zoxide_latest_version or coreutils_force_zoxide
+    - zoxide_current_version != zoxide_latest_version or zoxide_force_install | bool
   block:
     - name: ZOXIDE | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: ZOXIDE | Set release full name
       ansible.builtin.set_fact:
-        zoxide_full_release_name: "zoxide-{{ zoxide_latest_version }}-{{ coreutils_zoxide_os_arch[ansible_system][ansible_architecture] }}"
+        zoxide_full_release_name: "zoxide-{{ zoxide_latest_version }}-{{ zoxide_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: ZOXIDE | Download latest release
@@ -82,6 +82,27 @@
         src: "{{ zoxide_tmp_dir.path }}/man/man1"
         dest: "{{ xdg_dirs_local_share_man }}"
         mode: "0750"
+
+    - name: ZOXIDE | Get shell init source
+      ansible.builtin.command:
+        cmd: "{{ xdg_dirs_local_bin }}/zoxide init {{ item }} --cmd cd"
+      changed_when: false
+      register: zoxide_shell_init
+      loop:
+        - bash
+        - zsh
+      loop_control:
+        label: "{{ item }}"
+
+    - name: ZOXIDE | Create shell init files
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/plugins/zoxide_init.sh"
+        mode: "0640"
+      loop: "{{ zoxide_shell_init.results }}"
+      diff: false
+      loop_control:
+        label: "{{ item.item }}"
   always:
     - name: ZOXIDE | Ensure tmp directory is absent
       ansible.builtin.file:
