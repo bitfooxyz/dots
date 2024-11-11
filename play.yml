@@ -68,6 +68,12 @@
       tags:
         - lazygit
 
+    - name: ZOXIDE | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.zoxide
+      tags:
+        - zoxide
+
     - name: EZA | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.eza
