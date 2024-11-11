@@ -52,10 +52,6 @@ if command -v jq &> /dev/null; then
     export JQ_COLORS="1;30:0;37:0;37:0;37:0;32:1;37:1;37"
 fi
 
-if command -v tealdeer &> /dev/null; then
-    export TEALDEER_CONFIG_DIR="$XDG_CONFIG_HOME/tealdeer"
-fi
-
 if command -v mc &> /dev/null; then
     # set minio_client configuration directory
     export MC_CONFIG_DIR=~/.config/mc
