@@ -26,6 +26,12 @@
       tags:
         - git_cliff
 
+    - name: MMV | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.mmv
+      tags:
+        - mmv
+
     - name: LAZYGIT | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.lazygit
