@@ -26,6 +26,12 @@
       tags:
         - git_cliff
 
+    - name: RIPGREP | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.ripgrep
+      tags:
+        - ripgrep
+
     - name: MMV | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.mmv
