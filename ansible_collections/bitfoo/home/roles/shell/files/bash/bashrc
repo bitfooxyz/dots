@@ -48,8 +48,3 @@ if [[ -d $XDG_CONFIG_HOME/bash/plugins ]]; then
     source "$file"
   done
 fi
-
-# Enable zoxide better cd command
-if command -v zoxide  &> /dev/null; then
-  eval "$(zoxide init bash --cmd cd)"
-fi

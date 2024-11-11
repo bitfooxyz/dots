@@ -63,7 +63,3 @@ fi
 if [ -f $HOME/.rye/env ]; then
   source "$HOME/.rye/env"
 fi
-
-if command -v zoxide &> /dev/null; then
-  eval "$(zoxide init zsh --cmd cd)"
-fi
