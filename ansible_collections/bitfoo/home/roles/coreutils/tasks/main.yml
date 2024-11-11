@@ -21,10 +21,3 @@
   when: coreutils_enable_zoxide
   tags:
     - zoxide
-
-- name: COREUTILS | Import yq tasks
-  ansible.builtin.import_tasks:
-    file: yq/main.yml
-  when: coreutils_enable_yq
-  tags:
-    - yq

@@ -1,6 +1,6 @@
 - name: YQ | Include yq vars
   ansible.builtin.include_vars:
-    file: yq/main.yml
+    file: main.yml
 
 - name: YQ | Get latest version
   ansible.builtin.uri:
@@ -31,7 +31,7 @@
 
 - name: YQ | Install or Upgrade yq
   when:
-    - yq_current_version != yq_latest_version or coreutils_force_yq
+    - yq_current_version != yq_latest_version or yq_force_install | bool
   block:
     - name: YQ | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: YQ | Set release full name
       ansible.builtin.set_fact:
-        yq_full_release_name: "yq_{{ coreutils_yq_os_arch[ansible_system][ansible_architecture] }}"
+        yq_full_release_name: "yq_{{ yq_os_arch[ansible_system][ansible_architecture] }}"
       check_mode: false
 
     - name: YQ | Download latest release

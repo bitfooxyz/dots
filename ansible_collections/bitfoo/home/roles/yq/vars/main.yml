@@ -1,4 +1,4 @@
-coreutils_yq_os_arch:
+yq_os_arch:
   Darwin:
     arm64: darwin_arm64
   Linux:

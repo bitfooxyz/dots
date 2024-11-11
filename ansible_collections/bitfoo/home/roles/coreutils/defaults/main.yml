@@ -5,8 +5,3 @@ coreutils_enable_coreutils: true
 coreutils_enable_zoxide: true
 # Force installation regardles of it is already installed
 coreutils_force_zoxide: false
-
-# Enable sd tasks
-coreutils_enable_yq: true
-# Force installation regardles of it is already installed
-coreutils_force_yq: false
