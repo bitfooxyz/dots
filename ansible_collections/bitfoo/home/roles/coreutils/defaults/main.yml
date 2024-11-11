@@ -1,11 +1,6 @@
 # Enable git tasks
 coreutils_enable_coreutils: true
 
-# Enable tealdeer tasks
-coreutils_enable_tealdeer: true
-# Force installation regardles of it is already installed
-coreutils_force_tealdeer: false
-
 # Enable zoxide tasks
 coreutils_enable_zoxide: true
 # Force installation regardles of it is already installed

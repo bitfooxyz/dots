@@ -1,6 +1,6 @@
 - name: TEALDEER  | Include tealdeer vars
   ansible.builtin.include_vars:
-    file: tealdeer/main.yml
+    file: main.yml
 
 - name: TEALDEER | Get latest version
   ansible.builtin.uri:
@@ -32,11 +32,11 @@
 
 - name: TEALDEER | Install or Upgrade tealdeer
   when:
-    - tealdeer_current_version != tealdeer_latest_version or coreutils_force_tealdeer
+    - tealdeer_current_version != tealdeer_latest_version or tealdeer_force_install | bool
   block:
     - name: TEALDEER | Set release full name
       ansible.builtin.set_fact:
-        tealdeer_full_release_name: "tealdeer-{{ coreutils_tealdeer_os_arch[ansible_system][ansible_architecture] }}"
+        tealdeer_full_release_name: "tealdeer-{{ tealdeer_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: TEALDEER | Get checksum
       ansible.builtin.uri:
@@ -74,6 +74,6 @@
 
 - name: TEALDEER | Copy configuration file
   ansible.builtin.copy:
-    src: tealdeer/config.toml
+    src: config.toml
     dest: "{{ xdg_dirs_config }}/tealdeer/config.toml"
     mode: "0640"
