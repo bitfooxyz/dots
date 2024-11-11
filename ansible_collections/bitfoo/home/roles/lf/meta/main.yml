@@ -15,4 +15,5 @@ dependencies:
   - role: bitfoo.home.glow
   - role: bitfoo.home.bat
   - role: bitfoo.home.mmv
+  - role: bitfoo.home.zoxide
 
