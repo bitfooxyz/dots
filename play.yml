@@ -32,6 +32,12 @@
       tags:
         - ripgrep
 
+    - name: SD | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.sd
+      tags:
+        - sd
+
     - name: MMV | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.mmv
