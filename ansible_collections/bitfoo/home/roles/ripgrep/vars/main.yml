@@ -1,4 +1,4 @@
-coreutils_ripgrep_os_arch:
+ripgrep_os_arch:
   Darwin:
     arm64: aarch64-apple-darwin
   Linux:

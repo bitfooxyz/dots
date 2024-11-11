@@ -1,6 +1,6 @@
 - name: RIPGREP | Include ripgrep vars
   ansible.builtin.include_vars:
-    file: ripgrep/main.yml
+    file: main.yml
 
 - name: RIPGREP | Get latest version
   ansible.builtin.uri:
@@ -32,7 +32,7 @@
 
 - name: RIPGREP | Install or Upgrade ripgrep
   when:
-    - ripgrep_current_version != ripgrep_latest_version or coreutils_force_ripgrep
+    - ripgrep_current_version != ripgrep_latest_version or ripgrep_force_install | bool
   block:
     - name: RIPGREP | Create tmp directory
       ansible.builtin.tempfile:
@@ -43,7 +43,7 @@
 
     - name: RIPGREP | Set release full name
       ansible.builtin.set_fact:
-        ripgrep_full_release_name: "ripgrep-{{ ripgrep_latest_version }}-{{ coreutils_ripgrep_os_arch[ansible_system][ansible_architecture] }}"
+        ripgrep_full_release_name: "ripgrep-{{ ripgrep_latest_version }}-{{ ripgrep_os_arch[ansible_system][ansible_architecture] }}"
 
     - name: RIPGREP | Get checksum
       ansible.builtin.uri:
