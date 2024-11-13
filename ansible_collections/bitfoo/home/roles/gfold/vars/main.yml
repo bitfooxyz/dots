@@ -1,0 +1,5 @@
+gfold_os_arch:
+  Darwin:
+    arm64: darwin-amd64
+  Linux:
+    x86_64: linux-gnu-amd64

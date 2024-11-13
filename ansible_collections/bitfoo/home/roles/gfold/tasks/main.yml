@@ -1,0 +1,68 @@
+- name: GFOLD | Include gfold vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: GFOLD | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/nickgerace/gfold/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: gfold_latest_release_json
+  check_mode: false
+
+- name: GFOLD | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/gfold --version"
+  register: gfold_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: GFOLD | Register latest release version
+  ansible.builtin.set_fact:
+    gfold_latest_version: "{{ gfold_latest_release_json.json.tag_name }}"
+    gfold_current_version: "{{ gfold_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: GFOLD | Latest release version
+  ansible.builtin.debug:
+    var: gfold_latest_version
+
+- name: GFOLD | Current installed version
+  ansible.builtin.debug:
+    var: gfold_current_version
+
+- name: GFOLD | Install or Upgrade gfold
+  when:
+    - gfold_current_version != gfold_latest_version or gfold_force_install | bool
+  block:
+    - name: GFOLD | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: gfold_
+        state: directory
+      register: gfold_tmp_dir
+      check_mode: false
+
+    - name: GFOLD | Set release full name
+      ansible.builtin.set_fact:
+        gfold_full_release_name: "gfold-{{ gfold_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: GFOLD | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/nickgerace/gfold/releases/download/{{ gfold_latest_version }}/{{ gfold_full_release_name }}"
+        dest: "{{ xdg_dirs_local_bin }}/gfold"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0750"
+      check_mode: false
+      register: gfold_downloaded_release
+  always:
+    - name: GFOLD | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ gfold_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: GFOLD | Link configuration file
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/gfold.toml"
+    dest: "{{ xdg_dirs_config }}/gfold.toml"
+    state: link
+    force: true
