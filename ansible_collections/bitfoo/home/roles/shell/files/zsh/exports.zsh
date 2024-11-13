@@ -1,5 +1,3 @@
-# Append path with users local bin dir
-export PATH=~/.local/bin:$PATH
 # History
 export HISTSIZE=100000      # Nearly infinite history; essential to building a cli 'library' to use with fzf/etc
 export SAVEHIST=100000
