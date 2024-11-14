@@ -127,15 +127,24 @@
     state: directory
     mode: "0750"
 
-- name: AWS-CLI | Ensure configuration is present
+- name: AWS-CLI | Create .aws/config file
   ansible.builtin.copy:
-    src: "{{ item }}"
-    dest: "{{ ansible_user_dir }}/.aws/{{ item }}"
+    content: |
+      # Ansible managed
+      {{ aws_cli_config }}
+      {{ aws_cli_extra_config }}
+    dest: "{{ ansible_user_dir }}/.aws/config"
+    mode: "0600"
+
+- name: AWS-CLI | Create .aws/credentials file
+  ansible.builtin.copy:
+    content: |
+      # Ansible managed
+      {{ aws_cli_credentials }}
+      {{ aws_cli_extra_credentials }}
+    dest: "{{ ansible_user_dir }}/.aws/credentials"
     mode: "0600"
   no_log: true
-  loop:
-    - config
-    - credentials
 
 - name: AWS-CLI | Link shell plugin
   ansible.builtin.file:

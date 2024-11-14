@@ -2,3 +2,45 @@
 # Force installation regardles of it is already installed
 aws_cli_force_install: false
 
+# This variable is used to define the primary AWS CLI configuration options.
+# It typically includes settings such as the region, output format, or any
+# other configurations specific to the AWS CLI.
+# aws_cli_config: |
+#   [default]
+#   region = us-west-2
+#   output = json
+aws_cli_config: ""
+
+# Allows for additional configuration settings for the AWS CLI beyond the
+# default profile. This is useful for setting up multiple profiles or adding
+# extra sections in the AWS config file.
+# aws_cli_extra_config: |
+#   [profile dev]
+#   region = us-east-1
+#   output = text
+#
+#   [profile staging]
+#   region = eu-central-1
+#   output = yaml
+aws_cli_extra_config: ""
+
+# Specifies the main AWS CLI credentials, such as the access key and secret key.
+# This corresponds to the [default] section in the ~/.aws/credentials file.
+# aws_cli_credentials: |
+#   [default]
+#   aws_access_key_id = YOUR_ACCESS_KEY_ID
+#   aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+aws_cli_credentials: ""
+
+# Defines additional credentials for multiple profiles or services.
+# Useful for managing separate sets of credentials for different environments
+# or services within the ~/.aws/credentials file.
+# aws_cli_extra_credentials: |
+#   [dev]
+#   aws_access_key_id = DEV_ACCESS_KEY_ID
+#   aws_secret_access_key = DEV_SECRET_ACCESS_KEY
+#
+#   [staging]
+#   aws_access_key_id = STAGING_ACCESS_KEY_ID
+#   aws_secret_access_key = STAGING_SECRET_ACCESS_KEY
+aws_cli_extra_credentials: ""
