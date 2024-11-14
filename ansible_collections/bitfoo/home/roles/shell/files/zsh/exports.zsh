@@ -60,3 +60,7 @@ if [ -x /opt/homebrew/bin/brew ]; then
 elif [ -x /usr/local/bin/brew ]; then
     eval "$(/usr/local/bin/brew shellenv)"
 fi
+
+# Exporting this as the last line ensures that
+# the path is the first occurence in $PATH
+export PATH=~/.local/bin:$PATH
