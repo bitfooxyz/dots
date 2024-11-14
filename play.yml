@@ -26,6 +26,12 @@
       tags:
         - gfold
 
+    - name: GHORG | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.ghorg
+      tags:
+        - ghorg
+
     - name: GIT_CLIFF | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.git_cliff
