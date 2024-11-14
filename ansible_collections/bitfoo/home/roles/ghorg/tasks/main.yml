@@ -1,0 +1,145 @@
+- name: GHORG | Include ghorg vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: GHORG | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/gabrie30/ghorg/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: ghorg_latest_release_json
+  check_mode: false
+
+- name: GHORG | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/ghorg version"
+  register: ghorg_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: GHORG | Register latest release version
+  ansible.builtin.set_fact:
+    ghorg_latest_version: "{{ ghorg_latest_release_json.json.tag_name.split('v')[1] }}"
+    ghorg_current_version: "{{ ghorg_current_version_cmd.stdout.split('v')[1] | default('') }}"
+
+- name: GHORG | Latest release version
+  ansible.builtin.debug:
+    var: ghorg_latest_version
+
+- name: GHORG | Current installed version
+  ansible.builtin.debug:
+    var: ghorg_current_version
+
+- name: GHORG | Install or Upgrade ghorg
+  when:
+    - ghorg_current_version != ghorg_latest_version or ghorg_force_install | bool
+  block:
+    - name: GHORG | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: ghorg_
+        state: directory
+      register: ghorg_tmp_dir
+      check_mode: false
+
+    - name: GHORG | Set release full name
+      ansible.builtin.set_fact:
+        ghorg_full_release_name: "ghorg_{{ ghorg_latest_version }}_{{ ghorg_os_arch[ansible_system][ansible_architecture] }}"
+
+    - name: GHORG | Download checksum file
+      ansible.builtin.uri:
+        url: "https://github.com/gabrie30/ghorg/releases/download/\
+              v{{ ghorg_latest_version }}/checksums.txt"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        return_content: true
+      check_mode: false
+      register: ghorg_checksums
+
+    - name: GHORG | Set checksum for system and architecture archive
+      ansible.builtin.set_fact:
+        ghorg_file_checksum: "{{ ghorg_checksums.content | regex_findall('.*' + ghorg_full_release_name + '.tar.gz') | first | split(' ') | first }}"
+      check_mode: false
+
+    - name: GHORG | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/gabrie30/ghorg/releases/download/v{{ ghorg_latest_version }}/{{ ghorg_full_release_name }}.tar.gz"
+        dest: "{{ ghorg_tmp_dir.path }}/"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0640"
+        checksum: "sha256:{{ ghorg_file_checksum }}"
+      check_mode: false
+      register: ghorg_downloaded_release
+
+    - name: GHORG | Unarchive downloaded latest release
+      ansible.builtin.unarchive:
+        src: "{{ ghorg_tmp_dir.path }}/{{ ghorg_full_release_name }}.tar.gz"
+        dest: "{{ ghorg_tmp_dir.path }}"
+      check_mode: false
+      register: stern_unarchived_release
+
+    - name: GHORG | Copy binary
+      ansible.builtin.copy:
+        src: "{{ ghorg_tmp_dir.path }}/ghorg"
+        dest: "{{ xdg_dirs_local_bin }}/ghorg"
+        mode: "0750"
+      diff: false
+
+    - name: GHORG | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ ghorg_tmp_dir.path }}/ghorg completion {{ item }}"
+      register: ghorg_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: GHORG | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_ghorg.{{ item.item }}"
+        mode: "0640"
+      diff: false
+      loop: "{{ ghorg_shell_completions.results }}"
+      loop_control:
+        label: "Completion for {{ item.item }}"
+  always:
+    - name: GHORG | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ ghorg_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: GHORG | Link shell plugin
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/ghorg.sh"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/ghorg.sh"
+    state: link
+    force: true
+  loop:
+    - bash
+    - zsh
+
+- name: GHORG | Create configuration directory
+  ansible.builtin.file:
+    dest: "{{ xdg_dirs_config }}/ghorg"
+    mode: "0750"
+    state: directory
+
+- name: GHORG | Link configuration file
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/conf.yaml"
+    dest: "{{ xdg_dirs_config }}/ghorg/conf.yaml"
+    state: link
+    force: true
+
+- name: GHORG | Create reclone configuration
+  ansible.builtin.template:
+    src: reclone.yaml.j2
+    dest: "{{ xdg_dirs_config }}/ghorg/reclone.yaml"
+    mode: "0600"
+
+- name: GHORG | Ensure ghorg_clone_dir directory exists
+  ansible.builtin.file:
+    dest: "{{ ghorg_clone_dir }}"
+    state: directory
+    mode: "0750"

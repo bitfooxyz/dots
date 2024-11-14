@@ -1,0 +1,10 @@
+---
+ghorg_force_install: false
+
+# Configuration file for the 'ghorg' tool (e.g., cloning repositories)
+ghorg_reclone_config: {}  # Path to the configuration file for ghorg.
+# Extra configuration gets appended to `ghorg_reclone_config`
+ghorg_reclone_extra_config: {}
+
+ghorg_clone_dir: "{{ ansible_user_dir }}/git"
+

@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+
+# |G|H|O|R|G| |R|E|C|L|O|N|E|
+# +-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+{% for key, values in ghorg_reclone_config | items %}
+{{ key }}:
+  cmd: {{ values.cmd }}{% if "--path" not in values.cmd %} --path {{ ghorg_clone_dir }}{% endif +%}
+  description: {{ values.description | default("") }}
+{% endfor %}
+
+# Extra configuration
+{%for key, values in ghorg_reclone_extra_config | items %}
+{{ key }}:
+  cmd: {{ values.cmd }}{% if "--path" not in values.cmd %} --path {{ ghorg_clone_dir }}{% endif +%}
+  description: {{ values.description | default("") }}
+{% endfor %}
