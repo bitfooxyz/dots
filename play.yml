@@ -20,6 +20,12 @@
       tags:
         - git_delta
 
+    - name: GFOLD | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.gfold
+      tags:
+        - gfold
+
     - name: GIT_CLIFF | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.git_cliff
