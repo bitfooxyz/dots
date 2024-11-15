@@ -254,6 +254,12 @@
       tags:
         - wezterm
 
+    - name: SSH_CLIENT | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.ssh_client
+      tags:
+        - ssh_client
+
     - name: NEOVIM | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.neovim
