@@ -1,0 +1,9 @@
+if [ -n "$ZSH_VERSION" ]; then
+  eval "$(~/.local/bin/fnm env --shell zsh)"
+elif [ -n "$BASH_VERSION" ]; then
+  eval "$(~/.local/bin/fnm env --shell bash)"
+fi
+
+{% if fnm_node_dist_mirror %}
+export FNM_NODE_DIST_MIRROR="{{ fnm_node_dist_mirror }}"
+{% endif %}

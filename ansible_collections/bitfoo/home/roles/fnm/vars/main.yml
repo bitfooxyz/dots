@@ -1,0 +1,6 @@
+fd_os_arch:
+  Darwin:
+    arm64: macos
+  Linux:
+    x86_64: linux
+    aarch64: arm64

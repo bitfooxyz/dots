@@ -1,0 +1,105 @@
+- name: FNM | Include FNM vars
+  ansible.builtin.include_vars:
+    file: main.yml
+
+- name: FNM | Get latest version
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/schniz/fnm/releases/latest
+    headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+  register: fnm_latest_release_json
+  check_mode: false
+
+- name: FNM | Get current installed version
+  ansible.builtin.command:
+    cmd: "{{ xdg_dirs_local_bin }}/fnm --version"
+  register: fnm_current_version_cmd
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: FNM | Register latest release version
+  ansible.builtin.set_fact:
+    fnm_latest_version: "{{ fnm_latest_release_json.json.tag_name.split('v')[1] }}"
+    fnm_current_version: "{{ fnm_current_version_cmd.stdout.split(' ')[1] | default('') }}"
+
+- name: FNM | Latest release version
+  ansible.builtin.debug:
+    var: fnm_latest_version
+
+- name: FNM | Current installed version
+  ansible.builtin.debug:
+    var: fnm_current_version
+
+- name: FNM | Install or Upgrade fnm
+  when:
+    - fnm_current_version != fnm_latest_version or fnm_force_install | bool
+  block:
+    - name: FNM | Create tmp directory
+      ansible.builtin.tempfile:
+        prefix: fnm_
+        state: directory
+      register: fnm_tmp_dir
+      changed_when: false
+      check_mode: false
+
+    - name: FNM | Set release full name
+      ansible.builtin.set_fact:
+        fnm_full_release_name: "fnm-{{ fd_os_arch[ansible_system][ansible_architecture] }}"
+      check_mode: false
+
+    - name: FNM | Download latest release
+      ansible.builtin.get_url:
+        url: "https://github.com/schniz/fnm/releases/download/\
+              v{{ fnm_latest_version }}/{{ fnm_full_release_name }}.zip"
+        dest: "{{ fnm_tmp_dir.path }}"
+        headers: "{{ github_api_headers | to_json(vault_to_text=true) }}"
+        mode: "0640"
+      check_mode: false
+      register: fnm_downloaded_release
+
+    - name: FNM | Unzip binary archive
+      ansible.builtin.unarchive:
+        src: "{{ fnm_tmp_dir.path }}/{{ fnm_full_release_name }}.zip"
+        dest: "{{ fnm_tmp_dir.path }}"
+      check_mode: false
+
+    - name: FNM | Copy binary
+      ansible.builtin.copy:
+        src: "{{ fnm_tmp_dir.path }}/fnm"
+        dest: "{{ xdg_dirs_local_bin }}/fnm"
+        mode: "0750"
+
+    - name: FNM | Generate shell completion
+      ansible.builtin.command:
+        cmd: "{{ fnm_tmp_dir.path }}/fnm completions --shell {{ item }}"
+      register: fnm_shell_completions
+      changed_when: false
+      check_mode: false
+      loop:
+        - bash
+        - zsh
+
+    - name: FNM | Copy shell completion
+      ansible.builtin.copy:
+        content: "{{ item.stdout }}"
+        dest: "{{ xdg_dirs_config }}/{{ item.item }}/completions/_fnm.{{ item.item }}"
+        mode: "0640"
+      diff: false
+      loop: "{{ fnm_shell_completions.results }}"
+      loop_control:
+        label: "Completion for {{ item.item }}"
+  always:
+    - name: FNM | Ensure tmp directory is absent
+      ansible.builtin.file:
+        dest: "{{ fnm_tmp_dir.path }}"
+        state: absent
+      no_log: true
+
+- name: FNM | Create shell plugin
+  ansible.builtin.template:
+    src: "fnm.sh.j2"
+    dest: "{{ xdg_dirs_config }}/{{ item }}/plugins/fnm.sh"
+    mode: "0750"
+  loop:
+    - bash
+    - zsh

@@ -1,0 +1,5 @@
+---
+fnm_force_install: false
+
+# Set node_dist_mirror to different URL
+fnm_node_dist_mirror: ""
