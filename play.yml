@@ -146,6 +146,12 @@
       tags:
         - uv
 
+    - name: FNM | Import role
+      ansible.builtin.import_role:
+        name: bitfoo.home.fnm
+      tags:
+        - fnm
+
     - name: AWS_CLI | Import role
       ansible.builtin.import_role:
         name: bitfoo.home.aws_cli
