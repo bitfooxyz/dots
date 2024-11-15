@@ -6,3 +6,4 @@ neovim_packages:
   - nodejs
   - gcc
   - gcc-c++
+  - xclip
