@@ -1,0 +1,28 @@
+---
+# Client-specific SSH configuration that is included in `~/.ssh/config`
+# The variables `ssh_client_config` and `ssh_client_extra_config` allow for managing
+# SSH client settings and customizing configurations for each host as needed.
+ssh_client_config: ""
+# ssh_client_config: |
+#   Host github.com
+#     User git
+#     IdentityFile ~/.ssh/id_rsa
+#     Port 22
+#     ForwardAgent yes
+ssh_client_extra_config: ""
+
+# This variable, `ssh_client_keys`, is used to manage and deploy SSH keys on target systems.
+# It contains a dictionary where each entry represents an SSH key pair by its filename.
+#
+# Example structure:
+#
+# ssh_client_keys:
+#   my_ssh_key:
+#     private: |
+#       -----BEGIN OPENSSH PRIVATE KEY-----
+#       <private_key_content>
+#       -----END OPENSSH PRIVATE KEY-----
+#     public: |
+#       ssh-rsa AAAAB3Nza... <public_key_content> user@example.comssh_client_keys: {}
+ssh_client_keys: {}
+

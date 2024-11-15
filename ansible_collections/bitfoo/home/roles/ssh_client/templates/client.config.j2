@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+
+# SSH client config
+
+{% if ssh_client_config %}
+{{ ssh_client_config }}
+{% endif %}
+
+{% if ssh_client_extra_config %}
+{{ ssh_client_extra_config }}
+{% endif %}
