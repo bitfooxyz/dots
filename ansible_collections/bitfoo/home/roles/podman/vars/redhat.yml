@@ -1,5 +1,5 @@
 podman_desktop_packages:
-  - podman-desktop
+  - io.podman_desktop.PodmanDesktop
 
 podman_packages:
   - podman
