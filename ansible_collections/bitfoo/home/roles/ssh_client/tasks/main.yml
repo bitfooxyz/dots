@@ -11,6 +11,7 @@
   ansible.builtin.package:
     name: "{{ ssh_client_packages }}"
     state: present
+  become: true
   when: ansible_system == "Linux"
 
 - name: SSH_CLIENT | Install ssh-client on MacOS
