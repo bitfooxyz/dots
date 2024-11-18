@@ -20,12 +20,6 @@
     state: present
   when: ansible_system == "Darwin"
 
-- name: PODMAN | Create configuration directory
-  ansible.builtin.file:
-    path: "{{ xdg_dirs_config }}/containers"
-    state: directory
-    mode: "0755"
-
 - name: PODMAN | Install podman-desktop
   when: podman_enable_podman_desktop
   block:
@@ -47,3 +41,38 @@
   loop:
     - docker_credential_helper.yml
     - ecr_credential_helper.yml
+
+- name: PODMAN | Ensure Podman auth directory exists
+  ansible.builtin.file:
+    path: "{{ xdg_dirs_config }}/containers"
+    state: directory
+    mode: "0755"
+
+- name: PODMAN | Setup credentials
+  when: podman_auth_updates
+  block:
+    - name: PODMAN | Check if auth.json exists
+      ansible.builtin.stat:
+        path: "{{ xdg_dirs_config }}/containers/auth.json"
+      register: podman_auth_json_stat
+
+    - name: PODMAN | Read existing auth.json
+      ansible.builtin.slurp:
+        path: "{{ xdg_dirs_config }}/containers/auth.json"
+      register: podman_auth_json
+      when: podman_auth_json_stat.stat.exists | bool
+
+    - name: PODMAN | Decode the base64-encoded auth.json content
+      ansible.builtin.set_fact:
+        podman_auth_data: "{{ podman_auth_json.content | b64decode | from_json }}"
+      when: podman_auth_json_stat.stat.exists
+
+    - name: PODMAN | Add credHelpers to the auth.json data
+      ansible.builtin.set_fact:
+        podman_updated_auth_data: "{{ podman_auth_data | default({}) | combine(podman_auth_updates, recursive=True) }}"
+
+    - name: PODMAN | Write updated auth.json
+      ansible.builtin.copy:
+        dest: "{{ xdg_dirs_config }}/containers/auth.json"
+        content: "{{ podman_updated_auth_data | to_json }}"
+        mode: "0600"

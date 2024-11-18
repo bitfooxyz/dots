@@ -1,3 +1,16 @@
 ---
 podman_enable_podman_desktop: true
 podman_force_docker_ecr_credential_helper_install: false
+
+# Variable for updating the Podman auth.json file with arbitrary data structures.
+# Supports updates to 'auths', 'credHelpers', and any custom sections.
+# podman_auth_updates:
+#   auths:
+#     "registry.gitlab.com":
+#       auth: "bXl1c2VybmFtZTpteXBhc3N3b3Jk"
+#     "1234567890.dkr.ecr.eu-central-1.amazonaws.com":
+#       auth: "bXl1c2VybmFtZTpteXBhc3N3b3Jk"
+#   credHelpers:
+#     "507245225126.dkr.ecr.eu-central-1.amazonaws.com": "ecr-login"
+#     "592443374015.dkr.ecr.eu-central-1.amazonaws.com": "ecr-login"
+podman_auth_updates: {}
