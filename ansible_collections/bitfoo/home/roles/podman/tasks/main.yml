@@ -67,9 +67,13 @@
         podman_auth_data: "{{ podman_auth_json.content | b64decode | from_json }}"
       when: podman_auth_json_stat.stat.exists
 
+    - name: PODMAN | Decrypt the encrypted podman auth updates var
+      ansible.builtin.set_fact:
+        podman_auth_updates_decrypt: "{{ podman_auth_updates }}"
+
     - name: PODMAN | Add credHelpers to the auth.json data
       ansible.builtin.set_fact:
-        podman_updated_auth_data: "{{ podman_auth_data | default({}) | combine(podman_auth_updates, recursive=True) }}"
+        podman_updated_auth_data: "{{ podman_auth_data | default({}) | combine(podman_auth_updates_decrypt | from_yaml, recursive=True) }}"
 
     - name: PODMAN | Write updated auth.json
       ansible.builtin.copy:
