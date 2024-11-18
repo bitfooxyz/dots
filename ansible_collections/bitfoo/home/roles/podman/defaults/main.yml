@@ -1,5 +1,6 @@
 ---
 podman_enable_podman_desktop: true
+podman_force_docker_credential_helper_install: false
 podman_force_docker_ecr_credential_helper_install: false
 
 # Variable for updating the Podman auth.json file with arbitrary data structures.
