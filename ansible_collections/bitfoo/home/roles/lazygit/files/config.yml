@@ -82,13 +82,13 @@ customCommands:
       {{- if eq .Form.Type "feat" }}{{ $icon = ":sparkles:" }}
       {{- else if eq .Form.Type "fix" }}{{ $icon = ":bug:" }}
       {{- else if eq .Form.Type "docs" }}{{ $icon = ":books:" }}
-      {{- else if eq .Form.Type "style" }}{{ $icon = ":style:" }}
-      {{- else if eq .Form.Type "refactor" }}{{ $icon = ":refactor:" }}
-      {{- else if eq .Form.Type "perf" }}{{ $icon = ":perf:" }}
-      {{- else if eq .Form.Type "test" }}{{ $icon = ":test:" }}
-      {{- else if eq .Form.Type "build" }}{{ $icon = ":build:" }}
-      {{- else if eq .Form.Type "ci" }}{{ $icon = ":ci:" }}
-      {{- else if eq .Form.Type "chore" }}{{ $icon = ":chore:" }}
+      {{- else if eq .Form.Type "style" }}{{ $icon = ":gem:" }}
+      {{- else if eq .Form.Type "refactor" }}{{ $icon = ":hammer:" }}
+      {{- else if eq .Form.Type "perf" }}{{ $icon = ":rocket:" }}
+      {{- else if eq .Form.Type "test" }}{{ $icon = ":rotating_light:" }}
+      {{- else if eq .Form.Type "build" }}{{ $icon = ":package:" }}
+      {{- else if eq .Form.Type "ci" }}{{ $icon = ":construction_worker:" }}
+      {{- else if eq .Form.Type "chore" }}{{ $icon = ":wrench:" }}
       {{- end }}
 
       git commit --message '{{ .Form.Type }}{{ if .Form.Scope }}({{ .Form.Scope }}){{ end }}{{.Form.Breaking}}: {{ $icon }} {{ if .Form.Story }}({{ .Form.Story }}) {{ end }}{{ .Form.Message }}'
