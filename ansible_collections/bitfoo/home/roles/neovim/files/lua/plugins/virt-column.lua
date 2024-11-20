@@ -4,9 +4,7 @@ return {
     opts = {
       virtcolumn = "80,100,120,140",
       exclude = {
-        filetypes = {
-          vim.g.disabled_filetypes,
-        },
+        filetypes = vim.g.disabled_filetypes,
       },
     },
   },

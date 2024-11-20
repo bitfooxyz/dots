@@ -4,6 +4,10 @@ return {
     main = "ibl",
     ---@module 'ibl'
     ---@type ibl.config
-    opts = { exclude = { filetypes = vim.g.disabled_filetypes } },
+    opts = {
+      exclude = {
+        filetypes = vim.g.disabled_filetypes,
+      },
+    },
   },
 }
