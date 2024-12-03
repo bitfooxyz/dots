@@ -163,6 +163,10 @@ return {
         },
         basedpyright = {
           settings = {
+            python = {
+              pythonPath = ".venv/bin/python3",
+              -- venvPath = ".venv",
+            },
             basedpyright = {
               -- Using Ruff's import organizer
               disableOrganizeImports = true,
