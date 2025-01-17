@@ -1,0 +1,8 @@
+---
+- name: Ensure the .netrc file exists with proper content and permissions
+  template:
+    src: netrc.j2
+    dest: "{{ netrc_path}}"
+    mode: '0600'
+  when: netrc_machines | length > 0
+  no_log: true

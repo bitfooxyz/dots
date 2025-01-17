@@ -1,0 +1,5 @@
+{% for config in netrc_machines %}
+machine {{ config.machine }}
+login {{ config.login }}
+password {{ config.password }}
+{% endfor %}

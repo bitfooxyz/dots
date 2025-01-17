@@ -1,0 +1,11 @@
+---
+netrc_path: "{{ ansible_user_dir }}/.netrc"
+netrc_machines: []
+# Example:
+# netrc_machines:
+# - machine: example.com
+#   login: your-username
+#   password: your-password
+# - machine: example.org
+#   login: your-username
+#   password: your-password
