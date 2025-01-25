@@ -132,6 +132,7 @@ return {
       --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
+      capabilities.textDocument.completion.completionItem.snippetSupport = true
 
       -- Enable the following language servers
       --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
@@ -150,6 +151,7 @@ return {
         jsonls = {
           schemas = require("schemastore").json.schemas(),
           validate = { enable = true },
+          capabilities = capabilities,
         },
         yamlls = {
           schemaStore = {
@@ -171,7 +173,7 @@ return {
               -- Using Ruff's import organizer
               disableOrganizeImports = true,
               analysis = {
-                typeCheckingMode = "all",
+                typeCheckingMode = "recommended",
                 autoImportCompletions = true,
                 autoSearchPaths = true,
                 diagnosticMode = "openFilesOnly",
@@ -192,6 +194,19 @@ return {
           },
         },
         prettier = {},
+        html = {
+          capabilities = capabilities,
+        },
+        cssls = {
+          capabilities = capabilities,
+        },
+        emmet_ls = {},
+        eslint = {},
+        htmx = {},
+        jinja_lsp = {
+          filetypes = { "html", "jinja", "htmldjango" },
+        },
+        ts_ls = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
