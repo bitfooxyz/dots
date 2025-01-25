@@ -1,13 +1,24 @@
 ---
+applications_homebrew_packages:
+  - nvtop
+  - sqlite
 applications_homebrew_cask_packages:
   - android-file-transfer
   - bitwarden
   - caffeine
+  - db-browser-for-sqlite
+  - ea
+  - firefox
   - ferdium
+  - heroic
+  - lm-studio
   - logi-options-plus
   - nextcloud
+  - rectangle
   - spotify
+  - steam
   - utm
+  - visual-studio-code
 
 aws_cli_credentials: !vault |
   $ANSIBLE_VAULT;1.1;AES256

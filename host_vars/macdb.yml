@@ -1,13 +1,19 @@
 # Mac Work
+applications_homebrew_packages:
+  - nvtop
+  - sqlite
 applications_homebrew_cask_packages:
   - amazon-workspaces
   - caffeine
+  - db-browser-for-sqlite
   - keepassxc
   - logi-options-plus
   - microsoft-remote-desktop
   - onedrive
   - rectangle
+  - rectangle
   - spotify
+  - visual-studio-code
 
 # Work related path to change username and email
 git_include_if:
